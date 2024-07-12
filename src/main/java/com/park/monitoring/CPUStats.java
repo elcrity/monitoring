@@ -1,6 +1,13 @@
 package com.park.monitoring;
 
 public class CPUStats {
+    // user : 유저 모드에서 사용한 시간
+    // nice : 유저모드에서 우선수위가 낮은 프로세스에 사용한 시간
+    // system : 시스템에서 사용한 시간
+    // idle : cpu유휴 시간
+    // iowait : 입출력 종료까지 대기한 시간
+    // irq : 하드웨어 인터럽트에 사용한 시간
+    // softirq : 소프트웨어 인터럽트에 사용한 시간
     private long user;
     private long nice;
     private long system;
