@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>회원가입</title>
+</head>
+<script th:inline="javascript">
+  var data = [[${user}]]
+
+</script>
+<body>
+	<form action="/user/create" th:object="${user}" method="post">
+		아이디 : <input id="name" type="text" th:field="*{name}" /> <br>
+		이메일 : <input id="email" type="email" th:field="*{email}"> <br>
+		비밀번호 : <input id="passwd" type="password" th:field="*{passwd}"><br>
+		<button type="submit">가입</button>
+	</form>
+</body>
+</html>
