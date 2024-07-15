@@ -30,10 +30,9 @@ public class BoardController {
 
     @GetMapping("/{id}")
     public String getBoardById(@PathVariable Long id, Model model) {
-//        Board board = boardService.getBoardById(id);
-//        model.addAttribute("board", board);
-//        return "detail";
-        throw new RuntimeException("컨트롤러 널 테스트");
+        Board board = boardService.getBoardById(id);
+        model.addAttribute("board", board);
+        return "detail";
     }
 //
 //    @GetMapping("/form")
