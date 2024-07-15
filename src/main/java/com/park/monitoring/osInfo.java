@@ -29,6 +29,7 @@ public class osInfo {
         scheduledFuture = scheduler.scheduleAtFixedRate(this::executeTasks, 0, 5, TimeUnit.SECONDS);
         return "os";
     }
+
     @GetMapping("/exit")
     public String exitInfo() {
         if (scheduledFuture != null) {
@@ -77,7 +78,8 @@ public class osInfo {
                 long diskFree = root.getFreeSpace();
                 long diskUsed = diskTotal - diskFree;
                 String diskUsedRate = String.format("%.2f", ((double) diskUsed / diskTotal) * 100);
-
+                String diskName = root.getName();
+                log.info("DIsk Name : {}", diskName);
                 log.info("Disk Total : {}GB", diskTotal / (1024 * 1024 * 1024));
                 log.info("Disk Free : {}GB", diskFree / (1024 * 1024 * 1024));
                 log.info("Disk Usage : {}%", (diskUsedRate));
@@ -117,8 +119,7 @@ public class osInfo {
                 log.info("Idle CPU Time : {}", idleTimeDiff);
                 log.info("CPU Usage%: {}%", percentCpuUsage);
             }
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             log.error("CPU Usage Linux I/O에러 {}", e.toString());
         } finally {
             // BufferedReader 닫기
@@ -159,16 +160,19 @@ public class osInfo {
         log.info("Process Load : {}% ", String.format("%.2f", ProcessLoad * 100));
         log.info("Cpu Object Name : {} ", cpuObjectName);
         log.info("Cpu Usage : {}%", cpuUsage);
-
-
     }
 
     public static void getMemory() {
+//        System 메모리
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
         long sysFreeMemory = (osBean.getFreeMemorySize());
         long sysTotalMemory = (osBean.getTotalMemorySize());
         long sysUsedMemory = sysTotalMemory - sysFreeMemory;
         String sysSharedMemory = String.format("%.2f", ((double) sysUsedMemory / sysTotalMemory) * 100);
+
+        log.info("System Free Memory : {}MB ", sysFreeMemory / (1024 * 1024));
+        log.info("System Total Memory : {}MB ", sysTotalMemory / (1024 * 1024));
+        log.info("System Used Memory : {}% ", sysSharedMemory);
 
         //Runtime 메모리
 //        long totalMemory = Runtime.getRuntime().totalMemory();
@@ -180,9 +184,6 @@ public class osInfo {
 //        log.info("---Runtime totalMemoryMB---- {}MB ", totalMemory/ (1024 * 1024));
 //        log.info("---Runtime usedMemoryMB---- {}MB ", usedMemory/ (1024 * 1024));
 //        log.info("---Runtime maxMemory()---- {}MB ", maxMemory/ (1024 * 1024));
-        log.info("System Free Memory : {}MB ", sysFreeMemory / (1024 * 1024));
-        log.info("System Total Memory : {}MB ", sysTotalMemory / (1024 * 1024));
-        log.info("System Used Memory : {}% ", sysSharedMemory);
 //        log.info("---memoryBean.getObjectName();---- {} ", memoryBean.getObjectName());
         //System 메모리
 

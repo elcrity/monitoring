@@ -2,51 +2,35 @@ package com.park.monitoring.controller;
 
 import com.park.monitoring.model.Board;
 import com.park.monitoring.service.BoardService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = boardController.class)
+@WebMvcTest(controllers = BoardController.class)
 public class boardControllerTest {
-//    @Autowired
-//    MockMvc mvc;
-//
-//    @MockBean
-//    BoardService boardService;
-//
-//    @Test
-//    @DisplayName("게시글 전체 조회 test")
-//    void getBoardAll() throws Exception {
-//        // Given
-//        List<Board> boards = new ArrayList<>();
-//        boards.add(new Board.Builder()
-//                .id(1L)
-//                .title("제목1")
-//                .content("내용1")
-//                .build());
-//
-//        // Mock service method to return mock data
-//        when(boardService.getAllBoards()).thenReturn(boards);
-//
-//        // When & Then
-//        mvc.perform(MockMvcRequestBuilders.get("/board"))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(MockMvcResultMatchers.view().name("board")) // View 이름이 "board"인지 확인
-//                .andExpect(MockMvcResultMatchers.model().attributeExists("boards")); // Model에 "boards" 속성이 존재하는지 확인
-//    }
+    @Autowired
+    BoardService boardService;
+    BoardController boardController;
+
+    @BeforeEach
+    void init() {
+        boardController = new BoardController(boardService);
+    }
+
+    @Test
+    @DisplayName("게시글 전체 조회 test")
+    void getBoardAll() throws Exception {
+        // Given
+         List<Board> boards = boardService.getAllBoards();
+
+    }
 //
 //    @Test
 //    @DisplayName("게시글 상세 조회 test")

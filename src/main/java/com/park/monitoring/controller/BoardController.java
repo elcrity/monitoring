@@ -2,7 +2,8 @@ package com.park.monitoring.controller;
 
 import com.park.monitoring.model.Board;
 import com.park.monitoring.service.BoardService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,28 +11,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
-public class boardController {
+@RequestMapping("/board")
+public class BoardController {
 
+    private static final Logger log = LoggerFactory.getLogger(BoardController.class);
     private final BoardService boardService;
 
-    public boardController(BoardService boardService) {
+    public BoardController(BoardService boardService) {
         this.boardService = boardService;
     }
 
-    @GetMapping("/board")
+    @GetMapping()
     public String getAllBoards(Model model) {
-        List<Board> boards = boardService.getAllBoards();
-        model.addAttribute("boards", boards);
-        return "board";
+            List<Board> boards = boardService.getAllBoards();
+            model.addAttribute("boards", boards);
+            return "board";
     }
 
-//    @GetMapping("/{id}")
-//    public String getBoardById(@PathVariable Long id, Model model) {
+    @GetMapping("/{id}")
+    public String getBoardById(@PathVariable Long id, Model model) {
 //        Board board = boardService.getBoardById(id);
 //        model.addAttribute("board", board);
 //        return "detail";
-//    }
+        throw new RuntimeException("컨트롤러 널 테스트");
+    }
 //
 //    @GetMapping("/form")
 //    public String showBoardForm(Model model) {

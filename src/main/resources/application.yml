@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: monitoring
+  profiles:
+    active: local
+server:
+  error:
+    whitelabel:
+      enabled: false

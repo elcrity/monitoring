@@ -11,6 +11,7 @@ public class BoardService {
 
     private final BoardMapper boardMapper;
 
+
     public BoardService(BoardMapper boardMapper) {
         this.boardMapper = boardMapper;
     }
@@ -37,5 +38,11 @@ public class BoardService {
 
     public Long getNextAutoIncrementNum() {
         return boardMapper.getNextAutoIncrementNum();
+    }
+}
+
+class BoardServiceException extends RuntimeException {
+    public BoardServiceException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }
