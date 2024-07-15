@@ -94,8 +94,9 @@ public class boardServiceTest {
         assertInstanceOf(SQLIntegrityConstraintViolationException.class, thrown.getCause());
         assertTrue(thrown.getMessage().contains("'title' cannot be null"));
 
+//        unique, key값 중복일때 테스트
 
-
+//        타입 미스매치일때 테스트
     }
 //
 //    @Test
