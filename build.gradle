@@ -21,6 +21,8 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
     implementation 'com.github.oshi:oshi-core:6.4.0'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.8'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
@@ -29,6 +31,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
     testImplementation 'com.h2database:h2'
+
 }
 
 war {

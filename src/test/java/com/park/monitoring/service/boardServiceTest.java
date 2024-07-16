@@ -87,14 +87,18 @@ public class boardServiceTest {
                 .build();
         //when
         Board errBoard = board;
-        Throwable thrown = assertThrows(DataIntegrityViolationException.class, () ->{
+        Throwable errThrown = assertThrows(DataIntegrityViolationException.class, () ->{
             boardService.insertBoard(errBoard);
         });
 
-        assertInstanceOf(SQLIntegrityConstraintViolationException.class, thrown.getCause());
-        assertTrue(thrown.getMessage().contains("'title' cannot be null"));
+        assertInstanceOf(SQLIntegrityConstraintViolationException.class, errThrown.getCause());
+        assertTrue(errThrown.getMessage().contains("'title' cannot be null"));
 
 //        unique, key값 중복일때 테스트
+        Board dupBoard = board;
+        Throwable dupThrown = assertThrows(DataIntegrityViolationException.class, () ->{
+            boardService.insertBoard(errBoard);
+        });
 
 //        타입 미스매치일때 테스트
     }

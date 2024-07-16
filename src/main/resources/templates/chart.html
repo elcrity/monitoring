@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<title>Chart.js Example</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="/js/line-chart.js"></script>
+	<script src="/js/bar-chart.js"></script>
+	<script src="/js/doughnut-chart.js"></script>
+</head>
+<body>
+	<h1>Acquisitions by Year</h1>
+	<div style="text-align: center; width:100%">
+		<!-- Doughnut Chart 1 -->
+<!--		<select>-->
+<!--			<option value="option1">옵션 1</option>-->
+<!--			<option value="option2">옵션 2</option>-->
+<!--		</select>-->
+		<div style="width:45%; float: left;">
+			<canvas id="doughnut1"></canvas>
+		</div>
+		<!-- Doughnut Chart 2 -->
+		<div style="width:45%; float: left;">
+			<canvas id="doughnut2"></canvas>
+		</div>
+	</div>
+
+	<!-- Doughnut Chart 3 -->
+	<canvas id="doughnut3" style="display: block; margin: 20px auto; width: 300px; height: 300px;"></canvas>
+	<canvas id="acquisitions"></canvas>
+<!--	<canvas id="bar"></canvas>-->
+<!--	<canvas id="doughnut"></canvas>-->
+</body>
+</html>

@@ -21,19 +21,19 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    @GetMapping()
-    public String getAllBoards(Model model) {
-            List<Board> boards = boardService.getAllBoards();
-            model.addAttribute("boards", boards);
-            return "board";
-    }
-
-    @GetMapping("/{id}")
-    public String getBoardById(@PathVariable Long id, Model model) {
-        Board board = boardService.getBoardById(id);
-        model.addAttribute("board", board);
-        return "detail";
-    }
+//    @GetMapping()
+//    public String getAllBoards(Model model) {
+//            List<Board> boards = boardService.getAllBoards();
+//            model.addAttribute("boards", boards);
+//            return "board";
+//    }
+//
+//    @GetMapping("/{id}")
+//    public String getBoardById(@PathVariable Long id, Model model) {
+//        Board board = boardService.getBoardById(id);
+//        model.addAttribute("board", board);
+//        return "detail";
+//    }
 //
 //    @GetMapping("/form")
 //    public String showBoardForm(Model model) {
