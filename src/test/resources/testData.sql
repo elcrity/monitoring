@@ -1,6 +1,11 @@
-insert into board (title, content)
-values ('제목1', '내용1'),
-       ('제목2', '내용2'),
-       ('제목3', '내용3'),
-       ('제목4', '내용4'),
-       ('제목5', '내용5');
+INSERT INTO `server_info` (`server_id`, `server_os`, `server_hostname`, `memory_total`, `purpose`, `server_ip`) VALUES
+                                                                                                                    (1, 'Linux', 'server1.example.com', 16384, 'Web Server', '192.168.1.1'),
+                                                                                                                    (2, 'Windows', 'server2.example.com', 32768, 'Database Server', '192.168.1.2'),
+                                                                                                                    (3, 'Linux', 'server3.example.com', 8192, 'File Server', '192.168.1.3'),
+                                                                                                                    (4, 'Windows', 'server4.example.com', 16384, 'Application Server', '192.168.1.4'),
+                                                                                                                    (5, 'Linux', 'server5.example.com', 65536, 'Backup Server', '192.168.1.5'),
+                                                                                                                    (6, 'Windows', 'server6.example.com', 32768, 'Email Server', '192.168.1.6'),
+                                                                                                                    (7, 'Linux', 'server7.example.com', 8192, 'DNS Server', '192.168.1.7'),
+                                                                                                                    (8, 'Windows', 'server8.example.com', 16384, 'FTP Server', '192.168.1.8'),
+                                                                                                                    (9, 'Linux', 'server9.example.com', 32768, 'Proxy Server', '192.168.1.9'),
+                                                                                                                    (10, 'Windows', 'server10.example.com', 65536, 'Domain Controller', '192.168.1.10');

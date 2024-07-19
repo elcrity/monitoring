@@ -13,12 +13,17 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @ExtendWith(SpringExtension.class)
 @MybatisTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 @ActiveProfiles("local")
-//@Sql({"classpath:testTable.sql", "classpath:testData.sql"})
+@Sql({"classpath:testTable.sql", "classpath:testData.sql"})
 public class ServerInfoMapperTest {
     private static final Logger log = LoggerFactory.getLogger(ServerInfoMapperTest.class);
 
@@ -29,7 +34,9 @@ public class ServerInfoMapperTest {
 
     @Test
     public void getAllServerInfo(){
-
+        List<ServerInfo> servers = serverInfoMapper.getAllServerInfo();
+        assertNotNull(servers);
+        assertEquals(servers.size(), 10);
     }
 
 }
