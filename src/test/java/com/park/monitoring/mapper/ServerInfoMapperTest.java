@@ -1,6 +1,7 @@
 package com.park.monitoring.mapper;
 
 import com.park.monitoring.model.ServerInfo;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.slf4j.Logger;
@@ -17,12 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 @ActiveProfiles("local")
-@Sql({"classpath:testTable.sql", "classpath:testData.sql"})
+//@Sql({"classpath:testTable.sql", "classpath:testData.sql"})
 public class ServerInfoMapperTest {
     private static final Logger log = LoggerFactory.getLogger(ServerInfoMapperTest.class);
+
     @Autowired
-    private BoardMapper boardMapper;
+    private ServerInfoMapper serverInfoMapper;
 
     private ServerInfo serverInfo;
+
+    @Test
+    public void getAllServerInfo(){
+
+    }
 
 }

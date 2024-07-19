@@ -1,9 +1,11 @@
 package com.park.monitoring.mapper;
 
 import com.park.monitoring.model.ServerInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+@Mapper
 public interface ServerInfoMapper {
     List<ServerInfo> getAllServerInfo();
     ServerInfo getServerInfoById(int id);
