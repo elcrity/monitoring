@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.park.monitoring.mapper.ServerInfoMapper">
+    <select id="getAllServerInfo" resultType="com.park.monitoring.model.Board">
+        SELECT * from server_info;
+    </select>
+    <select id="getServerInfoById" parameterType="long" resultType="com.park.monitoring.model.Board">
+        SELECT * from server_info where id=#{id};
+    </select>
+    <insert id="addServerInfo" parameterType="com.park.monitoring.model.Board">
+        INSERT INTO server_info (server_os, server_hostname,memory_total, purpose, server_ip)
+        value(#{os} , #{hostname}, #{memory_total});
+    </insert>
+    <update id="updateServerInfo" parameterType="com.park.monitoring.model.Board">
+        UPDATE server_info
+        set serer_os=#{os}, server_hostname=#{hostname},
+        memory_total=#{memory_total}, purpose=#{purpose}, sever_ip=#{server_ip}
+        where id=#{id};
+    </update>
+    <delete id="deleteServerInfoById" parameterType="long">
+        DELETE FROM service_info
+        Where id=#{server_id};
+    </delete>
+</mapper>

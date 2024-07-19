@@ -1,7 +1,4 @@
-spring:
-#  config:
-#    activate:
-#      on-profile: local
+
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://192.168.2.61:3306/monitoring
@@ -13,13 +10,8 @@ spring:
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
 
-# Spring Boot 액추에이터의 웹 엔드포인트 중 어떤 것들을 노출할 것인지 지정
-management:
-  endpoints:
-    web:
-      base-path: /management
-      exposure:
-        include: health, info, metrics
+
+
 #  metrics:
 #    #   Micrometer를 통해 수집된 Metric 데이터를 Prometheus 형식으로 노출할지 여부를 결정
 #    export:
