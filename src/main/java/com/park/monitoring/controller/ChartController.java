@@ -14,6 +14,10 @@ import java.util.List;
 @Controller
 public class ChartController {
 
+    @GetMapping("/monitor")
+    public String insight(){
+        return "insight";
+    }
     @GetMapping("/chart")
     public String chart() {
         return "chart";
@@ -26,19 +30,30 @@ class AcquisitionController {
     @GetMapping("/api/acquisitions")
     public List<LineChartData> getAcquisitions() {
         return List.of(
-                new LineChartData(2010, 10),
-                new LineChartData(2011, 20),
-                new LineChartData(2012, 15),
-                new LineChartData(2013, 25),
-                new LineChartData(2014, 22),
-                new LineChartData(2015, 30),
-                new LineChartData(2016, 28),
-                new LineChartData(2017, 18),
-                new LineChartData(2018, 38),
-                new LineChartData(2019, 55),
-                new LineChartData(2020, 25),
-                new LineChartData(2021, 68),
-                new LineChartData(2022, 18)
+                new LineChartData("2022.01", 12),
+                new LineChartData("2022.02", 27),
+                new LineChartData("2022.03", 56),
+                new LineChartData("2022.04", 28),
+                new LineChartData("2022.05", 60),
+                new LineChartData("2022.06", 123),
+                new LineChartData("2022.07", 23),
+                new LineChartData("2022.08", 96),
+                new LineChartData("2022.09", 58),
+                new LineChartData("2022.10", 220),
+                new LineChartData("2022.11", 82),
+                new LineChartData("2022.12", 144),
+                new LineChartData("2023.01", 12),
+                new LineChartData("2023.02", 24),
+                new LineChartData("2023.03", 36),
+                new LineChartData("2023.04", 28),
+                new LineChartData("2023.05", 60),
+                new LineChartData("2023.06", 172),
+                new LineChartData("2023.07", 84),
+                new LineChartData("2023.08", 96),
+                new LineChartData("2023.09", 58),
+                new LineChartData("2023.10", 120),
+                new LineChartData("2023.11", 82),
+                new LineChartData("2023.12", 144)
         );
     }
 

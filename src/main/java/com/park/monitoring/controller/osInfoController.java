@@ -1,5 +1,6 @@
-package com.park.monitoring;
+package com.park.monitoring.controller;
 
+import com.park.monitoring.CPUStats;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,12 +15,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-//Todo :
 
 @RequestMapping("/os")
 @Controller
-public class osInfo {
-    private static final Logger log = LoggerFactory.getLogger(osInfo.class);
+public class osInfoController {
+    private static final Logger log = LoggerFactory.getLogger(osInfoController.class);
     private CPUStats cpuStats = null;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static ScheduledFuture<?> scheduledFuture;
@@ -28,15 +28,6 @@ public class osInfo {
     public String infoTest() {
         scheduledFuture = scheduler.scheduleAtFixedRate(this::executeTasks, 0, 5, TimeUnit.SECONDS);
         return "os";
-    }
-
-    @GetMapping("/exit")
-    public String exitInfo() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(false); // Set to true to interrupt if running
-        }
-        scheduler.shutdown(); // Shutdown the scheduler
-        return "/";
     }
 
     private void executeTasks() {
@@ -79,7 +70,8 @@ public class osInfo {
                 long diskUsed = diskTotal - diskFree;
                 String diskUsedRate = String.format("%.2f", ((double) diskUsed / diskTotal) * 100);
                 String diskName = root.getName();
-                log.info("DIsk Name : {}", diskName);
+
+                log.info("Disk Name : {}", diskName);
                 log.info("Disk Total : {}GB", diskTotal / (1024 * 1024 * 1024));
                 log.info("Disk Free : {}GB", diskFree / (1024 * 1024 * 1024));
                 log.info("Disk Usage : {}%", (diskUsedRate));
@@ -153,12 +145,9 @@ public class osInfo {
         double ProcessLoad = osBean.getProcessCpuLoad();
         String cpuVersion = osBean.getVersion();
         int availableProcessors = osBean.getAvailableProcessors();
-        String cpuObjectName = osBean.getVersion();
         String cpuUsage = String.format("%.2f", osBean.getCpuLoad() * 100);
-        double cpuProcessUsage = osBean.getAvailableProcessors();
-        log.info("Cpu Info : {}.{}.{}", cpuName, cpuArch, hostname);
+        log.info("Cpu Info : {}.{}.{}.{}", cpuName,cpuVersion, cpuArch, hostname);
         log.info("Process Load : {}% ", String.format("%.2f", ProcessLoad * 100));
-        log.info("Cpu Object Name : {} ", cpuObjectName);
         log.info("Cpu Usage : {}%", cpuUsage);
     }
 

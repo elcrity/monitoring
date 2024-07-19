@@ -30,6 +30,7 @@
   const response3 = await fetch('/api/doughnut/3');
   const doughnutChartData3 = await response3.json();
 
+    document.getElementById('doughnut1-center-text').innerText = doughnutChartData1.data[0].toString();
   // 차트 그리기
   new Chart(
   document.getElementById('doughnut1'),
