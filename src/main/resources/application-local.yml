@@ -1,8 +1,7 @@
-#DB관련
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://192.168.2.66:3306/monitoring
+    url: jdbc:mariadb://192.168.2.61:3306/test_monitoring
     username: park
     password: gupark
   thymeleaf:
@@ -10,13 +9,13 @@ spring:
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.park.monitoring.model
+  configuration:
+    map-underscore-to-camel-case: true
 
-#에러페이지
 server:
   error:
     include-exception: true
-
-
 
 management:
   endpoints:

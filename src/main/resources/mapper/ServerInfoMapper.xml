@@ -3,24 +3,29 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.park.monitoring.mapper.ServerInfoMapper">
-    <select id="getAllServerInfo" resultType="com.park.monitoring.model.Board">
-        SELECT * from server_info;
+    <select id="getAllServerInfo" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT *
+        FROM server_info;
     </select>
-    <select id="getServerInfoById" parameterType="long" resultType="com.park.monitoring.model.Board">
-        SELECT * from server_info where id=#{id};
+    <select id="getServerInfoById" parameterType="Long" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT *
+        FROM server_info WHERE server_id=#{id};
     </select>
-    <insert id="addServerInfo" parameterType="com.park.monitoring.model.Board">
-        INSERT INTO server_info (server_os, server_hostname,memory_total, purpose, server_ip)
-        value(#{os} , #{hostname}, #{memory_total});
+    <select id="getServerInfoByIp" parameterType="String" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT *
+        FROM server_info WHERE server_ip=#{ip};
+    </select>
+    <insert id="addServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
+        INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
+        VALUES (#{serverOs}, #{serverHostname}, #{memoryTotal}, #{purpose}, #{serverIp});
     </insert>
-    <update id="updateServerInfo" parameterType="com.park.monitoring.model.Board">
+    <update id="updateServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         UPDATE server_info
-        set serer_os=#{os}, server_hostname=#{hostname},
-        memory_total=#{memory_total}, purpose=#{purpose}, sever_ip=#{server_ip}
-        where id=#{id};
+        SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose}, server_ip=#{serverIp}
+        WHERE server_id=#{serverId};
     </update>
     <delete id="deleteServerInfoById" parameterType="long">
-        DELETE FROM service_info
-        Where id=#{server_id};
+        DELETE FROM server_info
+        WHERE server_id=#{serverId};
     </delete>
 </mapper>

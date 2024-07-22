@@ -6,8 +6,13 @@ spring:
     password: gupark
   thymeleaf:
     cache: false
+
+
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.park.monitoring.model
+  configuration:
+    map-underscore-to-camel-case: true
 
 management:
   endpoints:

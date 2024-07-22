@@ -1,7 +1,7 @@
-
+spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://192.168.2.61:3306/monitoring
+    url: jdbc:mariadb://192.168.2.61:3306/test_monitoring
     username: park
     password: gupark
   thymeleaf:
@@ -9,24 +9,17 @@
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.park.monitoring.model
+  configuration:
+    map-underscore-to-camel-case: true
 
+server:
+  error:
+    include-exception: true
 
-
-#  metrics:
-#    #   Micrometer를 통해 수집된 Metric 데이터를 Prometheus 형식으로 노출할지 여부를 결정
-#    export:
-#      prometheus:
-#        enabled: true
-#    #   HTTP 요청의 처리 시간을 자동으로 측정하여 Metric으로 수집하도록 지정
-#    web:
-#      server:
-#        auto-time-requests: true
-
-
-#spring.config.activate.on-profile=h2
-#spring.h2.console.path=/h2-console
-#spring.datasource.driver-class-name=org.h2.Driver
-#spring.datasource.url=jdbc:h2:mem:testdb
-#spring.datasource.username=sa
-
-#spring.datasource.password=
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include: health, info, metrics
