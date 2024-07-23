@@ -2,17 +2,17 @@ package com.park.monitoring.service;
 
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class ServerInfoService {
+    Logger log = LoggerFactory.getLogger(this.getClass());
 
     ServerInfoMapper serverInfoMapper;
 
@@ -28,20 +28,6 @@ public class ServerInfoService {
         return serverInfos;
     }
 
-    public ServerInfo findServerInfoByIp(String ip) {
-        if (ip == null) {
-            throw new IllegalArgumentException("입력된 IP가 null입니다.");
-        }
-        ServerInfo serverInfo = serverInfoMapper.getServerInfoByIp(ip);
-        if (serverInfo == null) {
-            throw new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음.");
-        }
-        if (serverInfo.getServerIp() == null) {
-            throw new IllegalStateException("데이터의 필수 값이 null입니다.");
-        }
-        return serverInfo;
-    }
-
     public ServerInfo findServerInfoById(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
@@ -49,9 +35,6 @@ public class ServerInfoService {
         ServerInfo serverInfo = serverInfoMapper.getServerInfoById(id);
         if (serverInfo == null) {
             throw new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음.");
-        }
-        if (serverInfo.getServerIp() == null) {
-            throw new IllegalStateException("데이터의 필수 값이 null입니다.");
         }
         return serverInfo;
     }
@@ -61,35 +44,45 @@ public class ServerInfoService {
             throw new IllegalStateException("데이터의 필수 값이 null입니다.");
         }
         try {
-            return serverInfoMapper.addServerInfo(serverInfo);
+            return serverInfoMapper.insertServerInfo(serverInfo);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("데이터 무결성 위반: " + e.getMessage(), e);
-        } catch (IllegalArgumentException e){
-            throw new IllegalArgumentException("잘못된 인수 전달: " + e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("잘못된 값 전달: " + e.getMessage(), e);
         }
     }
 
 
     public int updateServerInfo(ServerInfo serverInfo) {
         if (serverInfo.getServerId() == null) {
-            throw new IllegalArgumentException("서버 ID가 null입니다.");
+            throw new IllegalArgumentException("서버 id를 확인해주세요");
+        }
+        if (serverInfo == null) {
+            throw new IllegalArgumentException("수정할 Server 데이터가 null입니다.");
+        }
+        if(serverInfo.getServerIp() == null){
+            throw new IllegalArgumentException("입력된 데이터를 확인해주세요. Ip주소 없음");
+        }
+        if (serverInfoMapper.getServerInfoById(serverInfo.getServerId()) == null) {
+            throw new NoSuchElementException("ID가 " + serverInfo.getServerId() + "인 Server가 존재하지 않습니다.");
         }
         //필수값 없음, 타입 미스매치
-        try {
-            if(serverInfoMapper.getServerInfoById(serverInfo.getServerId()) == null)
-                throw new NoSuchElementException("존재하지 않는 서버 ID입니다.");
-            return serverInfoMapper.updateServerInfo(serverInfo);
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("데이터 무결성 위반: " + e.getMessage(), e);
+        int result = serverInfoMapper.updateServerInfo(serverInfo);
+        if (result == 0) {
+            throw new NoSuchElementException("수정에 실패했습니다.");
         }
+        return result;
+
     }
 
-    public int deleteServerInfoById(Long id) {
+    public int deleteServerInfo(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }
         int result = serverInfoMapper.deleteServerInfoById(id);
-        if(result == 1) return result;
-        else throw new NoSuchElementException("존재하지 않는 id. 삭제 실패");
+        if (result == 1) return result;
+        else {
+            throw new NoSuchElementException("존재하지 않는 id. 삭제 실패");
+        }
     }
 }

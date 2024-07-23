@@ -17,11 +17,12 @@ CREATE TABLE server_info (
 -- disk 테이블 생성
 CREATE TABLE disk (
                         disk_id BIGINT NOT NULL AUTO_INCREMENT,
-                        created_date DATETIME NULL,
-                        disk_sys_info_fk BIGINT NOT NULL,
                         disk_name VARCHAR(255) NULL,
+                        disk_total bigint NOT NULL ,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        disk_server_info_fk BIGINT NOT NULL,
                         PRIMARY KEY (disk_id),
-                        FOREIGN KEY (disk_sys_info_fk) REFERENCES server_info(server_id) ON DELETE CASCADE
+                        FOREIGN KEY (disk_server_info_fk) REFERENCES server_info(server_id) ON DELETE CASCADE
 );
 
 -- metric_logs 테이블 생성

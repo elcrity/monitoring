@@ -11,11 +11,7 @@
         SELECT *
         FROM server_info WHERE server_id=#{id};
     </select>
-    <select id="getServerInfoByIp" parameterType="String" resultType="com.park.monitoring.model.ServerInfo">
-        SELECT *
-        FROM server_info WHERE server_ip=#{ip};
-    </select>
-    <insert id="addServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
+    <insert id="insertServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
         VALUES (#{serverOs}, #{serverHostname}, #{memoryTotal}, #{purpose}, #{serverIp});
     </insert>

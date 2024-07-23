@@ -9,3 +9,4 @@ VALUES ('Linux', 'server1.example.com', 16384, 'Web Server', '192.168.1.1'),
        ('Windows', 'server8.example.com', 16384, 'FTP Server', '192.168.1.8'),
        ('Linux', 'server9.example.com', 32768, 'Proxy Server', '192.168.1.9'),
        ('Windows', 'server10.example.com', 65536, 'Domain Controller', '192.168.1.10');
+select * from server_info;

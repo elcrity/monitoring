@@ -8,6 +8,9 @@ spring:
       enabled: true
     restart:
       enabled: true
+  sql:
+    init:
+      encoding:
 server:
   error:
     whitelabel:

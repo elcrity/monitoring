@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Server Information</title>
+	<style>
+       table {
+           width: 100%;
+           border-collapse: collapse;
+       }
+       table, th, td {
+           border: 1px solid black;
+       }
+       th, td {
+           padding: 8px;
+           text-align: left;
+       }
+       th {
+           background-color: #f2f2f2;
+       }
+       #diskInfo {
+           position: fixed;
+           bottom: 0;
+           width: 100%;
+           height: 20%;
+           background-color: #f9f9f9;
+           border-top: 1px solid #ccc;
+           padding: 10px;
+           box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+           overflow-y: auto;
+       }
+       #diskInfo h2 {
+           margin-top: 0;
+       }
+	</style>
+</head>
+<body>
+	<h1>Server Information List</h1>
+	<table>
+		<thead>
+		<tr>
+			<th>Server ID</th>
+			<th>OS</th>
+			<th>Hostname</th>
+			<th>Total Memory</th>
+			<th>Purpose</th>
+			<th>IP Address</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr th:each="serverInfo : ${serverInfoList}"
+		    th:onclick="'fetchDiskInfo(' + ${serverInfo.serverId} + ')'">
+			<td th:text="${serverInfo.serverId}">Server ID</td>
+			<td th:text="${serverInfo.serverOs}">OS</td>
+			<td th:text="${serverInfo.serverHostname}">Hostname</td>
+			<td th:text="${serverInfo.memoryTotal}">Total Memory</td>
+			<td th:text="${serverInfo.purpose}">Purpose</td>
+			<td th:text="${serverInfo.serverIp}">IP Address</td>
+		</tr>
+		</tbody>
+	</table>
+
+	<div id="diskInfo">
+		<h2>Disk Information</h2>
+		<div id="diskContent">선택된 디스크 없음.</div>
+	</div>
+
+	<script th:inline="javascript">
+     // function loadInitialDiskInfo() {
+     //   document.getElementById('diskContent').innerHTML = '선택된 디스크 없음';
+     // }
+
+     function fetchDiskInfo(serverId) {
+       document.getElementById('diskInfo').style.display = 'block';
+       document.getElementById('diskContent').innerHTML = '로딩중...';
+
+       fetch(`/diskInfo/${serverId}`)
+          .then(response => response.json())
+          .then(disk => {
+            if (disk) {
+              let content = `<p>Disk ID: ${disk.diskId}</p>
+                              <p>Total: ${disk.diskTotal}</p>
+                              <p>Used: ${disk.diskUsed}</p>`;
+              document.getElementById('diskContent').innerHTML = content;
+            } else {
+              document.getElementById('diskContent').innerHTML = '이용 가능한 디스크 없음.';
+            }
+          })
+          .catch(error => {
+            document.getElementById('diskContent').innerHTML = '디스크 로딩중 에러.';
+            console.error('디스크 데이터 불러오기 실패:', error);
+          });
+     }
+
+     // loadInitialDiskInfo();
+	</script>
+</body>
+</html>

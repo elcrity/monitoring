@@ -13,7 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/test")
 public class homeController {
 	
 	private static final Logger log = LoggerFactory.getLogger(homeController.class);

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.park.monitoring.mapper.DiskMapper">
+    <select id="getAllDisk" resultType="com.park.monitoring.model.Disk">
+        SELECT *
+        FROM disk;
+    </select>
+    <select id="getDiskById" parameterType="Long" resultType="com.park.monitoring.model.Disk">
+        SELECT *
+        FROM disk WHERE disk_id=#{id};
+    </select>
+    <insert id="insertDisk" parameterType="com.park.monitoring.model.Disk">
+        INSERT INTO disk (disk_name, disk_total, disk_server_info_fk)
+        VALUES (#{diskName}, #{diskTotal}, #{diskServerInfoFk});
+    </insert>
+    <update id="updateDisk" parameterType="com.park.monitoring.model.Disk">
+        UPDATE disk
+        SET disk_name=#{diskName}, disk_total=#{diskTotal}, disk_server_info_fk=#{diskServerInfoFk}
+        WHERE disk_id=#{diskId};
+    </update>
+    <delete id="deleteDisk" parameterType="long">
+        DELETE FROM disk
+        WHERE disk_id=#{diskId};
+    </delete>
+</mapper>
