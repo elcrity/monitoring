@@ -3,11 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.park.monitoring.mapper.ServerInfoMapper">
-    <select id="getAllServerInfo" resultType="com.park.monitoring.model.ServerInfo">
+    <select id="selectAllServerInfo" resultType="com.park.monitoring.model.ServerInfo">
         SELECT *
         FROM server_info;
     </select>
-    <select id="getServerInfoById" parameterType="Long" resultType="com.park.monitoring.model.ServerInfo">
+    <select id="selectServerInfoById" parameterType="Long" resultType="com.park.monitoring.model.ServerInfo">
         SELECT *
         FROM server_info WHERE server_id=#{id};
     </select>
@@ -20,7 +20,7 @@
         SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose}, server_ip=#{serverIp}
         WHERE server_id=#{serverId};
     </update>
-    <delete id="deleteServerInfoById" parameterType="long">
+    <delete id="deleteServerInfoById" parameterType="Long">
         DELETE FROM server_info
         WHERE server_id=#{serverId};
     </delete>

@@ -7,8 +7,8 @@ import java.util.List;
 
 @Mapper
 public interface ServerInfoMapper {
-    List<ServerInfo> getAllServerInfo();
-    ServerInfo getServerInfoById(Long id);
+    List<ServerInfo> selectAllServerInfo();
+    ServerInfo selectServerInfoById(Long id);
     int insertServerInfo(ServerInfo serverInfo);
     int updateServerInfo(ServerInfo serverInfo);
     int deleteServerInfoById(Long id);

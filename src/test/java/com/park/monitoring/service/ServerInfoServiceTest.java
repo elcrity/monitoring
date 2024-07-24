@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
-@Sql({"classpath:sql/testTable.sql", "classpath:sql/testServerData.sql"})
+@Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
 public class ServerInfoServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
 

@@ -8,8 +8,8 @@ import java.util.List;
 @Mapper
 public interface DiskMapper {
 
-    List<Disk> getAllDisk();
-    Disk getDiskById(Long id);
+    List<Disk> selectAllDisk();
+    Disk selectDiskById(Long id);
     int insertDisk(Disk disk);
     int updateDisk(Disk disk);
     int deleteDisk(Long id);

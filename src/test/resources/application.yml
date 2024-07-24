@@ -1,11 +1,6 @@
 spring:
   application:
     name: monitoring
-  devtools:
-    livereload:
-      enabled: true
-    restart:
-      enabled: true
 server:
   error:
     whitelabel:

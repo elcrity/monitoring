@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://192.168.2.61:3306/test_monitoring
-    username: park
-    password: gupark
+    url: jdbc:mariadb://localhost:3306/test_monitoring
+    username: root
+    password: root
   thymeleaf:
     cache: false
 
@@ -16,10 +16,3 @@ mybatis:
 server:
   error:
     include-exception: true
-
-management:
-  endpoints:
-    web:
-      base-path: /management
-      exposure:
-        include: health, info, metrics

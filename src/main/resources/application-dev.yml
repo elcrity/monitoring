@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://192.168.2.61:3306/monitoring
+    url: jdbc:mariadb://localhost:3306/monitoring
     username: park
     password: gupark
   thymeleaf:
@@ -13,10 +13,3 @@ mybatis:
   type-aliases-package: com.park.monitoring.model
   configuration:
     map-underscore-to-camel-case: true
-
-management:
-  endpoints:
-    web:
-      base-path: /management
-      exposure:
-        include: health, info, metrics

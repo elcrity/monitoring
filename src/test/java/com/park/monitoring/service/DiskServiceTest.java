@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
-@Sql({"classpath:sql/testTable.sql", "classpath:sql/testServerData.sql","classpath:sql/testDiskData.sql"})
+@Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
 public class DiskServiceTest {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
@@ -42,10 +42,10 @@ public class DiskServiceTest {
     @Test
     void t01_testFindAll() {
         List<Disk> disks = diskService.findAllDisks();
-        assertThat(disks.size()).isEqualTo(20);
+        assertThat(disks.size()).isEqualTo(10);
     }
 
-    @DisplayName("디스크 데이터 조회")
+    @DisplayName("디스크 데이터 조회 - id")
     @Test
     void t02_testFindDisk_byId() {
         Long id = 2L;
@@ -79,7 +79,7 @@ public class DiskServiceTest {
                 .diskServerInfoFk(2L)
                 .build();
         diskService.insertDisk(disk);
-        assertThat(diskService.findDiskById(21L))
+        assertThat(diskService.findDiskById(11L))
                 .extracting(Disk::getDiskName)
                 .isEqualTo("I'm test");
     }

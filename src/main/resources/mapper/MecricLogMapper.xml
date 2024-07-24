@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.park.monitoring.mapper.MetricLogMapper">
+    <select id="selectLogAllByServerId" resultType="com.park.monitoring.model.MetricLog">
+        SELECT *
+        FROM metric_log
+        where server_metric_fk=#{serverId};
+    </select>
+    <select id="selectRecentLog" parameterType="Long" resultType="com.park.monitoring.model.MetricLog">
+        SELECT *
+        FROM metric_log
+        WHERE server_metric_fk=#{serverId}
+        ORDER BY created_date DESC
+        LIMIT 1;
+    </select>
+    <insert id="insertLog" parameterType="com.park.monitoring.model.MetricLog">
+        INSERT INTO metric_log (cpu_usage, memory_usage, server_metric_fk, created_date)
+        VALUES (#{cpuUsage}, #{memoryUsage}, #{serverMetricFk}, #{createdDate});
+    </insert>
+<!--    <update id="updateLog" parameterType="com.park.monitoring.model.MetricLog">-->
+<!--        UPDATE metric_log-->
+<!--        SET cpu_usage=#{cpuUsage}, memory_usage=#{memoryUsage}-->
+<!--        WHERE log_id=#{logId};-->
+<!--    </update>-->
+    <delete id="deleteLogBeforeTime" parameterType="java.time.LocalDateTime">
+        DELETE FROM metric_log
+        WHERE created_date
+        <![CDATA[
+        <
+        ]]>
+        #{timestamp};
+    </delete>
+</mapper>

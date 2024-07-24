@@ -20,17 +20,22 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
-@Sql({"classpath:sql/testTable.sql", "classpath:sql/testServerData.sql"})
+@Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
 public class ServerInfoMapperTest {
     private static final Logger log = LoggerFactory.getLogger(ServerInfoMapperTest.class);
 
-    @Autowired
     private ServerInfoMapper serverInfoMapper;
+
+    @Autowired
+    public ServerInfoMapperTest(ServerInfoMapper serverInfoMapper) {
+        this.serverInfoMapper = serverInfoMapper;
+
+    }
 
 
     @Test
     void getAllServerInfo(){
-        List<ServerInfo> servers = serverInfoMapper.getAllServerInfo();
+        List<ServerInfo> servers = serverInfoMapper.selectAllServerInfo();
 
         assertNotNull(servers);
         assertEquals(servers.size(), 10);
@@ -39,12 +44,12 @@ public class ServerInfoMapperTest {
     @Test
     void getServerInfo(){
         long serverId = 3L;
-        ServerInfo server = serverInfoMapper.getServerInfoById(serverId);
+        ServerInfo server = serverInfoMapper.selectServerInfoById(serverId);
         assertNotNull(server);
         assertThat(server.getServerHostname())
                 .isEqualTo("server3.example.com");
 
-        ServerInfo checkIdInfo = serverInfoMapper.getServerInfoById(serverId);
+        ServerInfo checkIdInfo = serverInfoMapper.selectServerInfoById(serverId);
         assertNotNull(checkIdInfo);
         assertThat(checkIdInfo.getServerId()).isEqualTo(serverId);
     }
@@ -75,7 +80,7 @@ public class ServerInfoMapperTest {
                 .serverIp("192.168.2.60")
                 .build();
         int result = serverInfoMapper.updateServerInfo(updateInfo);
-        ServerInfo updatedInfo = serverInfoMapper.getServerInfoById(serverId);
+        ServerInfo updatedInfo = serverInfoMapper.selectServerInfoById(serverId);
         assertEquals(1,  result);
 
         assertEquals("윈도우", updatedInfo.getServerOs());
@@ -88,10 +93,10 @@ public class ServerInfoMapperTest {
     @Test
     void deleteServerInfo() {
         long serverId = 1L;
-        ServerInfo serverInfo = serverInfoMapper.getServerInfoById(serverId);
+        ServerInfo serverInfo = serverInfoMapper.selectServerInfoById(serverId);
         assertNotNull(serverInfo);
         int result = serverInfoMapper.deleteServerInfoById(serverId);
         assertEquals(1, result);
-        assertNull(serverInfoMapper.getServerInfoById(serverId));
+        assertNull(serverInfoMapper.selectServerInfoById(serverId));
     }
 }

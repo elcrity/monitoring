@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Disk {
     Long diskId;
     String diskName;
-    private Long diskTotal;
+    Long diskTotal;
     LocalDateTime createdDate;
     Long diskServerInfoFk;
 

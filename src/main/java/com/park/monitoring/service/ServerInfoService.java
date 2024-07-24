@@ -4,6 +4,7 @@ import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.NoSuchElementException;
 public class ServerInfoService {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
     ServerInfoMapper serverInfoMapper;
 
     public ServerInfoService(ServerInfoMapper serverInfoMapper) {
@@ -21,7 +23,7 @@ public class ServerInfoService {
     }
 
     public List<ServerInfo> findAllServerInfo() {
-        List<ServerInfo> serverInfos = serverInfoMapper.getAllServerInfo();
+        List<ServerInfo> serverInfos = serverInfoMapper.selectAllServerInfo();
         if (serverInfos == null) {
             throw new NoSuchElementException("등록된 서버 정보 없음.");
         }
@@ -32,7 +34,7 @@ public class ServerInfoService {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }
-        ServerInfo serverInfo = serverInfoMapper.getServerInfoById(id);
+        ServerInfo serverInfo = serverInfoMapper.selectServerInfoById(id);
         if (serverInfo == null) {
             throw new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음.");
         }
@@ -63,7 +65,7 @@ public class ServerInfoService {
         if(serverInfo.getServerIp() == null){
             throw new IllegalArgumentException("입력된 데이터를 확인해주세요. Ip주소 없음");
         }
-        if (serverInfoMapper.getServerInfoById(serverInfo.getServerId()) == null) {
+        if (serverInfoMapper.selectServerInfoById(serverInfo.getServerId()) == null) {
             throw new NoSuchElementException("ID가 " + serverInfo.getServerId() + "인 Server가 존재하지 않습니다.");
         }
         //필수값 없음, 타입 미스매치

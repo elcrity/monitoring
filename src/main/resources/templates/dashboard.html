@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
 	<title>Server Information</title>
@@ -49,7 +49,7 @@
 		</thead>
 		<tbody>
 		<tr th:each="serverInfo : ${serverInfoList}"
-		    th:onclick="'fetchDiskInfo(' + ${serverInfo.serverId} + ')'">
+		    th:onclick="|fetchDiskInfo(${serverInfo.serverId})|">
 			<td th:text="${serverInfo.serverId}">Server ID</td>
 			<td th:text="${serverInfo.serverOs}">OS</td>
 			<td th:text="${serverInfo.serverHostname}">Hostname</td>
@@ -59,40 +59,28 @@
 		</tr>
 		</tbody>
 	</table>
-
-	<div id="diskInfo">
-		<h2>Disk Information</h2>
-		<div id="diskContent">선택된 디스크 없음.</div>
+	<div>
+		<div id="diskInfo">
+			<h2>Disk Information</h2>
+			<div id="diskContent">선택된 디스크 없음.</div>
+		</div>
 	</div>
 
+
 	<script th:inline="javascript">
-     // function loadInitialDiskInfo() {
-     //   document.getElementById('diskContent').innerHTML = '선택된 디스크 없음';
-     // }
 
+	  const diskList = [[${diskList}]];
      function fetchDiskInfo(serverId) {
-       document.getElementById('diskInfo').style.display = 'block';
-       document.getElementById('diskContent').innerHTML = '로딩중...';
-
-       fetch(`/diskInfo/${serverId}`)
-          .then(response => response.json())
-          .then(disk => {
-            if (disk) {
-              let content = `<p>Disk ID: ${disk.diskId}</p>
-                              <p>Total: ${disk.diskTotal}</p>
-                              <p>Used: ${disk.diskUsed}</p>`;
-              document.getElementById('diskContent').innerHTML = content;
-            } else {
-              document.getElementById('diskContent').innerHTML = '이용 가능한 디스크 없음.';
-            }
-          })
-          .catch(error => {
-            document.getElementById('diskContent').innerHTML = '디스크 로딩중 에러.';
-            console.error('디스크 데이터 불러오기 실패:', error);
-          });
+       const diskInfo = diskList.find(disk => disk.diskId === serverId);
+       if (diskInfo != undefined) {
+         const content = '<p>Disk ID: ' + diskInfo.diskId + '</p>'
+            + '<p>Total: ' + diskInfo.diskTotal + '</p>';
+         // + '<p>Used: ' + diskInfo.used + '</p>';
+         document.getElementById('diskContent').innerHTML = content;
+       } else {
+         document.getElementById('diskContent').innerHTML = '이용 가능한 디스크 없음.';
+       }
      }
-
-     // loadInitialDiskInfo();
 	</script>
 </body>
 </html>
