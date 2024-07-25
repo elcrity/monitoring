@@ -23,7 +23,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.8'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 

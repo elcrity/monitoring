@@ -34,7 +34,7 @@ public class MetricLogServiceTest {
     MetricLogService metricLogService;
 
     @BeforeEach
-    void init(){
+    public void setUp() {
         metricLogService = new MetricLogService(metricLogMapper);
     }
 

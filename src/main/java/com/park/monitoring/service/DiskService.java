@@ -24,6 +24,13 @@ public class DiskService {
         return diskMapper.selectAllDisk();
     }
 
+    public List<Disk> findAllDisksByServerId(Long serverId) {
+        if (serverId == null) throw new NoSuchElementException("serverId를 확인해주세요");
+        List<Disk> diskList = diskMapper.selectAllDiskByServerId(serverId);
+        if(diskList.isEmpty()) throw new NoSuchElementException("존재하지 않는 서버입니다");
+        return diskList;
+    }
+
     public Disk findDiskById(Long id) {
         if (id == null) throw new NoSuchElementException("디스크 id를 확인해주세요");
         Disk disk = diskMapper.selectDiskById(id);
@@ -68,7 +75,7 @@ public class DiskService {
         int result = diskMapper.updateDisk(disk);
 
         // 업데이트 결과에 따라 예외 처리
-        if (result != 1) {
+        if (result == 0) {
             throw new NoSuchElementException("수정에 실패했습니다.");
         }
 

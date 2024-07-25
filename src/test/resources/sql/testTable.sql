@@ -42,11 +42,10 @@ CREATE TABLE disk_log
 (
     disk_log_id        INT    NOT NULL AUTO_INCREMENT,
     disk_usage         DOUBLE not NULL,
-    metric_disk_log_fk BIGINT NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     disk_disk_log_fk            BIGINT NOT NULL,
     PRIMARY KEY (disk_log_id),
-    FOREIGN KEY (disk_disk_log_fk) REFERENCES disk (disk_id) ON DELETE CASCADE,
-    FOREIGN KEY (metric_disk_log_fk) REFERENCES metric_log (log_id) ON DELETE CASCADE
+    FOREIGN KEY (disk_disk_log_fk) REFERENCES disk (disk_id) ON DELETE CASCADE
 );
 
 -- board 테이블 생성

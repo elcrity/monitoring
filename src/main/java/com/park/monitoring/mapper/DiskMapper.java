@@ -9,6 +9,7 @@ import java.util.List;
 public interface DiskMapper {
 
     List<Disk> selectAllDisk();
+    List<Disk> selectAllDiskByServerId(Long serverId);
     Disk selectDiskById(Long id);
     int insertDisk(Disk disk);
     int updateDisk(Disk disk);

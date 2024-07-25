@@ -47,7 +47,7 @@ public class MetricLogService {
             throw new DataIntegrityViolationException("필수 필드 누락");
         }
         int result = metricLogMapper.insertLog(metricLog);
-        if(result != 1) throw new NoSuchElementException("로그 등록 실패");
+        if(result == 0) throw new NoSuchElementException("로그 등록 실패");
         return result;
     }
 

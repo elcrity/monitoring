@@ -37,6 +37,16 @@ public class DiskMapperTest {
         assertEquals(disks.size(), 10);
     }
 
+    @DisplayName("디스크 ReadAll - serverId")
+    @Test
+    void t00_readDisk_byServerId(){
+        Long serverId = 2L;
+        List<Disk> disks = diskMapper.selectAllDiskByServerId(2L);
+        assertThat(disks).isNotNull();
+        assertThat(disks.size()).isGreaterThan(1);
+    }
+
+
     @DisplayName("디스크 Read by id 테스트")
     @Test
     void t01_readDisk_byId(){
@@ -52,6 +62,7 @@ public class DiskMapperTest {
     void t02_createDisk() {
         Disk disk = new Disk.Builder()
                 .diskName("Test Disk")
+                .diskTotal(18092L)
                 .diskServerInfoFk(10L)
                 .build();
 
@@ -66,7 +77,7 @@ public class DiskMapperTest {
         Disk disk = new Disk.Builder()
                 .diskId(id)
                 .diskName("TDisk")
-                .createdDate(LocalDateTime.now())
+                .diskTotal(18888L)
                 .diskServerInfoFk(2L)
                 .build();
         int result = diskMapper.updateDisk(disk);

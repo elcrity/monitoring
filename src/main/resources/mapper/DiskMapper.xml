@@ -7,7 +7,12 @@
         SELECT *
         FROM disk;
     </select>
-    <select id="selectDiskById" parameterType="Long" resultType="com.park.monitoring.model.Disk">
+    <select id="selectAllDiskByServerId" parameterType="java.lang.Long" resultType="com.park.monitoring.model.Disk">
+        SELECT *
+        FROM disk
+        Where disk_server_info_fk=#{serverId};
+    </select>
+    <select id="selectDiskById" parameterType="java.lang.Long" resultType="com.park.monitoring.model.Disk">
         SELECT *
         FROM disk WHERE disk_id=#{id};
     </select>

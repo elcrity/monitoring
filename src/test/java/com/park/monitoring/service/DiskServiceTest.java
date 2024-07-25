@@ -1,5 +1,6 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.DetailDto;
 import com.park.monitoring.mapper.DiskMapper;
 import com.park.monitoring.model.Disk;
 import org.junit.jupiter.api.*;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
+@DisplayName("디스크 테스트")
 public class DiskServiceTest {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
@@ -38,11 +40,34 @@ public class DiskServiceTest {
         diskService = new DiskService(diskMapper);
     }
 
-    @DisplayName("디스크 데이터 조회")
+    @DisplayName("데이터 조회")
     @Test
-    void t01_testFindAll() {
+    void t00_testFindAll() {
         List<Disk> disks = diskService.findAllDisks();
         assertThat(disks.size()).isEqualTo(10);
+    }
+    @DisplayName("데이터 조회 - serverId")
+    @Test
+    void t01_testAllDiskFind_byServerId() {
+        Long serverId = 2L;
+        List<Disk> disks = diskService.findAllDisksByServerId(serverId);
+        assertThat(disks.size()).isGreaterThan(1);
+    }
+
+    @DisplayName("데이터 조회 - nullServerId")
+    @Test
+    void t01_02_testAllDiskFind_nullId() {
+        Long serverId = null;
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(()->diskService.findAllDisksByServerId(serverId));
+    }
+
+    @DisplayName("데이터 조회 - notExistId")
+    @Test
+    void t01_03_testAllDiskFind_notExistId() {
+        Long serverId = 22L;
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(()->diskService.findAllDisksByServerId(serverId));
     }
 
     @DisplayName("디스크 데이터 조회 - id")
@@ -82,6 +107,7 @@ public class DiskServiceTest {
         assertThat(diskService.findDiskById(11L))
                 .extracting(Disk::getDiskName)
                 .isEqualTo("I'm test");
+
     }
 
     @DisplayName("디스크 데이터 등록 - 필수 값 x")

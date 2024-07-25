@@ -38,13 +38,28 @@ VALUES
     (55.0, 85.0, NOW(), 4),
     (60.0, 90.0, NOW() - INTERVAL 1 MINUTE, 4),
     (65.0, 95.0, NOW(), 5),
-    (70.0, 100.0, NOW() - INTERVAL 1 MINUTE, 5);
+    (70.0, 100.0, NOW() - INTERVAL 1 MINUTE, 5),
+    (75.0, 105.0, NOW(), 6),
+    (80.0, 110.0, NOW() - INTERVAL 1 MINUTE, 6),
+    (85.0, 115.0, NOW(), 7),
+    (90.0, 120.0, NOW() - INTERVAL 1 MINUTE, 7),
+    (95.0, 125.0, NOW(), 8),
+    (100.0, 130.0, NOW() - INTERVAL 1 MINUTE, 8),
+    (105.0, 135.0, NOW(), 9),
+    (110.0, 140.0, NOW() - INTERVAL 1 MINUTE, 9),
+    (115.0, 145.0, NOW(), 10),
+    (120.0, 150.0, NOW() - INTERVAL 1 MINUTE, 10);
 
 -- Insert data into disk_log
-INSERT INTO disk_log (disk_usage, metric_disk_log_fk, disk_disk_log_fk)
+INSERT INTO disk_log (disk_usage, disk_disk_log_fk,created_date)
 VALUES
-    (10.5, 1, 1),
-    (11.2, 2, 2),
-    (12.3, 3, 3),
-    (13.0, 4, 4),
-    (14.0, 5, 5);
+    (10.5, 1, NOW() - INTERVAL 1 MINUTE),
+    (11.0, 1, NOW()),
+    (11.2, 2, NOW() - INTERVAL 1 MINUTE),
+    (11.7, 2, NOW()),
+    (12.3, 3, NOW() - INTERVAL 1 MINUTE),
+    (12.8, 3, NOW()),
+    (13.0, 4, NOW() - INTERVAL 1 MINUTE),
+    (13.5, 4, NOW()),
+    (14.0, 5, NOW() - INTERVAL 1 MINUTE),
+    (14.5, 5, NOW());

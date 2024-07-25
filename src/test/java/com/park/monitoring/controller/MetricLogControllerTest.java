@@ -1,10 +1,7 @@
 package com.park.monitoring.controller;
 
-import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.MetricLogService;
-import com.park.monitoring.service.ServerInfoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,7 +40,7 @@ public class MetricLogControllerTest {
         given(metricLogService.getMetricLogAllByServerId(serverId)).willReturn(metricLogList);
 
         // POST 요청
-        mvc.perform(post("/metric/{id}", serverId))
+        mvc.perform(post("/log/{id}", serverId))
                 // 응답이 isOK(200)인지 확인
                 .andExpect(status().isOk())
                 // JSON 응답 확인
@@ -59,11 +55,13 @@ public class MetricLogControllerTest {
         given(metricLogService.getMetricLogAllByServerId(serverId)).willThrow(new IllegalArgumentException("잘못된 요청입니다."));
 
         // GET 요청
-        mvc.perform(post("/metric/{id}",serverId))
+        mvc.perform(post("/log/{id}",serverId))
                 // 응답이 BAD_REQUEST(400)인지 확인
                 .andExpect(status().isBadRequest())
                 // 응답 본문에 예외 메시지가 포함되어 있는지 확인
                 .andExpect(content().string("잘못된 요청입니다."));
     }
+
+
 
 }

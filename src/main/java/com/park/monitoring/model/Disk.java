@@ -1,12 +1,9 @@
 package com.park.monitoring.model;
 
-import java.time.LocalDateTime;
-
 public class Disk {
     Long diskId;
     String diskName;
     Long diskTotal;
-    LocalDateTime createdDate;
     Long diskServerInfoFk;
 
     public Disk() {
@@ -14,7 +11,6 @@ public class Disk {
 
     public Disk(Builder builder) {
         this.diskId = builder.diskId;
-        this.createdDate = builder.createdDate;
         this.diskTotal = builder.diskTotal;
         this.diskName = builder.diskName;
         this.diskServerInfoFk = builder.diskServerInfoFk;
@@ -24,7 +20,6 @@ public class Disk {
         private Long diskId;
         private String diskName;
         private Long diskTotal;
-        private LocalDateTime createdDate;
         private Long diskServerInfoFk;
 
         public Builder diskId(Long diskId) {
@@ -33,11 +28,6 @@ public class Disk {
         }
         public Builder diskTotal(Long diskTotal) {
             this.diskTotal = diskTotal;
-            return this;
-        }
-
-        public Builder createdDate(LocalDateTime createdDate) {
-            this.createdDate = createdDate;
             return this;
         }
 
@@ -72,13 +62,6 @@ public class Disk {
         this.diskTotal = diskTotal;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime created_date) {
-        this.createdDate = created_date;
-    }
 
     public String getDiskName() {
         return diskName;
@@ -100,7 +83,6 @@ public class Disk {
     public String toString() {
         return "Disk{" +
                 "disk_id=" + diskId +
-                ", created_date=" + createdDate +
                 ", disk_name='" + diskName + '\'' +
                 ", disk_server_info_fk=" + diskServerInfoFk +
                 '}';
