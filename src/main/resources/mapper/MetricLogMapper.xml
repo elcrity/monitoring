@@ -3,6 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.park.monitoring.mapper.MetricLogMapper">
+    <select id="selectAll" resultType="com.park.monitoring.model.MetricLog">
+        SELECT *
+        FROM metric_log;
+    </select>
     <select id="selectLogAllByServerId" resultType="com.park.monitoring.model.MetricLog">
         SELECT *
         FROM metric_log

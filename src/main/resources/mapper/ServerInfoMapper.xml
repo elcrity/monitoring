@@ -11,13 +11,36 @@
         SELECT *
         FROM server_info WHERE server_id=#{id};
     </select>
+    <select id="selectServerInfoWithDisks" resultType="com.park.monitoring.dto.ServerInfoWithDiskDto">
+        SELECT si.server_id AS server_id,
+            si.server_os AS server_os,
+            si.server_hostname AS server_hostname,
+            si.memory_total AS memory_total,
+            si.purpose AS purpose,
+            si.server_ip AS server_ip,
+            (SELECT GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                        '"server_id":', si.server_id, ',',
+                        '"disk_id":', d.disk_id, ',',
+                        '"created_date":"', IFNULL(d.created_date, ''), '",',
+                        '"disk_name":"', IFNULL(d.disk_name, ''), '",',
+                        '"disk_total":', d.disk_total,
+                    '}'
+                ) SEPARATOR ','
+            )
+        FROM disk d
+        WHERE d.disk_server_info_fk = si.server_id) AS disks
+        FROM server_info si;
+    </select>
     <insert id="insertServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
         VALUES (#{serverOs}, #{serverHostname}, #{memoryTotal}, #{purpose}, #{serverIp});
     </insert>
     <update id="updateServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         UPDATE server_info
-        SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose}, server_ip=#{serverIp}
+        SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose},
+        server_ip=#{serverIp}
         WHERE server_id=#{serverId};
     </update>
     <delete id="deleteServerInfoById" parameterType="Long">

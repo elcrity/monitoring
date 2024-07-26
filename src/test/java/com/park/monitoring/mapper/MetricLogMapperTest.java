@@ -28,9 +28,17 @@ public class MetricLogMapperTest {
     @Autowired
     MetricLogMapper metricLogMapper;
 
+    @DisplayName("로그 조회 - 전체")
+    @Test
+    void t00_readLog_all(){
+        List<MetricLog> metricLogs = metricLogMapper.selectAll();
+        assertThat(metricLogs).isNotNull();
+        assertThat(metricLogs.size()).isGreaterThan(0);
+    }
+
     @DisplayName("로그 조회 - 서버 id 전체")
     @Test
-    void t00_readLog_All(){
+    void t00_readLog_byId(){
         Long id = 1L;
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(id);
 

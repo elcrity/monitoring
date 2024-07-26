@@ -27,14 +27,14 @@ public class MetricLogController {
         this.diskService = diskService;
     }
 
-    @PostMapping("/{id}")
-    List<MetricLog> getMetricLog(@PathVariable Long id) {
-        List<MetricLog> metricLogList = metricLogService.getMetricLogAllByServerId(id);
-        return metricLogList;
-    }
+//    @PostMapping()
+//    List<MetricLog> getMetricLog() {
+//        List<MetricLog> metricLogList = metricLogService.getMetricLogAll();
+//        return metricLogList;
+//    }
 
     //Todo : 실시간 로그, 각 항목에 로그를 전부 출력, 데이터 + created_date가져와야됨
-    @PostMapping("/{serverId}")
+    @PostMapping()
     LogRecentDto getRecentLog(@PathVariable Long serverId) {
         MetricLog metricLog = metricLogService.getMetricLogRecent(serverId);
         List<Disk> disks = diskService.findAllDisksByServerId(serverId);
@@ -43,10 +43,10 @@ public class MetricLogController {
         return logRecentDto;
     }
 
-    @PostMapping("/detail/{ServerId}")
-    List<LogDto> getServerLog(@PathVariable Long serverId){
+//    @PostMapping("/detail/{ServerId}")
+//    List<LogDto> getServerLog(@PathVariable Long serverId){
         //cpu, memory, disk{diskusage1, diskusage2}
-    }
+//    }
 
 
     @ExceptionHandler(IllegalArgumentException.class)

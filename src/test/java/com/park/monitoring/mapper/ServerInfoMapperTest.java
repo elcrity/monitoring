@@ -1,5 +1,6 @@
 package com.park.monitoring.mapper;
 
+import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,6 @@ public class ServerInfoMapperTest {
 
     }
 
-
     @Test
     void getAllServerInfo(){
         List<ServerInfo> servers = serverInfoMapper.selectAllServerInfo();
@@ -52,6 +52,13 @@ public class ServerInfoMapperTest {
         ServerInfo checkIdInfo = serverInfoMapper.selectServerInfoById(serverId);
         assertNotNull(checkIdInfo);
         assertThat(checkIdInfo.getServerId()).isEqualTo(serverId);
+    }
+
+    @Test
+    void getServerInfoWithDisk(){
+        List<ServerInfoWithDiskDto> serverInfoWithDiskDtos = serverInfoMapper.selectServerInfoWithDisks();
+        assertThat(serverInfoWithDiskDtos.size()).isGreaterThan(1);
+        assertThat(serverInfoWithDiskDtos).isNotNull();
     }
 
     @Test

@@ -9,6 +9,8 @@ import java.util.List;
 @Mapper
 public interface MetricLogMapper {
 
+    List<MetricLog> selectAll();
+
     List<MetricLog> selectLogAllByServerId(Long serverId);
 
     MetricLog selectRecentLog(Long serverId);

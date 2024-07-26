@@ -38,9 +38,17 @@ public class MetricLogServiceTest {
         metricLogService = new MetricLogService(metricLogMapper);
     }
 
+    @DisplayName("로그 조회 - 전체")
+    @Test
+    void t00_getLog_All(){
+        List<MetricLog> metricLogs = metricLogService.getMetricLogAll();
+        assertThat(metricLogs).isNotNull();
+        assertThat(metricLogs.size()).isGreaterThan(0);
+    }
+
     @DisplayName("로그 조회 - id전체")
     @Test
-    void t00_getLogAll_byId(){
+    void t00_getLogs_byId(){
         Long id = 2L;
         List<MetricLog> metricLogs = metricLogService.getMetricLogAllByServerId(id);
         assertThat(metricLogs.size()).isEqualTo(2);

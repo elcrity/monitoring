@@ -20,6 +20,9 @@
 			<th>Total Memory</th>
 			<th>Purpose</th>
 			<th>IP Address</th>
+			<th>CPU usage</th>
+			<th>Memory usage</th>
+			<th>Disk usage</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -31,6 +34,9 @@
 			<td th:text="${serverInfo.memoryTotal}">Total Memory</td>
 			<td th:text="${serverInfo.purpose}">Purpose</td>
 			<td th:text="${serverInfo.serverIp}">IP Address</td>
+<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).cpuUsage}">CPU usage</td>-->
+<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).memoryUsage}">Memory usage</td>-->
+<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).diskUsage}">Disk usage</td>-->
 		</tr>
 		</tbody>
 	</table>
