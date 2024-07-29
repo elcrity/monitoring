@@ -1,10 +1,12 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,7 @@ public class ServerInfoService {
         return serverInfos;
     }
 
-    public ServerInfo findServerInfoById(Long id) {
+    public ServerInfo findServerInfoById(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }
@@ -38,6 +40,21 @@ public class ServerInfoService {
         if (serverInfo == null) {
             throw new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음.");
         }
+        return serverInfo;
+    }
+
+    public List<ServerInfoWithDiskDto> findServerInfoWithDisk() {
+        List<ServerInfoWithDiskDto> serverInfo = serverInfoMapper.selectServerInfoWithDisks();
+        if (serverInfo.isEmpty()) {
+            throw new NoSuchElementException("해당되는 데이터가 없습니다");
+        }
+        return serverInfo;
+    }
+
+    public ServerInfoWithDiskDto findServerInfoAtHistory(Integer id){
+        if (id == null) throw new IllegalArgumentException("입력받은 Id값이 null입니다.");
+        ServerInfoWithDiskDto serverInfo = serverInfoMapper.selectServerInfoAtHistory(id);
+        if (serverInfo == null) throw new DataIntegrityViolationException("해당되는 데이터가 없습니다.");
         return serverInfo;
     }
 
@@ -77,14 +94,22 @@ public class ServerInfoService {
 
     }
 
-    public int deleteServerInfo(Long id) {
+    public int deleteServerInfo(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }
         int result = serverInfoMapper.deleteServerInfoById(id);
-        if (result == 1) return result;
+        if (result >= 1) return result;
         else {
             throw new NoSuchElementException("존재하지 않는 id. 삭제 실패");
+        }
+    }
+
+    public int deleteAll(){
+        int result = serverInfoMapper.deleteAll();
+        if( result >= 1) return result;
+        else {
+            throw new DataIntegrityViolationException("데이터 삭제 실패");
         }
     }
 }

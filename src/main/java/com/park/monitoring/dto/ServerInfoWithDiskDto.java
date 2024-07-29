@@ -1,10 +1,9 @@
 package com.park.monitoring.dto;
 
 public class ServerInfoWithDiskDto {
-    int serverId;
+    Integer serverId;
     String serverOs;
     String serverHostname;
-    String memoryTotal;
     String purpose;
     String serverIp;
 //    JSON 객체
@@ -16,16 +15,14 @@ public class ServerInfoWithDiskDto {
         this.serverId = builder.serverId;
         this.serverOs = builder.serverOs;
         this.serverHostname = builder.serverHostname;
-        this.memoryTotal = builder.memoryTotal;
         this.purpose = builder.purpose;
         this.serverIp = builder.serverIp;
         this.disks = builder.disks;
     }
     public static class Builder{
-        private int serverId;
+        private Integer serverId;
         private String serverOs;
         private String serverHostname;
-        private String memoryTotal;
         private String purpose;
         private String serverIp;
         private String disks;
@@ -41,10 +38,6 @@ public class ServerInfoWithDiskDto {
         }
         public Builder serverHostname(String serverHostname){
             this.serverHostname = serverHostname;
-            return this;
-        }
-        public Builder memoryTotal(String memoryTotal){
-            this.memoryTotal = memoryTotal;
             return this;
         }
         public Builder purpose(String purpose){
@@ -90,14 +83,6 @@ public class ServerInfoWithDiskDto {
         this.serverHostname = serverHostname;
     }
 
-    public String getMemoryTotal() {
-        return memoryTotal;
-    }
-
-    public void setMemoryTotal(String memoryTotal) {
-        this.memoryTotal = memoryTotal;
-    }
-
     public String getPurpose() {
         return purpose;
     }
@@ -128,7 +113,6 @@ public class ServerInfoWithDiskDto {
                 "serverId=" + serverId +
                 ", serverOs='" + serverOs + '\'' +
                 ", serverHostname='" + serverHostname + '\'' +
-                ", memoryTotal='" + memoryTotal + '\'' +
                 ", purpose='" + purpose + '\'' +
                 ", serverIp='" + serverIp + '\'' +
                 ", disks='" + disks + '\'' +

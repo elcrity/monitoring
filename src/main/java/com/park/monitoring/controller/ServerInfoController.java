@@ -1,6 +1,7 @@
 package com.park.monitoring.controller;
 
 import com.park.monitoring.dto.DetailDto;
+import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.model.Disk;
 import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.DiskService;
@@ -26,22 +27,15 @@ public class ServerInfoController {
 
     @GetMapping
     public String index(Model model) {
-        List<ServerInfo> serverinfoList = serverInfoService.findAllServerInfo();
-        List<Disk> diskList = diskService.findAllDisks();
-        model.addAttribute("serverInfoList", serverinfoList);
-        model.addAttribute("diskList", diskList);
+        List<ServerInfoWithDiskDto> serverDtoList = serverInfoService.findServerInfoWithDisk();
+        model.addAttribute("serverDtoList", serverDtoList);
         return "dashboard";
     }
 
     @PostMapping("/detail/{serverId}")
-    public String detail(Model model, @PathVariable Long serverId) {
-        List<ServerInfo> serverinfoList = serverInfoService.findAllServerInfo();
-        ServerInfo serverInfo = serverInfoService.findServerInfoById(serverId);
-        List<Disk> diskList = diskService.findAllDisksByServerId(serverId);
-        DetailDto detailDto = new DetailDto.Builder().ModelToDto(serverInfo, diskList);
-        model.addAttribute("serverInfoList", serverinfoList);
-        model.addAttribute("diskList", diskList);
-        model.addAttribute("detailDto", detailDto);
+    public String detail(Model model, @PathVariable Integer serverId) {
+        ServerInfoWithDiskDto serverDtoList = serverInfoService.findServerInfoAtHistory(serverId);
+        model.addAttribute("serverDtoList", serverDtoList);
         return "detail";
     }
 

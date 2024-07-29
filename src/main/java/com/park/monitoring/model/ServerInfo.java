@@ -2,7 +2,7 @@ package com.park.monitoring.model;
 
 
 public class ServerInfo {
-    Long serverId;
+    int serverId;
 
     String serverOs;
     String serverHostname;
@@ -22,14 +22,14 @@ public class ServerInfo {
     }
 
     public static class Builder{
-        private Long serverId;
+        private int serverId;
         private String serverOs;
         private String serverHostname;
         private double memoryTotal;
         private String purpose;
         private String serverIp;
 
-        public Builder serverId(Long serverId){
+        public Builder serverId(int serverId){
             this.serverId = serverId;
             return this;
         }
@@ -80,7 +80,7 @@ public class ServerInfo {
         this.serverIp = serverIp;
     }
 
-    public Long getServerId() {
+    public Integer getServerId() {
         return serverId;
     }
 

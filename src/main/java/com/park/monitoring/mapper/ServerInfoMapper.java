@@ -10,10 +10,12 @@ import java.util.List;
 public interface ServerInfoMapper {
     List<ServerInfo> selectAllServerInfo();
     List<ServerInfoWithDiskDto> selectServerInfoWithDisks();
+    ServerInfoWithDiskDto selectServerInfoAtHistory(int serverId);
 
-    ServerInfo selectServerInfoById(Long id);
+    ServerInfo selectServerInfoById(Integer id);
     int insertServerInfo(ServerInfo serverInfo);
     int updateServerInfo(ServerInfo serverInfo);
-    int deleteServerInfoById(Long id);
+    int deleteServerInfoById(Integer id);
+    int deleteAll();
 
 }

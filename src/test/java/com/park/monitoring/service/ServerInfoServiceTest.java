@@ -1,5 +1,6 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.*;
@@ -7,16 +8,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.List;
 import java.util.NoSuchElementException;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
 public class ServerInfoServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
+    int testId = 1;
 
     @Autowired
     ServerInfoMapper serverInfoMapper;
@@ -41,28 +44,68 @@ public class ServerInfoServiceTest {
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t01_testFindAll() {
         List<ServerInfo> serverInfo = serverInfoService.findAllServerInfo();
-        assertEquals(10, serverInfo.size());
-        //없을때
+        assertThat(serverInfo.size()).isEqualTo(10);
     }
 
     @DisplayName("서버 데이터 조회 - id")
     @Test
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t02_testFindById() {
-        ServerInfo serverInfo = serverInfoService.findServerInfoById(1L);
-        assertEquals("Linux", serverInfo.getServerOs());
-
-        // 예외 테스트
-
-        //없는 id
-        //
+        ServerInfo serverInfo = serverInfoService.findServerInfoById(testId);
+        assertThat(serverInfo.getServerOs()).isEqualTo("Ubuntu 20.04");
     }
+
     @DisplayName("서버 데이터 조회 - 미존재 id")
     @Test
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t03_testFindById_noElement() {
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->serverInfoService.findServerInfoById(-1L));
+                .isThrownBy(()->serverInfoService.findServerInfoById(testId * -1));
+    }
+
+    @DisplayName("서버 데이터 조회 - 디스크")
+    @Test
+    void t04_testFindAll_withDisk(){
+        List<ServerInfoWithDiskDto> dtoList = serverInfoService.findServerInfoWithDisk();
+        List<String> serverOsList = dtoList.stream()
+                .map(ServerInfoWithDiskDto::getServerOs)
+                .collect(Collectors.toList());
+        assertThat(serverOsList)
+                .anyMatch(os -> os.contains("Ubuntu"));
+        assertThat(serverOsList)
+                .anyMatch(os -> os.contains("Windows"));
+        assertThat(dtoList.stream()
+                .map(ServerInfoWithDiskDto::getDisks)
+                .collect(Collectors.toList()))
+                .anyMatch(disks -> disks.contains("disk_name"));
+    }
+    @DisplayName("서버 데이터 조회 - noData")
+    @Test
+    void t04_01_testFindAll_withDisk_noData(){
+        int result = serverInfoService.serverInfoMapper.deleteAll();
+        assertThat(result).isGreaterThan(1);
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() ->serverInfoService.findServerInfoWithDisk());
+    }
+
+    @DisplayName("서버 데이터 조회 - 히스토리")
+    @Test
+    void t05_testFindAll_history(){
+        ServerInfoWithDiskDto dtoList = serverInfoService.findServerInfoAtHistory(1);
+        assertThat(dtoList).isNotNull();
+        assertThat(dtoList.getServerHostname()).isEqualTo("server1");
+    }
+
+    @DisplayName("서버 데이터 조회 - 히스토리 noData")
+    @Test
+    void t05_testFindAll_history_noData(){
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(()->serverInfoService.findServerInfoAtHistory(null));
+        int result = serverInfoService.deleteAll();
+        assertThat(result).isGreaterThan(0);
+        assertThatExceptionOfType(DataIntegrityViolationException.class)
+                .isThrownBy(()->serverInfoService.findServerInfoAtHistory(1));
+
     }
 
     @DisplayName("서버 데이터 등록")
@@ -77,13 +120,13 @@ public class ServerInfoServiceTest {
                 .purpose("서버")
                 .serverIp("192.168.1.11")
                 .build();
-        assertEquals(1, serverInfoService.addServerInfo(serverInfo));
+        assertThat(serverInfoService.addServerInfo(serverInfo)).isEqualTo(1);
     }
 
     @DisplayName("서버 데이터 등록 - 필수값 null")
     @Test
     @Transactional
-    void t05_testAddServer_nullUnique(){
+    void t05_testAddServer_nullUnique() {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("window")
                 .serverHostname("test")
@@ -107,11 +150,9 @@ public class ServerInfoServiceTest {
                 .serverIp("192.168.1.1") // 중복 IP 설정
                 .build();
 
-
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->serverInfoService.addServerInfo(serverInfo));
     }
-
 
     @DisplayName("서버 데이터 수정")
     @Test
@@ -119,7 +160,6 @@ public class ServerInfoServiceTest {
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t06_testUpdateServerInfoTest() {
         //정상 값
-        Long testId = 1L;
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(testId)
                 .serverOs("테스트Os")
@@ -130,9 +170,9 @@ public class ServerInfoServiceTest {
                 .build();
 
         int result = serverInfoService.updateServerInfo(updateInfo);
-        assertEquals(1, result);
-        assertEquals("111.222.333.444", serverInfoService.findServerInfoById(testId).getServerIp());
-        assertEquals("테스트Os", serverInfoService.findServerInfoById(testId).getServerOs());
+        assertThat(result).isEqualTo(1);
+        assertThat(serverInfoService.findServerInfoById(testId).getServerIp()).isEqualTo("111.222.333.444");
+        assertThat(serverInfoService.findServerInfoById(testId).getServerOs()).isEqualTo("테스트Os");
     }
 
     @DisplayName("서버 데이터 수정 - 미존재 데이터")
@@ -141,9 +181,8 @@ public class ServerInfoServiceTest {
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t07_testUpdateServer_NotExist() {
         //없는 id값
-        Long testId = 22L;
         ServerInfo updateInfo = new ServerInfo.Builder()
-                .serverId(testId)
+                .serverId(testId + 21)
                 .serverOs("테스트Os")
                 .memoryTotal(11223)
                 .purpose("테스트용")
@@ -161,7 +200,6 @@ public class ServerInfoServiceTest {
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t08_testUpdateServer_DIV() {
         //필수 값 null
-        Long testId = 1L;
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(testId)
                 .serverOs("테스트Os")
@@ -171,7 +209,7 @@ public class ServerInfoServiceTest {
                 .serverIp(null)
                 .build();
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() ->serverInfoService.updateServerInfo(updateInfo));
+                .isThrownBy(() -> serverInfoService.updateServerInfo(updateInfo));
     }
 
     @DisplayName("서버 데이터 삭제")
@@ -179,10 +217,9 @@ public class ServerInfoServiceTest {
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t09_deleteServer() {
-        Long testId = 1L;
         //정상
         int result = serverInfoService.deleteServerInfo(testId);
-        assertEquals(1, result);
+        assertThat(result).isEqualTo(1);
     }
 
     @DisplayName("서버 데이터 삭제 - 미존재 데이터")
@@ -190,8 +227,6 @@ public class ServerInfoServiceTest {
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void deleteServerNotExistInfoTest() {
-        Long testId = 11L;
-        //정상
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(()->serverInfoService.deleteServerInfo(testId));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(()->serverInfoService.deleteServerInfo(testId + 22));
     }
 }

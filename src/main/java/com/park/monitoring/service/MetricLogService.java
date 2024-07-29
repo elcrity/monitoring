@@ -1,5 +1,6 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.model.MetricLog;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,27 +25,33 @@ public class MetricLogService {
         return metricLogs;
     }
 
-    public List<MetricLog> getMetricLogAllByServerId(Long serverId) {
+    public List<MetricLog> getMetricLogAllByServerId(Integer serverId) {
         if (serverId == null) {
             throw new IllegalArgumentException("서버의 id값이 null입니다.");
         }
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(serverId);
         if (metricLogs.isEmpty()) {
-            throw new NoSuchElementException("해당하는 서버가 존재하지 않습니다");
+            throw new NoSuchElementException("해당하는 로그가 존재하지 않습니다");
         }
         return metricLogs;
     }
 
-    public MetricLog getMetricLogRecent(Long serverId) {
-        if (serverId == null) {
-            throw new IllegalArgumentException("서버의 id값이 null입니다.");
+    public List<MetricLog> getMetricLogByLatest() {
+        List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
+        if (metricLogs.isEmpty()) {
+            throw new NoSuchElementException("해당하는 로그가 존재하지 않습니다");
         }
-        MetricLog metricLog = metricLogMapper.selectRecentLog(serverId);
-        if (metricLog == null) {
-            throw new NoSuchElementException("해당하는 서버가 존재하지 않습니다");
-        }
-        return metricLog;
+        return metricLogs;
     }
+
+    public LogHistoryDto getMetricLogAtHistory(Integer serverId){
+        if(serverId == null) throw new IllegalArgumentException("입력받은 id 값이 비정상입니다");
+        LogHistoryDto metricLog = metricLogMapper.selectLogHistory(serverId);
+        if(metricLog == null) throw new NoSuchElementException("없는 서버입니다");
+        return metricLog;
+
+    }
+
 
     public int insertMetricLog(MetricLog metricLog) {
         if (metricLog.getMemoryUsage() == null || metricLog.getCpuUsage() == null) {

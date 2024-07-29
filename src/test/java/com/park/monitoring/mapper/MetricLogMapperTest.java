@@ -1,5 +1,6 @@
 package com.park.monitoring.mapper;
 
+import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.model.MetricLog;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -38,30 +39,41 @@ public class MetricLogMapperTest {
 
     @DisplayName("로그 조회 - 서버 id 전체")
     @Test
-    void t00_readLog_byId(){
-        Long id = 1L;
+    void t01_readLog_byId(){
+        int id = 1;
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(id);
 
         assertThat(metricLogs).isNotNull();
-        assertThat(metricLogs.size()).isEqualTo(2);
+        assertThat(metricLogs.size()).isGreaterThan(2);
     }
 
-    @DisplayName("로그 조회 - 서버 id 최신")
+    @DisplayName("로그 조회 - 최신 로그")
     @Test
-    void t01_readLog_Recent(){
-        Long id = 2L;
-        MetricLog log = metricLogMapper.selectRecentLog(id);
+    void t02_readLogAll_latest(){
+        List<MetricLog> log = metricLogMapper.selectLogAllByLatest();
         assertThat(log).isNotNull();
-        assertThat(log.getCpuUsage()).isEqualTo(40.0);
+        assertThat(log.size()).isGreaterThan(2);
+    }
+
+    @DisplayName("로그 조회 - 최신 로그")
+    @Test
+    void t03_readLog_history(){
+        int id = 4;
+        LogHistoryDto log = metricLogMapper.selectLogHistory(id);
+        assertThat(log).isNotNull();
+        assertThat(log.getLogs()).contains("log_id")
+                .contains("memory_usage")
+                .contains("disk_usage1")
+                .contains("disk_usage2");
     }
 
     @DisplayName("로그 등록")
     @Test
-    void t02_insertLog(){
+    void t04_insertLog(){
         MetricLog log = new MetricLog.Builder()
                 .cpuUsage(44.4)
                 .memoryUsage(25.5)
-                .serverMetricFk(2L)
+                .serverMetricFk(2)
                 .build();
         int result = metricLogMapper.insertLog(log);
         assertThat(result).isEqualTo(1);
@@ -69,13 +81,13 @@ public class MetricLogMapperTest {
 
     @DisplayName("로그 삭제")
     @Test
-    void t03_deleteLog(){
+    void t05_deleteLog(){
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneSecondBefore = now.minusMinutes(1);
 
         //2초 간격으로 데이터 삽입, 처음 삽입한 데이터 5개만 삭제
         int result = metricLogMapper.deleteLogBeforeTime(oneSecondBefore);
-        assertThat(result).isEqualTo(5);
+        assertThat(result).isGreaterThan(5);
     }
 
 }

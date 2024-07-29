@@ -34,14 +34,14 @@ public class MetricLogController {
 //    }
 
     //Todo : 실시간 로그, 각 항목에 로그를 전부 출력, 데이터 + created_date가져와야됨
-    @PostMapping()
-    LogRecentDto getRecentLog(@PathVariable Long serverId) {
-        MetricLog metricLog = metricLogService.getMetricLogRecent(serverId);
-        List<Disk> disks = diskService.findAllDisksByServerId(serverId);
-        LogRecentDto logRecentDto = new LogRecentDto.Builder()
-                .ModelToDto(metricLog,disks);
-        return logRecentDto;
-    }
+//    @PostMapping()
+//    LogRecentDto getRecentLog(@PathVariable int serverId) {
+//        MetricLog metricLog = metricLogService.getMetricLogRecent(serverId);
+//        List<Disk> disks = diskService.findAllDisksByServerId(serverId);
+//        LogRecentDto logRecentDto = new LogRecentDto.Builder()
+//                .ModelToDto(metricLog,disks);
+//        return logRecentDto;
+//    }
 
 //    @PostMapping("/detail/{ServerId}")
 //    List<LogDto> getServerLog(@PathVariable Long serverId){

@@ -7,25 +7,25 @@
         SELECT *
         FROM disk;
     </select>
-    <select id="selectAllDiskByServerId" parameterType="java.lang.Long" resultType="com.park.monitoring.model.Disk">
+    <select id="selectAllDiskByServerId" parameterType="java.lang.Integer" resultType="com.park.monitoring.model.Disk">
         SELECT *
         FROM disk
         Where disk_server_info_fk=#{serverId};
     </select>
-    <select id="selectDiskById" parameterType="java.lang.Long" resultType="com.park.monitoring.model.Disk">
+    <select id="selectDiskById" parameterType="java.lang.Integer" resultType="com.park.monitoring.model.Disk">
         SELECT *
         FROM disk WHERE disk_id=#{id};
     </select>
     <insert id="insertDisk" parameterType="com.park.monitoring.model.Disk">
-        INSERT INTO disk (disk_name, disk_total, disk_server_info_fk)
-        VALUES (#{diskName}, #{diskTotal}, #{diskServerInfoFk});
+        INSERT INTO disk (disk_name, disk_server_info_fk)
+        VALUES (#{diskName}, #{diskServerInfoFk});
     </insert>
     <update id="updateDisk" parameterType="com.park.monitoring.model.Disk">
         UPDATE disk
-        SET disk_name=#{diskName}, disk_total=#{diskTotal}, disk_server_info_fk=#{diskServerInfoFk}
+        SET disk_name=#{diskName}, disk_server_info_fk=#{diskServerInfoFk}
         WHERE disk_id=#{diskId};
     </update>
-    <delete id="deleteDisk" parameterType="long">
+    <delete id="deleteDisk" parameterType="java.lang.Integer">
         DELETE FROM disk
         WHERE disk_id=#{diskId};
     </delete>

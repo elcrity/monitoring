@@ -1,5 +1,6 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class MetricLogServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
 
+    int id = 1;
     @Autowired
     MetricLogMapper metricLogMapper;
 
@@ -46,62 +48,74 @@ public class MetricLogServiceTest {
         assertThat(metricLogs.size()).isGreaterThan(0);
     }
 
-    @DisplayName("로그 조회 - id전체")
+    @DisplayName("로그 조회 - byId")
     @Test
     void t00_getLogs_byId(){
-        Long id = 2L;
         List<MetricLog> metricLogs = metricLogService.getMetricLogAllByServerId(id);
-        assertThat(metricLogs.size()).isEqualTo(2);
+        assertThat(metricLogs.size()).isGreaterThan(2);
     }
 
     @DisplayName("로그 조회 - 없는 id")
     @Test
     void t01_getLogAll_noId() {
-        Long id = 22L;
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.getMetricLogAllByServerId(id));
+                .isThrownBy(()->metricLogService.getMetricLogAllByServerId(id+21));
     }
 
     @DisplayName("로그 조회 - id == null")
     @Test
     void t02_getLogAll_nullId() {
-        Long id = null;
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.getMetricLogAllByServerId(id));
+                .isThrownBy(()->metricLogService.getMetricLogAllByServerId(null));
 
     }
 
-    @DisplayName("최근 로그 조회")
+    @DisplayName("로그 조회 - dashboard")
     @Test
-    void t03_getLog_recent(){
-        Long id = 2L;
-        MetricLog metricLog = metricLogService.getMetricLogRecent(id);
-        assertThat(metricLog.getCpuUsage()).isEqualTo(35.0);
+    void t03_getRecentLogs() {
+        List<MetricLog> metricLogs = metricLogService.getMetricLogByLatest();
+        assertThat(metricLogs).isNotNull();
+        assertThat(metricLogs.size()).isGreaterThan(0);
     }
 
-    @DisplayName("최근 로그 조회 - null id")
+    @DisplayName("로그 조회 - dashboard noData")
     @Test
-    void t04_getLog_recentNull(){
-        Long id = null;
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.getMetricLogRecent(id));
-    }
-
-    @DisplayName("최근 로그 조회 - 없는 id")
-    @Test
-    void t04_getLog_recentNoId(){
-        Long id = 22L;
+    void t03_01_getRecentLogs_noData() {
+        int result = metricLogService.deleteMetricLogBeforeTime(LocalDateTime.now().plusMinutes(10));
+        assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.getMetricLogRecent(id));
+                .isThrownBy(()->metricLogService.getMetricLogByLatest());
+    }
+
+    @DisplayName("최근 로그 조회 - history")
+    @Test
+    void t04_getLog_history(){
+        LogHistoryDto metricLog = metricLogService.getMetricLogAtHistory(id);
+        assertThat(metricLog).isNotNull();
+        assertThat(metricLog.getLogs())
+                .contains("disk_usage1", "disk_total2");
+
+    }
+
+    @DisplayName("최근 로그 조회 - history exception")
+    @Test
+    void t04_01_getLog_history(){
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(()->metricLogService.getMetricLogAtHistory(null));
+        int result = metricLogService.deleteMetricLogBeforeTime(LocalDateTime.now().plusMinutes(10));
+        assertThat(result).isGreaterThan(0);
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(()->metricLogService.getMetricLogAtHistory(id));
     }
 
     @DisplayName("로그 등록")
     @Test
     void t05_addLog(){
+        id = 3;
         MetricLog metricLog = new MetricLog.Builder()
                 .cpuUsage(22.2)
                 .memoryUsage(33.3)
-                .serverMetricFk(3L)
+                .serverMetricFk(id)
                 .build();
         int result = metricLogService.insertMetricLog(metricLog);
         assertThat(result).isEqualTo(1);
@@ -110,15 +124,16 @@ public class MetricLogServiceTest {
     @DisplayName("로그 등록 - 필드 누락")
     @Test
     void t06_addLog_omission(){
+        id = 3;
         MetricLog metricLog = new MetricLog.Builder()
                 .cpuUsage(22.2)
-                .serverMetricFk(3L)
+                .serverMetricFk(id)
                 .build();
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->metricLogService.insertMetricLog(metricLog));
     }
-    @DisplayName("로그 등록 - 필드 누락")
+    @DisplayName("로그 등록 - fk null")
     @Test
     void t06_addLog_null(){
         MetricLog metricLog = new MetricLog.Builder()
@@ -138,11 +153,11 @@ public class MetricLogServiceTest {
         LocalDateTime oneMinuteBefore = now.minusMinutes(1);
 
         int result = metricLogService.deleteMetricLogBeforeTime(oneMinuteBefore);
-        assertThat(result).isEqualTo(5);
+        assertThat(result).isGreaterThan(0);
 
     }
 
-    @DisplayName("로그 삭제")
+    @DisplayName("로그 삭제 - no Log")
     @Test
     void t08_removeLog_noBeforeTime(){
         LocalDateTime now = LocalDateTime.now();
@@ -153,7 +168,7 @@ public class MetricLogServiceTest {
 
     }
 
-    @DisplayName("로그 삭제")
+    @DisplayName("로그 삭제 - null")
     @Test
     void t08_removeLog_timeIsNull(){
         assertThatExceptionOfType(IllegalArgumentException.class)

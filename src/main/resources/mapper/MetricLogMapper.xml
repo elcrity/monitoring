@@ -12,12 +12,50 @@
         FROM metric_log
         where server_metric_fk=#{serverId};
     </select>
-    <select id="selectRecentLog" parameterType="Long" resultType="com.park.monitoring.model.MetricLog">
-        SELECT *
-        FROM metric_log
-        WHERE server_metric_fk=#{serverId}
-        ORDER BY created_date DESC
-        LIMIT 1;
+    <select id="selectLogAllByLatest" parameterType="int" resultType="com.park.monitoring.model.MetricLog">
+        SELECT ml.server_metric_fk AS server_id,
+            ml.cpu_usage,
+            ml.memory_usage,
+            ml.created_date,
+            IFNULL(ml.disk_usage1, 'null') AS disk_usage1,
+            IFNULL(ml.disk_usage2, 'null') AS disk_usage2,
+            IFNULL(ml.disk_usage3, 'null') AS disk_usage3,
+            IFNULL(ml.disk_usage4, 'null') AS disk_usage4,
+            IFNULL(ml.disk_total1, 'null') AS disk_total1,
+            IFNULL(ml.disk_total2, 'null') AS disk_total2,
+            IFNULL(ml.disk_total3, 'null') AS disk_total3,
+            IFNULL(ml.disk_total4, 'null') AS disk_total4
+        FROM metric_log ml
+        WHERE ml.created_date = (
+            SELECT MAX(sub_ml.created_date)
+            FROM metric_log sub_ml
+            WHERE sub_ml.server_metric_fk = ml.server_metric_fk
+        );
+    </select>
+    <select id="selectLogHistory" parameterType="int" resultType="com.park.monitoring.dto.LogHistoryDto">
+        SELECT server_metric_fk as server_id,
+            GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                        '"log_id":', log_id, ',',
+                        '"cpu_usage":', cpu_usage, ',',
+                        '"memory_usage":', memory_usage, ',',
+                        '"created_date":"', created_date, '",',
+                        '"disk_usage1":', IFNULL(disk_usage1, 'null'), ',',
+                        '"disk_usage2":', IFNULL(disk_usage2, 'null'), ',',
+                        '"disk_usage3":', IFNULL(disk_usage3, 'null'), ',',
+                        '"disk_usage4":', IFNULL(disk_usage4, 'null'), ',',
+                        '"disk_total1":', IFNULL(disk_total1, 'null'), ',',
+                        '"disk_total2":', IFNULL(disk_total2, 'null'), ',',
+                        '"disk_total3":', IFNULL(disk_total3, 'null'), ',',
+                        '"disk_total4":', IFNULL(disk_total4, 'null'),
+                    '}'
+                ) SEPARATOR ','
+            ) as logs
+        FROM metric_log ml
+        WHERE server_metric_fk = #{serverId}
+        GROUP BY server_metric_fk;
+
     </select>
     <insert id="insertLog" parameterType="com.park.monitoring.model.MetricLog">
         INSERT INTO metric_log (cpu_usage, memory_usage, server_metric_fk, created_date)
@@ -36,4 +74,5 @@
         ]]>
         #{timestamp};
     </delete>
+
 </mapper>

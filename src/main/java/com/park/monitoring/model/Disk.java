@@ -1,33 +1,33 @@
 package com.park.monitoring.model;
 
+import java.time.LocalDateTime;
+
 public class Disk {
-    Long diskId;
+    int diskId;
     String diskName;
-    Long diskTotal;
-    Long diskServerInfoFk;
+    int diskServerInfoFk;
+
+    LocalDateTime createdDate;
 
     public Disk() {
     }
 
     public Disk(Builder builder) {
         this.diskId = builder.diskId;
-        this.diskTotal = builder.diskTotal;
         this.diskName = builder.diskName;
         this.diskServerInfoFk = builder.diskServerInfoFk;
+        this.createdDate = builder.createdDate;
     }
 
     public static class Builder {
-        private Long diskId;
+        private int diskId;
         private String diskName;
-        private Long diskTotal;
-        private Long diskServerInfoFk;
+        private int diskServerInfoFk;
 
-        public Builder diskId(Long diskId) {
+        private LocalDateTime createdDate;
+
+        public Builder diskId(int diskId) {
             this.diskId = diskId;
-            return this;
-        }
-        public Builder diskTotal(Long diskTotal) {
-            this.diskTotal = diskTotal;
             return this;
         }
 
@@ -36,7 +36,7 @@ public class Disk {
             return this;
         }
 
-        public Builder diskServerInfoFk(Long diskServerInfoFk) {
+        public Builder diskServerInfoFk(int diskServerInfoFk) {
             this.diskServerInfoFk = diskServerInfoFk;
             return this;
         }
@@ -46,22 +46,13 @@ public class Disk {
         }
     }
 
-    public Long getDiskId() {
+    public Integer getDiskId() {
         return diskId;
     }
 
-    public void setDiskId(Long disk_id) {
+    public void setDiskId(int disk_id) {
         this.diskId = disk_id;
     }
-
-    public Long getDiskTotal() {
-        return diskTotal;
-    }
-
-    public void setDiskTotal(Long diskTotal) {
-        this.diskTotal = diskTotal;
-    }
-
 
     public String getDiskName() {
         return diskName;
@@ -71,11 +62,11 @@ public class Disk {
         this.diskName = disk_name;
     }
 
-    public Long getDiskServerInfoFk() {
+    public Integer getDiskServerInfoFk() {
         return diskServerInfoFk;
     }
 
-    public void setDiskServerInfoFk(Long disk_server_info_fk) {
+    public void setDiskServerInfoFk(int disk_server_info_fk) {
         this.diskServerInfoFk = disk_server_info_fk;
     }
 

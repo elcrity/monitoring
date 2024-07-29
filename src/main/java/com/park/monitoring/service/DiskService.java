@@ -24,14 +24,14 @@ public class DiskService {
         return diskMapper.selectAllDisk();
     }
 
-    public List<Disk> findAllDisksByServerId(Long serverId) {
+    public List<Disk> findAllDisksByServerId(Integer serverId) {
         if (serverId == null) throw new NoSuchElementException("serverId를 확인해주세요");
         List<Disk> diskList = diskMapper.selectAllDiskByServerId(serverId);
         if(diskList.isEmpty()) throw new NoSuchElementException("존재하지 않는 서버입니다");
         return diskList;
     }
 
-    public Disk findDiskById(Long id) {
+    public Disk findDiskById(Integer id) {
         if (id == null) throw new NoSuchElementException("디스크 id를 확인해주세요");
         Disk disk = diskMapper.selectDiskById(id);
         if(disk == null) throw new NoSuchElementException("존재하지 않는 Disk입니다");
@@ -40,14 +40,11 @@ public class DiskService {
     }
 
     public int insertDisk(Disk disk) {
-        if (disk.getDiskServerInfoFk() == null || disk.getDiskTotal() == null) {
+        if (disk.getDiskServerInfoFk() == null ) {
             throw new IllegalStateException("데이터의 필수 값이 null입니다.");
         }
         if (disk == null) {
             throw new IllegalArgumentException("수정할 Disk 데이터가 null입니다.");
-        }
-        if(disk.getDiskTotal() < 0){
-            throw new IllegalArgumentException("Disk 크기가 0 미만입니다.");
         }
         int result = diskMapper.insertDisk(disk);
         try {
@@ -64,9 +61,6 @@ public class DiskService {
         if (disk.getDiskId() == null) {
             throw new IllegalArgumentException("Disk ID가 null입니다.");
         }
-        if(disk.getDiskTotal() < 0){
-            throw new IllegalArgumentException("Disk 크기가 0 미만입니다.");
-        }
         if (diskMapper.selectDiskById(disk.getDiskId()) == null) {
             throw new NoSuchElementException("ID가 " + disk.getDiskId() + "인 Disk가 존재하지 않습니다.");
         }
@@ -82,7 +76,7 @@ public class DiskService {
         return result;
     }
 
-    public int deleteDisk(Long id) {
+    public int deleteDisk(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }

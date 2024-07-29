@@ -7,7 +7,7 @@
         SELECT *
         FROM server_info;
     </select>
-    <select id="selectServerInfoById" parameterType="Long" resultType="com.park.monitoring.model.ServerInfo">
+    <select id="selectServerInfoById" parameterType="int" resultType="com.park.monitoring.model.ServerInfo">
         SELECT *
         FROM server_info WHERE server_id=#{id};
     </select>
@@ -25,13 +25,32 @@
                         '"disk_id":', d.disk_id, ',',
                         '"created_date":"', IFNULL(d.created_date, ''), '",',
                         '"disk_name":"', IFNULL(d.disk_name, ''), '",',
-                        '"disk_total":', d.disk_total,
                     '}'
                 ) SEPARATOR ','
             )
         FROM disk d
         WHERE d.disk_server_info_fk = si.server_id) AS disks
         FROM server_info si;
+    </select>
+    <select id="selectServerInfoAtHistory" parameterType="int" resultType="com.park.monitoring.dto.ServerInfoWithDiskDto">
+        SELECT si.server_id,
+            si.server_hostname,
+            si.memory_total,
+            si.server_ip,
+                (SELECT GROUP_CONCAT(
+                    CONCAT(
+                        '{',
+                        '"server_id":', si.server_id, ',',
+                        '"disk_id":', d.disk_id, ',',
+                        '"created_date":"', IFNULL(d.created_date, ''), '",',
+                        '"disk_name":"', IFNULL(d.disk_name, ''), '",',
+                        '}'
+                    ) SEPARATOR ','
+                )
+            FROM disk d
+            WHERE d.disk_server_info_fk = si.server_id) as disks
+        FROM server_info si
+        WHERE server_id = #{serverId};
     </select>
     <insert id="insertServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
@@ -43,8 +62,12 @@
         server_ip=#{serverIp}
         WHERE server_id=#{serverId};
     </update>
-    <delete id="deleteServerInfoById" parameterType="Long">
+    <delete id="deleteServerInfoById" parameterType="int">
         DELETE FROM server_info
         WHERE server_id=#{serverId};
+    </delete>
+    <delete id="deleteAll">
+        DELETE FROM server_info
+        WHERE server_id > 0;
     </delete>
 </mapper>

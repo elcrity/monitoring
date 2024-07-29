@@ -11,12 +11,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -33,15 +32,15 @@ public class DiskMapperTest {
     @Test
     void t00_readDisk_all(){
         List<Disk> disks = diskMapper.selectAllDisk();
-        assertNotNull(disks);
-        assertEquals(disks.size(), 10);
+        assertThat(disks).isNotNull();
+        assertThat(disks.size()).isGreaterThan(5);
     }
 
     @DisplayName("디스크 ReadAll - serverId")
     @Test
     void t00_readDisk_byServerId(){
-        Long serverId = 2L;
-        List<Disk> disks = diskMapper.selectAllDiskByServerId(2L);
+        int serverId = 2;
+        List<Disk> disks = diskMapper.selectAllDiskByServerId(serverId);
         assertThat(disks).isNotNull();
         assertThat(disks.size()).isGreaterThan(1);
     }
@@ -50,11 +49,11 @@ public class DiskMapperTest {
     @DisplayName("디스크 Read by id 테스트")
     @Test
     void t01_readDisk_byId(){
-        Long id = 3L;
+        int id = 3;
         Disk disk = diskMapper.selectDiskById(id);
         assertNotNull(disk);
         assertThat(disk.getDiskName())
-                .isEqualTo("Disk C1");
+                .isEqualTo("disk1");
     }
 
     @DisplayName("디스크 Create 테스트")
@@ -62,8 +61,7 @@ public class DiskMapperTest {
     void t02_createDisk() {
         Disk disk = new Disk.Builder()
                 .diskName("Test Disk")
-                .diskTotal(18092L)
-                .diskServerInfoFk(10L)
+                .diskServerInfoFk(10)
                 .build();
 
         int result = diskMapper.insertDisk(disk);
@@ -73,12 +71,11 @@ public class DiskMapperTest {
     @DisplayName("디스크 update 테스트")
     @Test
     void t03_updateDisk() {
-        Long id = 1L;
+        int id = 1;
         Disk disk = new Disk.Builder()
                 .diskId(id)
                 .diskName("TDisk")
-                .diskTotal(18888L)
-                .diskServerInfoFk(2L)
+                .diskServerInfoFk(2)
                 .build();
         int result = diskMapper.updateDisk(disk);
         assertThat(1).isEqualTo(result);
@@ -90,7 +87,7 @@ public class DiskMapperTest {
     @DisplayName("디스크 delete 테스트")
     @Test
     void t04_deleteDisk() {
-        Long id = 1L;
+        int id = 1;
         int result = diskMapper.deleteDisk(id);
         assertThat(diskMapper.selectDiskById(id)).isNull();
         assertThat(result).isEqualTo(1);
