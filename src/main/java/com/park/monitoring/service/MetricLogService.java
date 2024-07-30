@@ -1,8 +1,9 @@
 package com.park.monitoring.service;
 
-import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.model.MetricLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.NoSuchElementException;
 @Service
 public class MetricLogService {
 
+    private static final Logger log = LoggerFactory.getLogger(MetricLogService.class);
     MetricLogMapper metricLogMapper;
 
     public MetricLogService(MetricLogMapper metricLogMapper) {
@@ -39,15 +41,15 @@ public class MetricLogService {
     public List<MetricLog> getMetricLogByLatest() {
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
         if (metricLogs.isEmpty()) {
-            throw new NoSuchElementException("해당하는 로그가 존재하지 않습니다");
+            throw new NoSuchElementException("로그가 존재하지 않습니다");
         }
         return metricLogs;
     }
 
-    public LogHistoryDto getMetricLogAtHistory(Integer serverId){
-        if(serverId == null) throw new IllegalArgumentException("입력받은 id 값이 비정상입니다");
-        LogHistoryDto metricLog = metricLogMapper.selectLogHistory(serverId);
-        if(metricLog == null) throw new NoSuchElementException("없는 서버입니다");
+    public List<MetricLog> getMetricLogAtHistory(Integer serverId){
+        if(serverId == null) throw new IllegalArgumentException("입력받은 id 값을 확인해주세요");
+        List<MetricLog> metricLog = metricLogMapper.selectLogHistory(serverId);
+        if(metricLog.isEmpty()) throw new NoSuchElementException("없는 서버입니다");
         return metricLog;
 
     }
@@ -56,7 +58,7 @@ public class MetricLogService {
     public int insertMetricLog(MetricLog metricLog) {
         if (metricLog.getMemoryUsage() == null || metricLog.getCpuUsage() == null) {
             throw new IllegalArgumentException("메모리, 혹은 cpu 점유율 필드가 누락되었습니다.");
-        } else if (metricLog.getServerMetricFk() == null) {
+        } else if (metricLog.getServerId() == null) {
             throw new DataIntegrityViolationException("필수 필드 누락");
         }
         int result = metricLogMapper.insertLog(metricLog);

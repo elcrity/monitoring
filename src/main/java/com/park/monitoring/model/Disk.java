@@ -70,12 +70,21 @@ public class Disk {
         this.diskServerInfoFk = disk_server_info_fk;
     }
 
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
     @Override
     public String toString() {
         return "Disk{" +
-                "disk_id=" + diskId +
-                ", disk_name='" + diskName + '\'' +
-                ", disk_server_info_fk=" + diskServerInfoFk +
+                "diskId=" + diskId +
+                ", diskName='" + diskName + '\'' +
+                ", diskServerInfoFk=" + diskServerInfoFk +
+                ", createdDate=" + createdDate +
                 '}';
     }
 }

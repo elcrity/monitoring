@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<title>Detail Page</title>
+	<style>
+       table {
+           width: 100%;
+           border-collapse: collapse;
+       }
+       th, td {
+           border: 1px solid #ddd;
+           padding: 8px;
+       }
+       th {
+           background-color: #f2f2f2;
+       }
+	</style>
+</head>
+<body>
+	<h1>Server and Disk Details</h1>
+
+	<!-- Display Server Info -->
+	<h2>Server Info</h2>
+	<p><strong>Server ID:</strong> <span th:text="${serverDtoList.serverId}"></span></p>
+	<p><strong>Operating System:</strong> <span th:text="${serverDtoList.serverOs}"></span></p>
+	<p><strong>Hostname:</strong> <span th:text="${serverDtoList.serverHostname}"></span></p>
+	<p><strong>Purpose:</strong> <span th:text="${serverDtoList.purpose}"></span></p>
+	<p><strong>IP Address:</strong> <span th:text="${serverDtoList.serverIp}"></span></p>
+
+	<!-- Display Disk Info -->
+	<h2>Disk Info</h2>
+	<table>
+		<thead>
+		<tr>
+			<th>Disk ID</th>
+			<th>Disk Details</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr th:each="disk : ${serverDtoList.disk}">
+			<td th:text="${disk.diskId}"></td>
+			<td th:text="${disk.diskName}"></td>
+			<td th:text="${disk.diskServerInfoFk}"></td>
+			<td th:text="${disk.createdDate}"></td>
+		</tr>
+		</tbody>
+	</table>
+
+	<!-- Optionally, display the full DTO object for debugging -->
+	<h2>Full DTO Object</h2>
+	<pre th:text="${detailDto}"></pre>
+</body>
+</html>

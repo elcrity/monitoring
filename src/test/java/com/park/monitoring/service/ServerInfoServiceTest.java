@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -52,20 +52,28 @@ public class ServerInfoServiceTest {
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t02_testFindById() {
         ServerInfo serverInfo = serverInfoService.findServerInfoById(testId);
-        assertThat(serverInfo.getServerOs()).isEqualTo("Ubuntu 20.04");
+        assertThat(serverInfo).isNotNull();
+        assertThat(serverInfo.getServerId()).isEqualTo(testId);
+        assertThat(serverInfo.getServerOs()).isEqualTo("Ubuntu 20.04"); // 예상되는 OS 버전
+        assertThat(serverInfo.getServerHostname()).isNotNull(); // 예상되는 호스트명
+        assertThat(serverInfo.getMemoryTotal()).isNotNull(); // 예상되 // 예상되는 메모리 총합
+        assertThat(serverInfo.getPurpose()).isNotNull(); // 예상되 // 예상되는 목적
+        assertThat(serverInfo.getServerIp()).isNotNull(); // 예상되 // 예상되는 IP 주소
     }
 
-    @DisplayName("서버 데이터 조회 - 미존재 id")
+    @DisplayName("서버 데이터 조회 - 없는 id, null")
     @Test
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t03_testFindById_noElement() {
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->serverInfoService.findServerInfoById(testId * -1));
+                .isThrownBy(() -> serverInfoService.findServerInfoById(testId * -1));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> serverInfoService.findServerInfoById(null));
     }
 
     @DisplayName("서버 데이터 조회 - 디스크")
     @Test
-    void t04_testFindAll_withDisk(){
+    void t04_testFindAll_withDisk() {
         List<ServerInfoWithDiskDto> dtoList = serverInfoService.findServerInfoWithDisk();
         List<String> serverOsList = dtoList.stream()
                 .map(ServerInfoWithDiskDto::getServerOs)
@@ -74,37 +82,45 @@ public class ServerInfoServiceTest {
                 .anyMatch(os -> os.contains("Ubuntu"));
         assertThat(serverOsList)
                 .anyMatch(os -> os.contains("Windows"));
-        assertThat(dtoList.stream()
-                .map(ServerInfoWithDiskDto::getDisks)
-                .collect(Collectors.toList()))
-                .anyMatch(disks -> disks.contains("disk_name"));
+
+        System.out.println("========================"+dtoList.get(0).getDisk());
+        dtoList.forEach(dto -> {
+            assertThat(dto.getServerId()).isNotNull();
+            assertThat(dto.getServerOs()).isNotNull();
+            assertThat(dto.getServerHostname()).isNotNull();
+            assertThat(dto.getPurpose()).isNotNull();
+            assertThat(dto.getServerIp()).isNotNull();
+            assertThat(dto.getDisk()).isNotNull();
+        });
     }
-    @DisplayName("서버 데이터 조회 - noData")
+
+    @DisplayName("서버 데이터 조회 - 디스크 noData")
     @Test
-    void t04_01_testFindAll_withDisk_noData(){
+    void t04_01_testFindAll_withDisk_noData() {
         int result = serverInfoService.serverInfoMapper.deleteAll();
         assertThat(result).isGreaterThan(1);
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() ->serverInfoService.findServerInfoWithDisk());
+                .isThrownBy(() -> serverInfoService.findServerInfoWithDisk());
     }
 
     @DisplayName("서버 데이터 조회 - 히스토리")
     @Test
-    void t05_testFindAll_history(){
+    void t05_testFindAll_history() {
         ServerInfoWithDiskDto dtoList = serverInfoService.findServerInfoAtHistory(1);
         assertThat(dtoList).isNotNull();
         assertThat(dtoList.getServerHostname()).isEqualTo("server1");
+        assertThat(dtoList.getDisk()).isNotNull();
     }
 
     @DisplayName("서버 데이터 조회 - 히스토리 noData")
     @Test
-    void t05_testFindAll_history_noData(){
+    void t05_testFindAll_history_noData() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->serverInfoService.findServerInfoAtHistory(null));
+                .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(null));
         int result = serverInfoService.deleteAll();
         assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(DataIntegrityViolationException.class)
-                .isThrownBy(()->serverInfoService.findServerInfoAtHistory(1));
+                .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(1));
 
     }
 
@@ -151,7 +167,7 @@ public class ServerInfoServiceTest {
                 .build();
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->serverInfoService.addServerInfo(serverInfo));
+                .isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
     }
 
     @DisplayName("서버 데이터 수정")
@@ -191,7 +207,7 @@ public class ServerInfoServiceTest {
                 .build();
 
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->serverInfoService.updateServerInfo(updateInfo));
+                .isThrownBy(() -> serverInfoService.updateServerInfo(updateInfo));
     }
 
     @DisplayName("서버 데이터 수정 - 필수값 null")
@@ -227,6 +243,6 @@ public class ServerInfoServiceTest {
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void deleteServerNotExistInfoTest() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(()->serverInfoService.deleteServerInfo(testId + 22));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> serverInfoService.deleteServerInfo(testId + 22));
     }
 }

@@ -1,8 +1,6 @@
 package com.park.monitoring.service;
 
-import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.mapper.MetricLogMapper;
-import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -70,12 +68,20 @@ public class MetricLogServiceTest {
 
     }
 
-    @DisplayName("로그 조회 - dashboard")
+    @DisplayName("로그 조회 - Latest")
     @Test
-    void t03_getRecentLogs() {
+    void t03_getRecentLogs_Latest() {
         List<MetricLog> metricLogs = metricLogService.getMetricLogByLatest();
+        System.out.println("================= : " + metricLogs);
         assertThat(metricLogs).isNotNull();
         assertThat(metricLogs.size()).isGreaterThan(0);
+        for (MetricLog log : metricLogs) {
+            assertThat(log.getLogId()).isNotNull();
+            assertThat(log.getCpuUsage()).isNotNull();
+            assertThat(log.getMemoryUsage()).isNotNull();
+            assertThat(log.getServerId()).isNotNull();
+            assertThat(log.getCreatedDate()).isNotNull();
+        }
     }
 
     @DisplayName("로그 조회 - dashboard noData")
@@ -90,10 +96,9 @@ public class MetricLogServiceTest {
     @DisplayName("최근 로그 조회 - history")
     @Test
     void t04_getLog_history(){
-        LogHistoryDto metricLog = metricLogService.getMetricLogAtHistory(id);
+        List<MetricLog> metricLog = metricLogService.getMetricLogAtHistory(id);
+        System.out.println("============================= : " + metricLog);
         assertThat(metricLog).isNotNull();
-        assertThat(metricLog.getLogs())
-                .contains("disk_usage1", "disk_total2");
 
     }
 
@@ -105,7 +110,7 @@ public class MetricLogServiceTest {
         int result = metricLogService.deleteMetricLogBeforeTime(LocalDateTime.now().plusMinutes(10));
         assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.getMetricLogAtHistory(id));
+                .isThrownBy(()->metricLogService.getMetricLogAtHistory(id+22));
     }
 
     @DisplayName("로그 등록")

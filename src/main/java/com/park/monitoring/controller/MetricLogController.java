@@ -1,52 +1,49 @@
 package com.park.monitoring.controller;
 
-import com.park.monitoring.dto.LogRecentDto;
-import com.park.monitoring.model.Disk;
-import com.park.monitoring.model.DiskLog;
 import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.service.DiskLogService;
 import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.MetricLogService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/log")
 public class MetricLogController {
 
-    private final DiskLogService diskLogService;
-    private final DiskService diskService;
     MetricLogService metricLogService;
 
-    public MetricLogController(MetricLogService metricLogService, DiskLogService diskLogService, DiskService diskService) {
+    public MetricLogController(MetricLogService metricLogService) {
         this.metricLogService = metricLogService;
-        this.diskLogService = diskLogService;
-        this.diskService = diskService;
     }
 
-//    @PostMapping()
-//    List<MetricLog> getMetricLog() {
-//        List<MetricLog> metricLogList = metricLogService.getMetricLogAll();
-//        return metricLogList;
-//    }
+    @PostMapping()
+    ResponseEntity<List<MetricLog>> getDashboardLog() {
+        List<MetricLog> metricLogList = metricLogService.getMetricLogByLatest();
+        if(metricLogList.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().body(metricLogList);
+    }
 
-    //Todo : 실시간 로그, 각 항목에 로그를 전부 출력, 데이터 + created_date가져와야됨
-//    @PostMapping()
-//    LogRecentDto getRecentLog(@PathVariable int serverId) {
-//        MetricLog metricLog = metricLogService.getMetricLogRecent(serverId);
-//        List<Disk> disks = diskService.findAllDisksByServerId(serverId);
-//        LogRecentDto logRecentDto = new LogRecentDto.Builder()
-//                .ModelToDto(metricLog,disks);
-//        return logRecentDto;
-//    }
 
-//    @PostMapping("/detail/{ServerId}")
-//    List<LogDto> getServerLog(@PathVariable Long serverId){
-        //cpu, memory, disk{diskusage1, diskusage2}
-//    }
+    @PostMapping("/{serverId}")
+    ResponseEntity<List<MetricLog>> getServerLog(@PathVariable Integer serverId){
+        if (serverId == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<MetricLog> metricLogs;
+        try {
+            // 서버 로그를 가져오려 시도
+            metricLogs = metricLogService.getMetricLogAtHistory(serverId);
+        } catch (NoSuchElementException e) {
+            // 로그가 없을 경우 (서버 ID가 유효하지 않을 때)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok().body(metricLogs);
+    }
 
 
     @ExceptionHandler(IllegalArgumentException.class)

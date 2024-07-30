@@ -69,10 +69,12 @@ public class ServerInfoMapperTest {
     @DisplayName("조회 - history")
     @Test
     void t03_getServerInfoAtHistory(){
-        int serverId = 3;
+        int serverId = 1;
         ServerInfoWithDiskDto dto = serverInfoMapper.selectServerInfoAtHistory(serverId);
+        System.out.println("================= : " + dto.toString());
         assertThat(dto).isNotNull();
         assertThat(dto.getServerId()).isEqualTo(serverId);
+        assertThat(dto.getDisk()).isNotNull();
     }
 
     @DisplayName("등록")

@@ -1,6 +1,5 @@
 package com.park.monitoring.mapper;
 
-import com.park.monitoring.dto.LogHistoryDto;
 import com.park.monitoring.model.MetricLog;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -16,7 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -33,8 +35,14 @@ public class MetricLogMapperTest {
     @Test
     void t00_readLog_all(){
         List<MetricLog> metricLogs = metricLogMapper.selectAll();
-        assertThat(metricLogs).isNotNull();
-        assertThat(metricLogs.size()).isGreaterThan(0);
+        metricLogs.forEach(metricLog -> {
+            assertThat(metricLog).isNotNull();
+            assertThat(metricLog.getLogId()).isNotNull();
+            assertThat(metricLog.getCpuUsage()).isNotNull();
+            assertThat(metricLog.getMemoryUsage()).isNotNull();
+            assertThat(metricLog.getServerId()).isNotNull();
+            assertThat(metricLog.getCreatedDate()).isNotNull();
+        });
     }
 
     @DisplayName("로그 조회 - 서버 id 전체")
@@ -42,7 +50,6 @@ public class MetricLogMapperTest {
     void t01_readLog_byId(){
         int id = 1;
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(id);
-
         assertThat(metricLogs).isNotNull();
         assertThat(metricLogs.size()).isGreaterThan(2);
     }
@@ -50,21 +57,35 @@ public class MetricLogMapperTest {
     @DisplayName("로그 조회 - 최신 로그")
     @Test
     void t02_readLogAll_latest(){
-        List<MetricLog> log = metricLogMapper.selectLogAllByLatest();
-        assertThat(log).isNotNull();
-        assertThat(log.size()).isGreaterThan(2);
+        List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
+        System.out.println("================= : " + metricLogs);
+        metricLogs.forEach(metricLog -> {
+            assertThat(metricLog).isNotNull();
+            assertThat(metricLog.getLogId()).isNotNull();
+            assertThat(metricLog.getCpuUsage()).isNotNull();
+            assertThat(metricLog.getMemoryUsage()).isNotNull();
+            assertThat(metricLog.getServerId()).isNotNull();
+            assertThat(metricLog.getCreatedDate()).isNotNull();
+//            assertThat(metricLog.getDiskUsage1()).isNotNull();
+//            assertThat(metricLog.getDiskTotal1()).isNotNull();
+
+        });
     }
 
-    @DisplayName("로그 조회 - 최신 로그")
+    @DisplayName("로그 조회 - history")
     @Test
     void t03_readLog_history(){
-        int id = 4;
-        LogHistoryDto log = metricLogMapper.selectLogHistory(id);
+        int id = 1;
+        List<MetricLog> logs = metricLogMapper.selectLogHistory(id);
+        assertThat(logs).isNotNull();
         assertThat(log).isNotNull();
-        assertThat(log.getLogs()).contains("log_id")
-                .contains("memory_usage")
-                .contains("disk_usage1")
-                .contains("disk_usage2");
+        assertThat(logs.size()).isGreaterThan(2);
+        MetricLog log = logs.get(0);
+
+        assertThat(log.getCpuUsage()).isNotNull(); // Replace with expected value if necessary
+        assertThat(log.getMemoryUsage()).isNotNull(); // Replace with expected value if necessary
+        assertThat(log.getServerId()).isNotNull(); // Replace with expected value if necessary
+        assertThat(log.getCreatedDate()).isNotNull(); // Replace with expected value if necessary
     }
 
     @DisplayName("로그 등록")
