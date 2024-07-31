@@ -19,14 +19,18 @@
             ml.cpu_usage,
             ml.memory_usage,
             ml.created_date,
-            IFNULL(ml.disk_usage1, null) AS disk_usage1,
-            IFNULL(ml.disk_usage2, null) AS disk_usage2,
-            IFNULL(ml.disk_usage3, null) AS disk_usage3,
-            IFNULL(ml.disk_usage4, null) AS disk_usage4,
-            IFNULL(ml.disk_total1, null) AS disk_total1,
-            IFNULL(ml.disk_total2, null) AS disk_total2,
-            IFNULL(ml.disk_total3, null) AS disk_total3,
-            IFNULL(ml.disk_total4, null) AS disk_total4
+            ml.disk_usage1 as disk_usage1,
+            IFNULL(ml.disk_usage2, null) as disk_usage2,
+            IFNULL(ml.disk_usage3, null) as disk_usage3,
+            IFNULL(ml.disk_usage4, null) as disk_usage4,
+            ml.disk_total1 as disk_total1,
+            IFNULL(ml.disk_total2, null) as disk_total2,
+            IFNULL(ml.disk_total3, null) as disk_total3,
+            IFNULL(ml.disk_total4, null) as disk_total4,
+            ml.disk_total1 as disk_name1,
+            IFNULL(ml.disk_name2, null) as disk_name2,
+            IFNULL(ml.disk_name3, null) as disk_name3,
+            IFNULL(ml.disk_name4, null) as disk_name4
         FROM metric_log ml
         WHERE ml.created_date = (
             SELECT MAX(sub_ml.created_date)
@@ -41,14 +45,18 @@
             cpu_usage,
             memory_usage,
             created_date,
-            IFNULL(disk_usage1, 'null') AS disk_usage1,
-            IFNULL(disk_usage2, 'null') AS disk_usage2,
-            IFNULL(disk_usage3, 'null') AS disk_usage3,
-            IFNULL(disk_usage4, 'null') AS disk_usage4,
-            IFNULL(disk_total1, 'null') AS disk_total1,
-            IFNULL(disk_total2, 'null') AS disk_total2,
-            IFNULL(disk_total3, 'null') AS disk_total3,
-            IFNULL(disk_total4, 'null') AS disk_total4
+            disk_usage1 as disk_usage1,
+            IFNULL(disk_usage2, null) as disk_usage2,
+            IFNULL(disk_usage3, null) as disk_usage3,
+            IFNULL(disk_usage4, null) as disk_usage4,
+            disk_total1 as disk_total1,
+            IFNULL(disk_total2, null) as disk_total2,
+            IFNULL(disk_total3, null) as disk_total3,
+            IFNULL(disk_total4, null) as disk_total4,
+            disk_total1 as disk_name1,
+            IFNULL(disk_name2, null) as disk_name2,
+            IFNULL(disk_name3, null) as disk_name3,
+            IFNULL(disk_name4, null) as disk_name4
         FROM
             metric_log
         WHERE
@@ -57,8 +65,24 @@
             created_date;
     </select>
     <insert id="insertLog" parameterType="com.park.monitoring.model.MetricLog">
-        INSERT INTO metric_log (cpu_usage, memory_usage, server_metric_fk, created_date)
-        VALUES (#{cpuUsage}, #{memoryUsage}, #{serverMetricFk}, #{createdDate});
+        INSERT INTO metric_log (
+            cpu_usage,
+            memory_usage,
+            created_date,
+            server_metric_fk,
+            disk_usage1, disk_usage2, disk_usage3, disk_usage4,
+            disk_total1, disk_total2, disk_total3, disk_total4,
+            disk_name1, disk_name2, disk_name3, disk_name4
+        )
+            VALUES (
+            #{cpuUsage},
+            #{memoryUsage},
+            #{createdDate},
+            #{serverMetricFk},
+            #{diskUsage1}, #{diskUsage2}, #{diskUsage3}, #{diskUsage4},
+            #{diskTotal1}, #{diskTotal2}, #{diskTotal3},  #{diskTotal4},
+            #{diskName1}, #{diskName2}, #{diskName3}, #{diskName4}
+        );
     </insert>
 <!--    <update id="updateLog" parameterType="com.park.monitoring.model.MetricLog">-->
 <!--        UPDATE metric_log-->

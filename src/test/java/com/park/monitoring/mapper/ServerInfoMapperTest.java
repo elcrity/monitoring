@@ -1,6 +1,5 @@
 package com.park.monitoring.mapper;
 
-import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -27,7 +26,7 @@ import java.util.List;
 public class ServerInfoMapperTest {
     private static final Logger log = LoggerFactory.getLogger(ServerInfoMapperTest.class);
 
-    private ServerInfoMapper serverInfoMapper;
+    private final ServerInfoMapper serverInfoMapper;
 
     @Autowired
     public ServerInfoMapperTest(ServerInfoMapper serverInfoMapper) {
@@ -58,23 +57,14 @@ public class ServerInfoMapperTest {
         assertThat(checkIdInfo.getServerId()).isEqualTo(serverId);
     }
 
-    @DisplayName("조회 - disk")
-    @Test
-    void t02_getServerInfoWithDisk(){
-        List<ServerInfoWithDiskDto> serverInfoWithDiskDtos = serverInfoMapper.selectServerInfoWithDisks();
-        assertThat(serverInfoWithDiskDtos.size()).isGreaterThan(1);
-        assertThat(serverInfoWithDiskDtos).isNotNull();
-    }
-
     @DisplayName("조회 - history")
     @Test
     void t03_getServerInfoAtHistory(){
         int serverId = 1;
-        ServerInfoWithDiskDto dto = serverInfoMapper.selectServerInfoAtHistory(serverId);
+        ServerInfo dto = serverInfoMapper.selectServerInfoAtHistory(serverId);
         System.out.println("================= : " + dto.toString());
         assertThat(dto).isNotNull();
         assertThat(dto.getServerId()).isEqualTo(serverId);
-        assertThat(dto.getDisk()).isNotNull();
     }
 
     @DisplayName("등록")
@@ -83,7 +73,7 @@ public class ServerInfoMapperTest {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("윈도우")
                 .serverHostname("park1104")
-                .memoryTotal(16000)
+                .memoryTotal(16000L)
                 .purpose("ftp 서버")
                 .serverIp("192.168.2.60")
                 .build();
@@ -100,7 +90,7 @@ public class ServerInfoMapperTest {
                 .serverId(serverId)
                 .serverOs("윈도우")
                 .serverHostname("park1104")
-                .memoryTotal(16000)
+                .memoryTotal(16000L)
                 .purpose("ftp 서버")
                 .serverIp("192.168.2.60")
                 .build();

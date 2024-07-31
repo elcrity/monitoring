@@ -1,29 +1,34 @@
 package com.park.monitoring.controller;
 
-import com.park.monitoring.dto.ServerInfoWithDiskDto;
+import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
+import com.park.monitoring.util.ServerInfoUtil;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -42,21 +47,42 @@ public class ServerInfoControllerTest {
     @DisplayName("/ 테스트 ")
     @Test
     void t01_accessRoot() throws Exception {
-        List<ServerInfoWithDiskDto> ServerDtoList = Collections.emptyList();
+        List<ServerInfo> serverDtoList = new ArrayList<>();
+        for(int i = 1; i<4; i++){
+            ServerInfo serverInfo = new ServerInfo.Builder()
+                    .serverOs("linux" + i)
+                    .serverHostname("testHost" + i)
+                    .purpose("테스트" + i)
+                    .memoryTotal(8090L + i)
+                    .serverIp("192.1.1." + i)
+                    .build();
+            serverDtoList.add(serverInfo);
+        }
+
         //serverInfoService.findAllServerInfo() 호출 발생시 반환값 설정
-        given(serverInfoService.findServerInfoWithDisk()).willReturn(ServerDtoList);
+        given(serverInfoService.findAllServerInfo()).willReturn(serverDtoList);
         //http.get 요청
         mvc.perform(get("/"))
                 .andExpect((status().isOk()))
-                .andExpect(model().attribute("serverDtoList", ServerDtoList));
+                .andExpect(model().attribute("serverDtoList", serverDtoList))
+                .andExpect(model().attribute("serverDtoList", hasItem(
+                        allOf(
+                                hasProperty("serverOs", is("linux1")),
+                                hasProperty("serverHostname", is("testHost1")),
+                                hasProperty("purpose", is("테스트1")),
+                                hasProperty("memoryTotal", is(8091L)),
+                                hasProperty("serverIp", is("192.1.1.1"))
+                        )
+                )))
+                .andExpect(view().name("dashboard"));
     }
 
     @DisplayName("/ 테스트 - not Allowed method")
     @Test
     void t02_accessRoot_methodNotAllowed() throws Exception {
-        List<ServerInfoWithDiskDto> ServerDtoList = Collections.emptyList();
+        List<ServerInfo> ServerDtoList = Collections.emptyList();
         //serverInfoService.findAllServerInfo() 호출 발생시 반환값 설정
-        given(serverInfoService.findServerInfoWithDisk()).willReturn(ServerDtoList);
+        given(serverInfoService.findAllServerInfo()).willReturn(ServerDtoList);
         //http.get 요청
         mvc.perform(post("/"))
                 .andExpect(status().isMethodNotAllowed());
@@ -65,7 +91,7 @@ public class ServerInfoControllerTest {
     @DisplayName("/ 테스트 -noSuchElementException")
     @Test
     void t03_accessRoot_exception() throws Exception {
-        when(serverInfoService.findServerInfoWithDisk()).thenThrow(new NoSuchElementException("해당되는 데이터가 없습니다 - "));
+        when(serverInfoService.findAllServerInfo()).thenThrow(new NoSuchElementException("반환된 데이터가 없습니다."));
         mvc.perform(get("/"))
                 .andExpect(status().isNotFound());
     }
@@ -74,88 +100,174 @@ public class ServerInfoControllerTest {
     @Test
     void t04_accessDetail() throws Exception {
         // Arrange
-        int serverId = 1;
+        int serverId = 0;
 
-        ServerInfoWithDiskDto serverDtoList = new ServerInfoWithDiskDto();
+        ServerInfo serverDto = new ServerInfo.Builder()
+                .serverOs("linux")
+                .serverHostname("testHost")
+                .purpose("테스트")
+                .memoryTotal(8092L)
+                .serverIp("192.1.1.1")
+                .build();
 
         // Mock service response
-        given(serverInfoService.findServerInfoAtHistory(serverId)).willReturn(serverDtoList);
+        given(serverInfoService.findServerInfoAtHistory(serverId)).willReturn(serverDto);
         // Act and Assert
         mvc.perform(post("/history/{serverId}", serverId))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("serverDtoList"))
-                .andExpect(model().attribute("serverDtoList", hasProperty("serverId")))
-                .andExpect(model().attribute("serverDtoList", hasProperty("serverOs")))
-                .andExpect(model().attribute("serverDtoList", hasProperty("serverHostname")))
-                .andExpect(model().attribute("serverDtoList", hasProperty("purpose")))
-                .andExpect(model().attribute("serverDtoList", hasProperty("serverIp")))
-                .andExpect(model().attribute("serverDtoList", hasProperty("disk")));
-//                .andExpect(model().attribute("serverDtoList", hasProperty("disks", hasItem(allOf(hasProperty("disk_name", is(not(emptyOrNullString()))))))));
+                .andExpect(model().attributeExists("serverDto"))
+                .andExpect(model().attribute("serverDto", hasProperty("serverId")))
+                .andExpect(model().attribute("serverDto", hasProperty("serverOs", is("linux"))))
+                .andExpect(model().attribute("serverDto", hasProperty("serverHostname",is("testHost"))))
+                .andExpect(model().attribute("serverDto", hasProperty("purpose",is("테스트"))))
+                .andExpect(model().attribute("serverDto", hasProperty("serverIp",is("192.1.1.1"))))
+                .andExpect(model().attribute("serverDto", hasProperty("memoryTotal",is(8092L))))
+                .andExpect(view().name("history"));;
     }
 
     @DisplayName("/history/{serverId} methodNotAllowed 테스트")
     @Test
     void t05_history_methodNotAllowed() throws Exception {
-        ServerInfoWithDiskDto serverDtoList = new ServerInfoWithDiskDto();
-        when(serverInfoService.findServerInfoAtHistory(1)).thenReturn(serverDtoList);
+        ServerInfo serverDto = new ServerInfo();
+        when(serverInfoService.findServerInfoAtHistory(1)).thenReturn(serverDto);
         mvc.perform(get("/history/1"))
                 .andExpect(status().isMethodNotAllowed());
     }
-    @DisplayName("/history/{serverId} badRequest 테스트")
+
+    @DisplayName("/history/{serverId} BAD_REQUEST 테스트")
     @Test
-    void t06_history_badRequest() throws Exception {
-        when(serverInfoService.findServerInfoAtHistory(null)).thenThrow(new IllegalArgumentException("입력된 id값 이상 : "));
-        mvc.perform(post("/history/null"))
+    void t06_history_BAD_REQUEST() throws Exception {
+        double id = 1.1;
+        when(serverInfoService.findServerInfoAtHistory(any(Integer.class))).thenThrow(new NumberFormatException("입력된 id값 이상 : "));
+        mvc.perform(post("/history/" + id))
                 .andExpect(status().isBadRequest());
     }
-    @DisplayName("/history/{serverId} notFound 테스트")
+    @DisplayName("/history/{serverId} IllegalArgumentException 테스트")
     @Test
-    void t07_history_notFound() throws Exception {
+    void t07_history_IllegalArgumentException() throws Exception {
+        Integer id = null;
+        when(serverInfoService.findServerInfoAtHistory(id)).thenThrow(new IllegalArgumentException("입력된 id값 이상 : "));
+        mvc.perform(post("/history/"))
+                .andExpect(status().isNotFound());
+    }
+
+
+
+    @DisplayName("/history/{serverId} NoSuchElementException 테스트")
+    @Test
+    void t08_history_NoSuchElementException() throws Exception {
         int id = 123;
         when(serverInfoService.findServerInfoAtHistory(id)).thenThrow(new NoSuchElementException("요청한 데이터를 찾을 수 없습니다."));
-        mvc.perform(post("/history/",id))
+        mvc.perform(post("/history/" + id))
                 .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("/regForm")
+    @Test
+    void t09_toRegPage() throws Exception {
+        mvc.perform(get("/add"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register"));
+    }
+
+    @DisplayName("/add/server")
+    @Test
+    void t10_addServer() throws Exception {
+        // Arrange
+        String purpose = "Test Server";
+        String os = "Linux";
+        String hostname = "test-hostname";
+        long totalMemory = 8192L;
+        String serverIp = "192.168.1.1";
+
+        // Create the expected ServerInfo object
+        ServerInfo expectedServerInfo = new ServerInfo.Builder()
+                .serverOs(os)
+                .serverHostname(hostname)
+                .memoryTotal(totalMemory)
+                .purpose(purpose)
+                .serverIp(serverIp)
+                .build();
+
+        try (MockedStatic<ServerInfoUtil> utilities = Mockito.mockStatic(ServerInfoUtil.class)) {
+            utilities.when(ServerInfoUtil::getServerOs).thenReturn(os);
+            utilities.when(ServerInfoUtil::getServerHostname).thenReturn(hostname);
+            Map<String, Object> memoryMap = Map.of("totalMemory", totalMemory);
+            utilities.when(ServerInfoUtil::getServerMemory).thenReturn(memoryMap);
+            utilities.when(() -> ServerInfoUtil.getServerIp(os)).thenReturn(serverIp);
+
+            when(serverInfoService.addServerInfo(expectedServerInfo)).thenReturn(1);
+
+
+            mvc.perform(post("/add/server")
+                            .param("purpose", purpose))
+                    .andExpect(status().is3xxRedirection()) // 리디렉션 상태 코드
+                    .andExpect(redirectedUrl("/dashboard"))
+                    .andDo(print());
+
+            verify(serverInfoService).addServerInfo(expectedServerInfo);
+        }
+    }
+
+    @DisplayName("/add/server null테스트")
+    @Test
+    void t10_addServer_null() throws Exception {
+        String purpose = "Test Server";
+        String os = "Linux";
+        String hostname = null;
+        long totalMemory = 8192L;
+        String serverIp = "192.168.1.1";
+
+        ServerInfo expectedServerInfo = new ServerInfo.Builder()
+                .serverOs(os)
+                .serverHostname(hostname)
+                .memoryTotal(totalMemory)
+                .purpose(purpose)
+                .serverIp(serverIp)
+                .build();
+
+        try (MockedStatic<ServerInfoUtil> utilities = Mockito.mockStatic(ServerInfoUtil.class)) {
+            utilities.when(ServerInfoUtil::getServerOs).thenReturn(os);
+            utilities.when(ServerInfoUtil::getServerHostname).thenReturn(hostname);
+            Map<String, Object> memoryMap = Map.of("totalMemory", totalMemory);
+            utilities.when(ServerInfoUtil::getServerMemory).thenReturn(memoryMap);
+            utilities.when(() -> ServerInfoUtil.getServerIp(os)).thenReturn(serverIp);
+
+            when(serverInfoService.addServerInfo(expectedServerInfo)).thenThrow(new IllegalStateException("필수 값이 null입니다."));
+
+
+            mvc.perform(post("/add/server")
+                            .param("purpose", purpose)
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(status().isInternalServerError())
+                    .andDo(print());
+
+            verify(serverInfoService).addServerInfo(expectedServerInfo);
+        }
     }
 
     @DisplayName("/delete/{serverId}")
     @Test
-    public void t08_deleteServer() throws Exception {
-        // given
+    public void t10_deleteServer() throws Exception {
         Integer serverId = 1;
 
         mvc.perform(delete("/delete/{serverId}", serverId))
-                .andExpect(status().is3xxRedirection()) // 리디렉션 상태 코드 검증
+                .andExpect(status().is3xxRedirection()) // 리디렉션 상태 코드
                 .andExpect(redirectedUrl("/dashboard")) // 리디렉션된 URL 검증
                 .andExpect(flash().attribute("message", "서버 삭제 성공.")); // 플래시 메시지 검증
     }
 
-    @DisplayName("/delete/{serverId} NoSuchElementException")
-    @Test
-    public void t09_deleteServer_NoSuchElementException() throws Exception {
-
-        int serverId = 123;
-        when(serverInfoService.deleteServerInfo(serverId)).thenThrow(new NoSuchElementException("해당하는 서버 없음."));
-
-        mvc.perform(delete("/delete/{serverId}", serverId))
-                .andExpect(status().is3xxRedirection()) // 리디렉션 상태 코드 검증
-                .andExpect(redirectedUrl("/error")) // 리디렉션된 URL 검증
-                .andExpect(flash().attribute("error", "해당하는 서버 없음.")); // 플래시 메시지 검증
-    }
-
-//Todo:null일때 검증하기
     @DisplayName("/delete/{serverId} IllegalArgumentException")
     @Test
-    public void t10_deleteServer_IllegalArgumentException() throws Exception {
+    public void t09_deleteServer_IllegalArgumentException() throws Exception {
 
-        Integer serverId = null;
-        when(serverInfoService.deleteServerInfo(serverId)).thenThrow(new IllegalArgumentException("유효하지 않은 서버 아이디."));
+        int serverId = 123;
+        when(serverInfoService.deleteServerInfo(serverId)).thenThrow(new IllegalArgumentException("해당하는 서버 없음."));
 
         mvc.perform(delete("/delete/{serverId}", serverId))
-                .andExpect(status().is3xxRedirection()) // 리디렉션 상태 코드 검증
-                .andExpect(redirectedUrl("/error")) // 리디렉션된 URL 검증
-                .andExpect(flash().attribute("error", "해당하는 서버 없음.")); // 플래시 메시지 검증
+                .andExpect(status().isBadRequest()); // 리디렉션 상태 코드 검증// 플래시 메시지 검증
     }
-
+//Todo : RuntimeException부터 테스트 하기
     @DisplayName("/delete/{serverId} Exception")
     @Test
     public void t10_deleteServer_Exception() throws Exception {
@@ -169,9 +281,4 @@ public class ServerInfoControllerTest {
                 .andExpect(flash().attribute("error", "예상하지 못한 에러 발생.")); // 플래시 메시지 검증
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public String handleNoSuchElementException(NoSuchElementException e, Model model) {
-        model.addAttribute("exception", e.getMessage());
-        return "error";
-    }
 }

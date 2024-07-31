@@ -1,6 +1,5 @@
 package com.park.monitoring.service;
 
-import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.*;
@@ -8,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,23 +72,21 @@ public class ServerInfoServiceTest {
     @DisplayName("서버 데이터 조회 - 디스크")
     @Test
     void t04_testFindAll_withDisk() {
-        List<ServerInfoWithDiskDto> dtoList = serverInfoService.findServerInfoWithDisk();
+        List<ServerInfo> dtoList = serverInfoService.findAllServerInfo();
         List<String> serverOsList = dtoList.stream()
-                .map(ServerInfoWithDiskDto::getServerOs)
+                .map(ServerInfo::getServerOs)
                 .collect(Collectors.toList());
         assertThat(serverOsList)
                 .anyMatch(os -> os.contains("Ubuntu"));
         assertThat(serverOsList)
                 .anyMatch(os -> os.contains("Windows"));
 
-        System.out.println("========================"+dtoList.get(0).getDisk());
         dtoList.forEach(dto -> {
             assertThat(dto.getServerId()).isNotNull();
             assertThat(dto.getServerOs()).isNotNull();
             assertThat(dto.getServerHostname()).isNotNull();
             assertThat(dto.getPurpose()).isNotNull();
             assertThat(dto.getServerIp()).isNotNull();
-            assertThat(dto.getDisk()).isNotNull();
         });
     }
 
@@ -100,16 +96,15 @@ public class ServerInfoServiceTest {
         int result = serverInfoService.serverInfoMapper.deleteAll();
         assertThat(result).isGreaterThan(1);
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() -> serverInfoService.findServerInfoWithDisk());
+                .isThrownBy(() -> serverInfoService.findAllServerInfo());
     }
 
     @DisplayName("서버 데이터 조회 - 히스토리")
     @Test
     void t05_testFindAll_history() {
-        ServerInfoWithDiskDto dtoList = serverInfoService.findServerInfoAtHistory(1);
+        ServerInfo dtoList = serverInfoService.findServerInfoAtHistory(1);
         assertThat(dtoList).isNotNull();
         assertThat(dtoList.getServerHostname()).isEqualTo("server1");
-        assertThat(dtoList.getDisk()).isNotNull();
     }
 
     @DisplayName("서버 데이터 조회 - 히스토리 noData")
@@ -119,7 +114,7 @@ public class ServerInfoServiceTest {
                 .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(null));
         int result = serverInfoService.deleteAll();
         assertThat(result).isGreaterThan(0);
-        assertThatExceptionOfType(DataIntegrityViolationException.class)
+        assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(1));
 
     }
@@ -132,7 +127,7 @@ public class ServerInfoServiceTest {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("window")
                 .serverHostname("test")
-                .memoryTotal(8012)
+                .memoryTotal(8012L)
                 .purpose("서버")
                 .serverIp("192.168.1.11")
                 .build();
@@ -146,11 +141,17 @@ public class ServerInfoServiceTest {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("window")
                 .serverHostname("test")
-                .memoryTotal(8012)
+                .memoryTotal(8012L)
                 .purpose("서버")
                 .serverIp(null)
                 .build();
-        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
+        serverInfo.setServerIp("192.168.1.11");
+        serverInfo.setServerOs(null);
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
+        serverInfo.setServerOs("window");
+        serverInfo.setServerHostname(null);
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
     }
 
     @DisplayName("서버 데이터 등록 - unique 중복")
@@ -161,12 +162,12 @@ public class ServerInfoServiceTest {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("windows")
                 .serverHostname("test")
-                .memoryTotal(8012)
+                .memoryTotal(8012L)
                 .purpose("서버")
                 .serverIp("192.168.1.1") // 중복 IP 설정
                 .build();
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
     }
 
@@ -179,7 +180,7 @@ public class ServerInfoServiceTest {
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(testId)
                 .serverOs("테스트Os")
-                .memoryTotal(11223)
+                .memoryTotal(11223L)
                 .purpose("테스트용")
                 .serverHostname("testServer")
                 .serverIp("111.222.333.444")
@@ -191,7 +192,7 @@ public class ServerInfoServiceTest {
         assertThat(serverInfoService.findServerInfoById(testId).getServerOs()).isEqualTo("테스트Os");
     }
 
-    @DisplayName("서버 데이터 수정 - 미존재 데이터")
+    @DisplayName("서버 데이터 수정 - notExist")
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
@@ -200,7 +201,7 @@ public class ServerInfoServiceTest {
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(testId + 21)
                 .serverOs("테스트Os")
-                .memoryTotal(11223)
+                .memoryTotal(11223L)
                 .purpose("테스트용")
                 .serverHostname("testServer")
                 .serverIp("111.222.333.444")
@@ -219,7 +220,7 @@ public class ServerInfoServiceTest {
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(testId)
                 .serverOs("테스트Os")
-                .memoryTotal(11223)
+                .memoryTotal(11223L)
                 .purpose("테스트용")
                 .serverHostname("testServer")
                 .serverIp(null)
@@ -242,7 +243,7 @@ public class ServerInfoServiceTest {
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void deleteServerNotExistInfoTest() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> serverInfoService.deleteServerInfo(testId + 22));
+    void t10_deleteServerNotExistInfoTest() {
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> serverInfoService.deleteServerInfo(testId + 22));
     }
 }

@@ -1,13 +1,12 @@
 package com.park.monitoring.service;
 
-import com.park.monitoring.dto.ServerInfoWithDiskDto;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,20 +15,19 @@ import java.util.NoSuchElementException;
 public class ServerInfoService {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
     ServerInfoMapper serverInfoMapper;
 
     public ServerInfoService(ServerInfoMapper serverInfoMapper) {
         this.serverInfoMapper = serverInfoMapper;
     }
 
-    public List<ServerInfo> findAllServerInfo() {
-        List<ServerInfo> serverInfos = serverInfoMapper.selectAllServerInfo();
-        if (serverInfos == null) {
-            throw new NoSuchElementException("등록된 서버 정보 없음. - " + this.getClass());
-        }
-        return serverInfos;
+public List<ServerInfo> findAllServerInfo() {
+    List<ServerInfo> serverInfo = serverInfoMapper.selectAllServerInfo();
+    if (serverInfo == null) {
+        throw new NoSuchElementException("데이터를 조회하는데 실패했습니다. - " + this.getClass());
     }
+    return serverInfo;
+}
 
     public ServerInfo findServerInfoById(Integer id) {
         if (id == null) {
@@ -42,69 +40,58 @@ public class ServerInfoService {
         return serverInfo;
     }
 
-    public List<ServerInfoWithDiskDto> findServerInfoWithDisk() {
-        List<ServerInfoWithDiskDto> serverInfo = serverInfoMapper.selectServerInfoWithDisks();
-        if (serverInfo.isEmpty()) {
-            throw new NoSuchElementException("해당되는 데이터가 없습니다 - " + this.getClass());
-        }
+    public ServerInfo findServerInfoAtHistory(Integer id) {
+        if (id == null) throw new IllegalArgumentException("입력받은 값이 null입니다.");
+        ServerInfo serverInfo = serverInfoMapper.selectServerInfoAtHistory(id);
+        if (serverInfo == null) throw new NoSuchElementException("해당되는 데이터가 없습니다.");
         return serverInfo;
     }
 
-    public ServerInfoWithDiskDto findServerInfoAtHistory(Integer id){
-        if (id == null) throw new IllegalArgumentException("입력받은 Id값이 null입니다.");
-        ServerInfoWithDiskDto serverInfo = serverInfoMapper.selectServerInfoAtHistory(id);
-        if (serverInfo == null) throw new NoSuchElementException("해당되는 데이터가 없습니다. - " + this.getClass());
-        return serverInfo;
-    }
-
+    @Transactional
     public int addServerInfo(ServerInfo serverInfo) {
-        if (serverInfo.getServerIp() == null) {
-            throw new IllegalStateException("데이터의 필수 값이 null입니다.");
+        if (serverInfo.getServerIp() == null
+            || serverInfo.getServerHostname() == null
+            || serverInfo.getServerOs() == null
+            || serverInfo.getMemoryTotal() == null) {
+            throw new IllegalArgumentException("필수 값이 null입니다.");
         }
-        try {
-            return serverInfoMapper.insertServerInfo(serverInfo);
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("데이터 무결성 위반: " + e.getMessage(), e);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("잘못된 값 전달: " + e.getMessage(), e);
-        }
-    }
-
-
-    public int updateServerInfo(ServerInfo serverInfo) {
-        if (serverInfo.getServerId() == null) {
-            throw new IllegalArgumentException("서버 id를 확인해주세요 - " + this.getClass());
-        }
-        if (serverInfo == null) {
-            throw new IllegalArgumentException("수정할 Server 데이터가 null입니다. - " + this.getClass());
-        }
-        if(serverInfo.getServerIp() == null){
-            throw new IllegalArgumentException("입력된 데이터를 확인해주세요. Ip주소 없음 - " + this.getClass());
-        }
-        if (serverInfoMapper.selectServerInfoById(serverInfo.getServerId()) == null) {
-            throw new NoSuchElementException("ID가 " + serverInfo.getServerId() + "인 Server가 존재하지 않습니다. - " + this.getClass());
-        }
-        //필수값 없음, 타입 미스매치
-        int result = serverInfoMapper.updateServerInfo(serverInfo);
-        if (result == 0) {
-            throw new NoSuchElementException("수정에 실패했습니다.");
-        }
+        int result = serverInfoMapper.insertServerInfo(serverInfo);
+        if (result < 1) throw new RuntimeException("데이터 등록 실패");
         return result;
 
     }
 
+
+    @Transactional
+    public int updateServerInfo(ServerInfo serverInfo) {
+        if (serverInfo.getServerId() == null
+                || serverInfo.getServerIp() == null) {
+            throw new IllegalArgumentException("입력받은 값이 비정상입니다. - " + this.getClass());
+        }
+        if (serverInfo == null) {
+            throw new NoSuchElementException("수정할 Server 데이터를 찾을수 없습니다. - " + this.getClass());
+        }
+        int result = serverInfoMapper.updateServerInfo(serverInfo);
+        if (result < 1) {
+            throw new RuntimeException("수정에 실패했습니다.");
+        }
+        return result;
+    }
+
+    @Transactional
     public int deleteServerInfo(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("입력된 Id가 null입니다.");
         }
         int result = serverInfoMapper.deleteServerInfoById(id);
-        if (result < 1) throw new NoSuchElementException("존재하지 않는 id. 삭제 실패");
+        if (result < 1) throw new RuntimeException("데이터 삭제 실패");
         else return result;
     }
 
-    public int deleteAll(){
+    @Transactional
+    public int deleteAll() {
         int result = serverInfoMapper.deleteAll();
-        if( result >= 1) return result;
+        if (result >= 1) return result;
         else {
             throw new DataIntegrityViolationException("데이터 삭제 실패");
         }

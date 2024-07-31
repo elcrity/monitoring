@@ -17,6 +17,10 @@ public class MetricLog {
     Long diskTotal2;
     Long diskTotal3;
     Long diskTotal4;
+    String diskName1;
+    String diskName2;
+    String diskName3;
+    String diskName4;
 
     public MetricLog() {}
 
@@ -34,6 +38,10 @@ public class MetricLog {
         this.diskTotal2 = builder.diskTotal2;
         this.diskTotal3 = builder.diskTotal3;
         this.diskTotal4 = builder.diskTotal4;
+        this.diskName1 = builder.diskName1;
+        this.diskName2 = builder.diskName2;
+        this.diskName3 = builder.diskName3;
+        this.diskName4 = builder.diskName4;
     }
 
     public static class Builder {
@@ -50,6 +58,10 @@ public class MetricLog {
         private Long diskTotal2;
         private Long diskTotal3;
         private Long diskTotal4;
+        private String diskName1;
+        private String diskName2;
+        private String diskName3;
+        private String diskName4;
 
         public Builder logId(Integer logId) {
             this.logId = logId;
@@ -113,6 +125,26 @@ public class MetricLog {
 
         public Builder diskTotal4(Long diskTotal4) {
             this.diskTotal4 = diskTotal4;
+            return this;
+        }
+
+        public Builder diskName1(String diskName1) {
+            this.diskName1 = diskName1;
+            return this;
+        }
+
+        public Builder diskName2(String diskName2) {
+            this.diskName2 = diskName2;
+            return this;
+        }
+
+        public Builder diskName3(String diskName3) {
+            this.diskName3 = diskName3;
+            return this;
+        }
+
+        public Builder diskName4(String diskName4) {
+            this.diskName4 = diskName4;
             return this;
         }
 
@@ -223,6 +255,46 @@ public class MetricLog {
 
     public void setDiskTotal4(Long diskTotal4) {
         this.diskTotal4 = diskTotal4;
+    }
+
+    public Integer getServerMetricFk() {
+        return serverMetricFk;
+    }
+
+    public void setServerMetricFk(Integer serverMetricFk) {
+        this.serverMetricFk = serverMetricFk;
+    }
+
+    public String getDiskName1() {
+        return diskName1;
+    }
+
+    public void setDiskName1(String diskName1) {
+        this.diskName1 = diskName1;
+    }
+
+    public String getDiskName2() {
+        return diskName2;
+    }
+
+    public void setDiskName2(String diskName2) {
+        this.diskName2 = diskName2;
+    }
+
+    public String getDiskName3() {
+        return diskName3;
+    }
+
+    public void setDiskName3(String diskName3) {
+        this.diskName3 = diskName3;
+    }
+
+    public String getDiskName4() {
+        return diskName4;
+    }
+
+    public void setDiskName4(String diskName4) {
+        this.diskName4 = diskName4;
     }
 
     @Override

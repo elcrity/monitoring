@@ -1,9 +1,10 @@
 package com.park.monitoring.controller;
 
-import com.park.monitoring.dto.ServerInfoWithDiskDto;
+import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
-import org.springframework.dao.DataIntegrityViolationException;
+import com.park.monitoring.util.ConvertUtil;
+import com.park.monitoring.util.ServerInfoUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,32 +28,65 @@ public class ServerInfoController {
     }
 
     @GetMapping
-    public String index(Model model, RedirectAttributes redirectAttributes) {
-        List<ServerInfoWithDiskDto> serverDtoList;
+    public String dashboard(Model model, RedirectAttributes redirectAttributes) {
+        List<ServerInfo> serverDtoList;
         try {
-            serverDtoList = serverInfoService.findServerInfoWithDisk();
+            serverDtoList = serverInfoService.findAllServerInfo();
+            if (serverDtoList.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "등록된 서버가 없습니다.");
+            }
             model.addAttribute("serverDtoList", serverDtoList);
-        }catch(NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 데이터를 찾을 수 없습니다.", e);
-        }catch(Exception e){
-            redirectAttributes.addFlashAttribute("error", "예상하지 못한 에러 발생.");
-            return "redirect:/error";
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         return "dashboard";
     }
 
-    @PostMapping("/history/{serverId}")
-    public String detail(Model model, @PathVariable Integer serverId) {
-        ServerInfoWithDiskDto serverDtoList;
+    @PostMapping({"/history/{serverId}", "/history/"})
+    public String detail(Model model, @PathVariable(required = false) String serverId) {
+        ServerInfo serverDto;
         try {
-            serverDtoList = serverInfoService.findServerInfoAtHistory(serverId);
-        }catch (IllegalArgumentException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "입력된 id값 이상 : ", e);
-        }catch(NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 데이터를 찾을 수 없습니다.", e);
+            Integer id = ConvertUtil.convertToInteger(serverId);
+            serverDto = serverInfoService.findServerInfoAtHistory(id);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        model.addAttribute("serverDtoList", serverDtoList);
+        model.addAttribute("serverDto", serverDto);
         return "history";
+    }
+
+    @GetMapping("/regForm")
+    public String toReg() {
+        return "register";
+    }
+
+    @PostMapping("/add/server")
+    public String addServer(@RequestParam String purpose) {
+        String os = ServerInfoUtil.getServerOs();
+        String hostname = ServerInfoUtil.getServerHostname();
+        long totalMemory = (long) ServerInfoUtil.getServerMemory().get("totalMemory");
+        String serverIp = ServerInfoUtil.getServerIp(os);
+        int result;
+        try {
+            result = serverInfoService.addServerInfo
+                    (new ServerInfo.Builder()
+                            .serverOs(os)
+                            .serverHostname(hostname)
+                            .memoryTotal(totalMemory)
+                            .purpose(purpose)
+                            .serverIp(serverIp)
+                            .build());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+        return "redirect:/dashboard";
     }
 
     @DeleteMapping("/delete/{serverId}")
@@ -60,25 +94,17 @@ public class ServerInfoController {
         try {
             serverInfoService.deleteServerInfo(serverId);
             redirectAttributes.addFlashAttribute("message", "서버 삭제 성공.");
-            return "redirect:/dashboard"; // Redirect to a list or another page
+            return "redirect:/dashboard";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "유효하지 않은 서버 아이디.");
-            return "redirect:/error"; // Redirect to an error page or similar
-        } catch (NoSuchElementException e) {
-            redirectAttributes.addFlashAttribute("error", "해당하는 서버 없음.");
-            return "redirect:/error"; // Redirect to an error page or similar
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", "예상하지 못한 에러 발생.");
-            return "redirect:/error"; // Redirect to an error page or similar
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-    }
-
-
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleIllegalArgumentException(IllegalArgumentException e, Model model) {
-        model.addAttribute("exception", e.getMessage());
-        return "error"; // Error view name (Thymeleaf template)
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public String handleIllegalArgumentException(IllegalArgumentException e, Model model) {
+//        model.addAttribute("exception", e.getMessage());
+//        return "error"; // Error view name (Thymeleaf template)
+//    }
     }
 }

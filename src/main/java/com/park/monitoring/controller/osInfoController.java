@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -37,6 +42,7 @@ public class osInfoController {
             log.info("---------------------------");
             getDiskUsage();
             getMemory();
+            getServerIp();
 
             if (os.contains("windows")) {
                 getCPUProcess();
@@ -79,6 +85,64 @@ public class osInfoController {
                 log.error("DISK Usage 에러 {}", e.toString());
             }
         }
+    }
+
+    private void getServerIp() {
+        String hostAddr = "";
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("linux")) {
+            try {
+                Enumeration<NetworkInterface> niEnum = NetworkInterface.getNetworkInterfaces();
+                while (niEnum.hasMoreElements()) {
+                    NetworkInterface ni = niEnum.nextElement();
+                    if(ni.getDisplayName().contains("virbr")) continue;
+                    Enumeration<InetAddress> kk = ni.getInetAddresses();
+                    while (kk.hasMoreElements()) {
+                        InetAddress inetAddress = kk.nextElement();
+                        if (!inetAddress.isLoopbackAddress() &&
+                                !inetAddress.isLinkLocalAddress() &&
+                                inetAddress.isSiteLocalAddress()) {
+                            hostAddr = inetAddress.getHostAddress();
+                            log.info("IP hostaddress : {}", inetAddress.getHostAddress());
+
+                        }
+
+                    }
+                }
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+        } else {
+            InetAddress local = null;
+            try {
+                local = InetAddress.getLocalHost();
+                log.info("WindowIP hostaddress : {}", local.getHostAddress());
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+//        try {
+//            Enumeration<NetworkInterface> niEnum = NetworkInterface.getNetworkInterfaces();
+//            while (niEnum.hasMoreElements()) {
+//                NetworkInterface ni = niEnum.nextElement();
+//
+//                Enumeration<InetAddress> kk= ni.getInetAddresses();
+//                while (kk.hasMoreElements()) {
+//                    InetAddress inetAddress = kk.nextElement();
+//                    if (!inetAddress.isLoopbackAddress() &&
+//                            !inetAddress.isLinkLocalAddress() &&
+//                            inetAddress.isSiteLocalAddress()) {
+//                        hostAddr = inetAddress.getHostAddress();
+//                        log.info("IP hostaddress : {}", inetAddress.getHostAddress());
+//
+//                    }
+//
+//                }
+//            }
+//        } catch (SocketException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     public static CPUStats cpuUsageLinux(CPUStats inputCpuStats) {
@@ -146,7 +210,7 @@ public class osInfoController {
         String cpuVersion = osBean.getVersion();
         int availableProcessors = osBean.getAvailableProcessors();
         String cpuUsage = String.format("%.2f", osBean.getCpuLoad() * 100);
-        log.info("Cpu Info : {}.{}.{}.{}", cpuName,cpuVersion, cpuArch, hostname);
+        log.info("Cpu Info : {}.{}.{}.{}", cpuName, cpuVersion, cpuArch, hostname);
         log.info("Process Load : {}% ", String.format("%.2f", ProcessLoad * 100));
         log.info("Cpu Usage : {}%", cpuUsage);
     }

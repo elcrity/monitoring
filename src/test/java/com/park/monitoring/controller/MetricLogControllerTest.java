@@ -10,7 +10,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -18,14 +17,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -45,54 +43,49 @@ public class MetricLogControllerTest {
     @DisplayName("/log 정상 동작 테스트")
     @Test
     void t01_getMetricLog() throws Exception {
-        MetricLog metricLog1 = new MetricLog.Builder()
-                .serverMetricFk(1)
-                .cpuUsage(75.5)
-                .memoryUsage(50.2)
-                .createdDate(LocalDateTime.parse("2024-07-01T00:00:00"))
-                .diskUsage1(20.3)
-                .diskUsage2(30.7)
-                .diskUsage3(40.4)
-                .diskUsage4(10.9)
-                .diskTotal1(100L)
-                .diskTotal2(200L)
-                .diskTotal3(3007L)
-                .diskTotal4(4008L)
-                .build();
-
-        MetricLog metricLog2 = new MetricLog.Builder()
-                .serverMetricFk(2)
-                .cpuUsage(80.8)
-                .memoryUsage(55.6)
-                .createdDate(LocalDateTime.parse("2024-07-02T00:00:00"))
-                .diskUsage1(25.4)
-                .diskUsage2(35.3)
-                .diskUsage3(45.1)
-                .diskUsage4(11.8)
-                .diskTotal1(110L)
-                .diskTotal2(210L)
-                .diskTotal3(3103L)
-                .diskTotal4(4104L)
-                .build();
-        List<MetricLog> metricLogList = Arrays.asList(metricLog1, metricLog2);
+        List<MetricLog> metricLogList = new ArrayList<>();
+        for(int i = 1; i<3; i++){
+            MetricLog metricLog = new MetricLog.Builder()
+                    .logId(i)
+                    .serverMetricFk(i)
+                    .cpuUsage(0.5+i)
+                    .memoryUsage(0.2+i)
+                    .createdDate(LocalDateTime.now())
+                    .diskUsage1(0.3+i)
+                    .diskUsage2(0.7+i)
+                    .diskUsage3(0.4+i)
+                    .diskUsage4(0.9+i)
+                    .diskTotal1(100L+i)
+                    .diskTotal2(200L+i)
+                    .diskTotal3(3000L+i)
+                    .diskTotal4(4000L+i)
+                    .diskName1("disk1-"+i)
+                    .diskName2("disk2-"+i)
+                    .diskName3("disk3-"+i)
+                    .diskName4("disk4-"+i)
+                    .build();
+            metricLogList.add(metricLog);
+        }
 
         // Setup mock service to return sample data
-        given(metricLogService.getMetricLogByLatest()).willReturn(metricLogList);
+        given(metricLogService.findMetricLogByLatest()).willReturn(metricLogList);
+
+        //MetricLogList를 Json으로
+        String expectedJson = objectMapper.writeValueAsString(metricLogList);
+        System.out.println("expectedJson: " + expectedJson);
 
         // Perform POST request and verify the response
-        mvc.perform(MockMvcRequestBuilders.post("/log"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json(
-                        objectMapper.writeValueAsString(metricLogList)
-                ))
-                .andDo(MockMvcResultHandlers.print()); // Print the result to console for debugging
+        mvc.perform(post("/log"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson)) // assuming the view name is "log"
+                .andDo(print()); // Print the result to console for debugging
     }
 
     @DisplayName("/log - 비어 있는 경우")
     @Test
     void t02_getDashboardLog_empty() throws Exception {
         // 서비스가 빈 리스트를 반환하도록 설정
-        when(metricLogService.getMetricLogByLatest()).thenReturn(Collections.emptyList());
+        when(metricLogService.findMetricLogByLatest()).thenReturn(Collections.emptyList());
 
         mvc.perform(MockMvcRequestBuilders.post("/log"))
                 .andExpect(status().isNoContent());
@@ -102,7 +95,7 @@ public class MetricLogControllerTest {
     @Test
     void t03_getDashboardLog_method() throws Exception {
         // 서비스가 빈 리스트를 반환하도록 설정
-        when(metricLogService.getMetricLogByLatest()).thenReturn(Collections.emptyList());
+        when(metricLogService.findMetricLogByLatest()).thenReturn(Collections.emptyList());
 
         mvc.perform(MockMvcRequestBuilders.get("/log"))
                 .andExpect(status().isMethodNotAllowed());
@@ -129,7 +122,7 @@ public class MetricLogControllerTest {
         List<MetricLog> metricLogList = Arrays.asList(metricLog1);
 
         // Setup mock service to return sample data
-        given(metricLogService.getMetricLogAtHistory(serverId)).willReturn(metricLogList);
+        given(metricLogService.findMetricLogAtHistory(serverId)).willReturn(metricLogList);
 
         // Perform POST request and verify the response
         mvc.perform(MockMvcRequestBuilders.post("/log/{serverId}", serverId))
@@ -137,14 +130,14 @@ public class MetricLogControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(
                         objectMapper.writeValueAsString(metricLogList)
                 ))
-                .andDo(MockMvcResultHandlers.print()); // Print the result to console for debugging
+                .andDo(print()); // Print the result to console for debugging
     }
 
     @DisplayName("/log/null")
     @Test
     void t05_getServerLog_history_null() throws Exception {
         // 서비스가 빈 리스트를 반환하도록 설정
-        when(metricLogService.getMetricLogByLatest()).thenThrow(new IllegalArgumentException("입력받은 id 값을 확인해주세요"));
+        when(metricLogService.findMetricLogByLatest()).thenThrow(new IllegalArgumentException("입력받은 id 값을 확인해주세요"));
 
         mvc.perform(MockMvcRequestBuilders.post("/log/null"))
                 .andExpect(status().isBadRequest());
@@ -155,7 +148,7 @@ public class MetricLogControllerTest {
     void t06_getServerLog_nonExistentId() throws Exception {
         int nonExistentServerId = 999; // 존재하지 않는 ID
 
-        when(metricLogService.getMetricLogAtHistory(nonExistentServerId))
+        when(metricLogService.findMetricLogAtHistory(nonExistentServerId))
                 .thenThrow(new NoSuchElementException("없는 서버입니다"));
         mvc.perform(post("/log/" + nonExistentServerId))
                 .andExpect(status().isNotFound()); // 예외가 발생하면 HTTP 상태 코드는 404가 되어야 함

@@ -1,12 +1,14 @@
 package com.park.monitoring.model;
 
 
+import java.util.Objects;
+
 public class ServerInfo {
     int serverId;
 
     String serverOs;
     String serverHostname;
-    double memoryTotal;
+    Long memoryTotal;
     String purpose;
     String serverIp;
 
@@ -25,7 +27,7 @@ public class ServerInfo {
         private int serverId;
         private String serverOs;
         private String serverHostname;
-        private double memoryTotal;
+        private Long memoryTotal;
         private String purpose;
         private String serverIp;
 
@@ -42,7 +44,7 @@ public class ServerInfo {
             this.serverHostname = serverHostname;
             return this;
         }
-        public Builder memoryTotal(double memoryTotal) {
+        public Builder memoryTotal(Long memoryTotal) {
             this.memoryTotal = memoryTotal;
             return this;
         }
@@ -68,7 +70,7 @@ public class ServerInfo {
         this.serverHostname = serverHostname;
     }
 
-    public void setMemoryTotal(double memoryTotal) {
+    public void setMemoryTotal(Long memoryTotal) {
         this.memoryTotal = memoryTotal;
     }
 
@@ -92,7 +94,7 @@ public class ServerInfo {
         return serverHostname;
     }
 
-    public double getMemoryTotal() {
+    public Long getMemoryTotal() {
         return memoryTotal;
     }
 
@@ -113,5 +115,17 @@ public class ServerInfo {
                 ", purpose='" + purpose + '\'' +
                 ", serverIp='" + serverIp + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ServerInfo that)) return false;
+        return serverId == that.serverId && Objects.equals(serverOs, that.serverOs) && Objects.equals(serverHostname, that.serverHostname) && Objects.equals(memoryTotal, that.memoryTotal) && Objects.equals(purpose, that.purpose) && Objects.equals(serverIp, that.serverIp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serverId, serverOs, serverHostname, memoryTotal, purpose, serverIp);
     }
 }
