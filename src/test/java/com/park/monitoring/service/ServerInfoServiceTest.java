@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,12 +93,11 @@ public class ServerInfoServiceTest {
     }
 
     @DisplayName("서버 데이터 조회 - 디스크 noData")
+    @Sql("classpath:sql/testTable.sql")
     @Test
     void t04_01_testFindAll_withDisk_noData() {
-        int result = serverInfoService.serverInfoMapper.deleteAll();
-        assertThat(result).isGreaterThan(1);
-        assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() -> serverInfoService.findAllServerInfo());
+        assertThatExceptionOfType(EmptyResultDataAccessException.class)
+                .isThrownBy(() -> serverInfoService.deleteAll());
     }
 
     @DisplayName("서버 데이터 조회 - 히스토리")
@@ -167,7 +168,7 @@ public class ServerInfoServiceTest {
                 .serverIp("192.168.1.1") // 중복 IP 설정
                 .build();
 
-        assertThatExceptionOfType(RuntimeException.class)
+        assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
     }
 

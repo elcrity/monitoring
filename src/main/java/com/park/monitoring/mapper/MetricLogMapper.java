@@ -19,6 +19,7 @@ public interface MetricLogMapper {
 
     int insertLog(MetricLog metricLog);
 //    int updateLog(MetricLog metricLog);
-    int deleteLogBeforeTime(LocalDateTime timestamp);
+    int deleteLogBeforeTime();
+
 
 }

@@ -5,6 +5,7 @@ import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ConvertUtil;
 import com.park.monitoring.util.ServerInfoUtil;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -64,7 +65,7 @@ public class ServerInfoController {
         return "register";
     }
 
-    @PostMapping("/add/server")
+    @PostMapping("/regServer")
     public String addServer(@RequestParam String purpose) {
         String os = ServerInfoUtil.getServerOs();
         String hostname = ServerInfoUtil.getServerHostname();
@@ -82,19 +83,20 @@ public class ServerInfoController {
                             .build());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (DataIntegrityViolationException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-
-        return "redirect:/dashboard";
+        return "redirect:/";
     }
 
-    @DeleteMapping("/delete/{serverId}")
-    public String deleteServer(@PathVariable Integer serverId, RedirectAttributes redirectAttributes) {
+    @DeleteMapping({"/delete/{serverId}","/delete/"})
+    public String deleteServer(@PathVariable(required = false) Integer serverId, RedirectAttributes redirectAttributes) {
         try {
             serverInfoService.deleteServerInfo(serverId);
             redirectAttributes.addFlashAttribute("message", "서버 삭제 성공.");
-            return "redirect:/dashboard";
+            return "redirect:/";
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (RuntimeException e) {

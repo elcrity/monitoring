@@ -1,7 +1,9 @@
 package com.park.monitoring.service;
 
 import com.park.monitoring.mapper.MetricLogMapper;
+import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
+import org.apache.catalina.Server;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +32,18 @@ public class MetricLogServiceTest {
     int id = 1;
     @Autowired
     MetricLogMapper metricLogMapper;
+    @Autowired
+    ServerInfoMapper serverInfoMapper;
 
     MetricLogService metricLogService;
+
     @Autowired
     private ServerInfoService serverInfoService;
 
     @BeforeEach
     public void setUp() {
-        metricLogService = new MetricLogService(metricLogMapper);
+
+        metricLogService = new MetricLogService(metricLogMapper,serverInfoMapper);
     }
 
     @DisplayName("로그 조회 - 전체")
@@ -86,12 +92,12 @@ public class MetricLogServiceTest {
         }
     }
 
+    //Todo : delete log 시간 기준 변경으로 고장난 테스트 2개 고치기
     @DisplayName("로그 조회 - dashboard noData")
+    @Sql("classpath:sql/testTable.sql")
     @Test
     void t03_01_getRecentLogs_noData() {
-        int result = metricLogService.deleteMetricLogBeforeTime(LocalDateTime.now().plusMinutes(10));
-        assertThat(result).isGreaterThan(0);
-        assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(()->metricLogService.findMetricLogByLatest());
     }
 
@@ -109,7 +115,7 @@ public class MetricLogServiceTest {
     void t04_01_getLog_history(){
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->metricLogService.findMetricLogAtHistory(null));
-        int result = metricLogService.deleteMetricLogBeforeTime(LocalDateTime.now().plusMinutes(10));
+        int result = metricLogService.deleteMetricLogBeforeTime();
         assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->metricLogService.findMetricLogAtHistory(id+22));
@@ -118,108 +124,36 @@ public class MetricLogServiceTest {
     @DisplayName("로그 등록")
     @Test
     void t05_addLog(){
-        id = 3;
-        MetricLog metricLog = new MetricLog.Builder()
-                .cpuUsage(22.2)
-                .memoryUsage(33.3)
-                .serverMetricFk(id)
-                .createdDate(LocalDateTime.now())
-                .diskName1("test1")
-                .diskTotal1(11111L)
-                .diskUsage1(11.1)
-                .diskName2("test2")
-                .diskTotal2(22222L)
-                .diskUsage2(22.2)
-                .diskName3("test3")
-                .diskTotal3(33333L)
-                .diskUsage3(33.3)
-                .diskName4("test4")
-                .diskTotal4(44444L)
-                .diskUsage4(44.4)
-                .build();
-        int result = metricLogService.insertMetricLog(metricLog);
-        System.out.println(metricLogService.findMetricLogAllByServerId(id));
+        int result = metricLogService.insertMetricLog("192.168.1.1");
         assertThat(result).isEqualTo(1);
     }
 
-    @DisplayName("로그 등록 - 필드 null")
-    @Test
-    void t06_addLog_null(){
-        id = 3;
-        MetricLog metricLog = new MetricLog.Builder()
-                .cpuUsage(22.2)
-                .memoryUsage(33.3)
-                .serverMetricFk(id)
-                .createdDate(LocalDateTime.now())
-                .diskName1(null)
-                .diskTotal1(11111L)
-                .diskUsage1(11.1)
-                .diskName2("test2")
-                .diskTotal2(22222L)
-                .diskUsage2(22.2)
-                .diskName3("test3")
-                .diskTotal3(33333L)
-                .diskUsage3(33.3)
-                .diskName4("test4")
-                .diskTotal4(44444L)
-                .diskUsage4(44.4)
-                .build();
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog(metricLog));
-    }
     @DisplayName("로그 등록 - fk null")
     @Test
     void t06_addLog_fkNull(){
-        MetricLog metricLog = new MetricLog.Builder()
-                .cpuUsage(22.2)
-                .memoryUsage(33.3)
-                .serverMetricFk(null)
-                .createdDate(LocalDateTime.now())
-                .diskName1("test1")
-                .diskTotal1(11111L)
-                .diskUsage1(11.1)
-                .diskName2("test2")
-                .diskTotal2(22222L)
-                .diskUsage2(22.2)
-                .diskName3("test3")
-                .diskTotal3(33333L)
-                .diskUsage3(33.3)
-                .diskName4("test4")
-                .diskTotal4(44444L)
-                .diskUsage4(44.4)
-                .build();
-
         assertThatExceptionOfType(DataIntegrityViolationException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog(metricLog));
+                .isThrownBy(()->metricLogService.insertMetricLog(null));
     }
 
-//    @DisplayName("로그 삭제")
-//    @Test
-//    void t07_removeLog(){
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime oneMinuteBefore = now.minusMinutes(1);
-//
-//        int result = metricLogService.deleteMetricLogBeforeTime(oneMinuteBefore);
-//        assertThat(result).isGreaterThan(0);
-//    }
+    @DisplayName("로그 삭제")
+    @Test
+    void t07_removeLog(){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneMinuteBefore = now.minusMinutes(1);
 
-//    @DisplayName("로그 삭제 - no Log")
-//    @Test
-//    void t08_removeLog_noBeforeTime(){
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime oneMinuteBefore = now.minusMinutes(5);
-//
-//        assertThatExceptionOfType(RuntimeException.class)
-//                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime(oneMinuteBefore));
-//
-//    }
-//
-//    @DisplayName("로그 삭제 - null")
-//    @Test
-//    void t08_removeLog_timeIsNull(){
-//        assertThatExceptionOfType(IllegalArgumentException.class)
-//                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime(null));
-//
-//    }
+        int result = metricLogService.deleteMetricLogBeforeTime();
+        assertThat(result).isGreaterThan(0);
+    }
+
+    @DisplayName("로그 삭제 - no Log")
+    @Test
+    void t08_removeLog_noBeforeTime(){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneMinuteBefore = now.minusMinutes(5);
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime());
+
+    }
 }

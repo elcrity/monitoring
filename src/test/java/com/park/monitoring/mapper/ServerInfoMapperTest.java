@@ -122,4 +122,18 @@ public class ServerInfoMapperTest {
 
         assertThat(serverInfoMapper.selectAllServerInfo()).isEmpty();
     }
+
+    @DisplayName("ip Exist")
+    @Test
+    void t08_isIpExist(){
+        int result = serverInfoMapper.isIpExists("192.168.1.1");
+        assertThat(result).isEqualTo(1);
+    }
+
+    @DisplayName("findByIp")
+    @Test
+    void t089_findByIp(){
+        ServerInfo result = serverInfoMapper.findServerInfoByIp("192.168.1.1");
+        assertThat(result.getServerId()).isEqualTo(1);
+    }
 }

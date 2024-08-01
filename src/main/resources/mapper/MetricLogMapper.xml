@@ -68,7 +68,6 @@
         INSERT INTO metric_log (
             cpu_usage,
             memory_usage,
-            created_date,
             server_metric_fk,
             disk_usage1, disk_usage2, disk_usage3, disk_usage4,
             disk_total1, disk_total2, disk_total3, disk_total4,
@@ -77,7 +76,6 @@
             VALUES (
             #{cpuUsage},
             #{memoryUsage},
-            #{createdDate},
             #{serverMetricFk},
             #{diskUsage1}, #{diskUsage2}, #{diskUsage3}, #{diskUsage4},
             #{diskTotal1}, #{diskTotal2}, #{diskTotal3},  #{diskTotal4},
@@ -89,13 +87,13 @@
 <!--        SET cpu_usage=#{cpuUsage}, memory_usage=#{memoryUsage}-->
 <!--        WHERE log_id=#{logId};-->
 <!--    </update>-->
-    <delete id="deleteLogBeforeTime" parameterType="java.time.LocalDateTime">
+    <delete id="deleteLogBeforeTime">
         DELETE FROM metric_log
         WHERE created_date
         <![CDATA[
         <
         ]]>
-        #{timestamp};
+        CURRENT_TIMESTAMP;
     </delete>
 
 </mapper>

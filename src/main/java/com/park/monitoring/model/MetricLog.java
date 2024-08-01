@@ -13,10 +13,10 @@ public class MetricLog {
     Double diskUsage2;
     Double diskUsage3;
     Double diskUsage4;
-    Long diskTotal1;
-    Long diskTotal2;
-    Long diskTotal3;
-    Long diskTotal4;
+    Double diskTotal1;
+    Double diskTotal2;
+    Double diskTotal3;
+    Double diskTotal4;
     String diskName1;
     String diskName2;
     String diskName3;
@@ -54,10 +54,10 @@ public class MetricLog {
         private Double diskUsage2;
         private Double diskUsage3;
         private Double diskUsage4;
-        private Long diskTotal1;
-        private Long diskTotal2;
-        private Long diskTotal3;
-        private Long diskTotal4;
+        private Double diskTotal1;
+        private Double diskTotal2;
+        private Double diskTotal3;
+        private Double diskTotal4;
         private String diskName1;
         private String diskName2;
         private String diskName3;
@@ -108,22 +108,22 @@ public class MetricLog {
             return this;
         }
 
-        public Builder diskTotal1(Long diskTotal1) {
+        public Builder diskTotal1(Double diskTotal1) {
             this.diskTotal1 = diskTotal1;
             return this;
         }
 
-        public Builder diskTotal2(Long diskTotal2) {
+        public Builder diskTotal2(Double diskTotal2) {
             this.diskTotal2 = diskTotal2;
             return this;
         }
 
-        public Builder diskTotal3(Long diskTotal3) {
+        public Builder diskTotal3(Double diskTotal3) {
             this.diskTotal3 = diskTotal3;
             return this;
         }
 
-        public Builder diskTotal4(Long diskTotal4) {
+        public Builder diskTotal4(Double diskTotal4) {
             this.diskTotal4 = diskTotal4;
             return this;
         }
@@ -225,35 +225,35 @@ public class MetricLog {
         this.diskUsage4 = diskUsage4;
     }
 
-    public Long getDiskTotal1() {
+    public Double getDiskTotal1() {
         return diskTotal1;
     }
 
-    public void setDiskTotal1(Long diskTotal1) {
+    public void setDiskTotal1(Double diskTotal1) {
         this.diskTotal1 = diskTotal1;
     }
 
-    public Long getDiskTotal2() {
+    public Double getDiskTotal2() {
         return diskTotal2;
     }
 
-    public void setDiskTotal2(Long diskTotal2) {
+    public void setDiskTotal2(Double diskTotal2) {
         this.diskTotal2 = diskTotal2;
     }
 
-    public Long getDiskTotal3() {
+    public Double getDiskTotal3() {
         return diskTotal3;
     }
 
-    public void setDiskTotal3(Long diskTotal3) {
+    public void setDiskTotal3(Double diskTotal3) {
         this.diskTotal3 = diskTotal3;
     }
 
-    public Long getDiskTotal4() {
+    public Double getDiskTotal4() {
         return diskTotal4;
     }
 
-    public void setDiskTotal4(Long diskTotal4) {
+    public void setDiskTotal4(Double diskTotal4) {
         this.diskTotal4 = diskTotal4;
     }
 

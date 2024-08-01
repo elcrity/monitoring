@@ -44,6 +44,18 @@
         WHERE si.server_id = #{serverId};
     </select>
 
+    <select id="isIpExists" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM server_info
+        WHERE server_ip = #{ip}
+    </select>
+
+    <select id="findServerInfoByIp" parameterType="String" resultType="com.park.monitoring.model.ServerInfo">
+        select server_id
+        from server_info
+        where server_ip=#{serverIp}
+    </select>
+
 
     <insert id="insertServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)

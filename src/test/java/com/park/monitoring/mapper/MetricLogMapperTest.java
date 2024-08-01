@@ -92,9 +92,21 @@ public class MetricLogMapperTest {
     @Test
     void t04_insertLog(){
         MetricLog log = new MetricLog.Builder()
-                .cpuUsage(44.4)
-                .memoryUsage(25.5)
-                .serverMetricFk(2)
+                .cpuUsage(55.5) // CPU 사용률
+                .memoryUsage(30.0) // 메모리 사용률
+                .serverMetricFk(3) // 서버 메트릭 외래 키
+                .diskUsage1(75.0) // 디스크 사용량 1
+                .diskUsage2(60.0) // 디스크 사용량 2
+                .diskUsage3(45.0) // 디스크 사용량 3
+                .diskUsage4(80.0) // 디스크 사용량 4
+                .diskTotal1(100000.0) // 디스크 총 용량 1
+                .diskTotal2(200000.0) // 디스크 총 용량 2
+                .diskTotal3(300000.0) // 디스크 총 용량 3
+                .diskTotal4(400000.0) // 디스크 총 용량 4
+                .diskName1("Disk A") // 디스크 이름 1
+                .diskName2("Disk B") // 디스크 이름 2
+                .diskName3("Disk C") // 디스크 이름 3
+                .diskName4("Disk D") // 디스크 이름 4
                 .build();
         int result = metricLogMapper.insertLog(log);
         assertThat(result).isEqualTo(1);
@@ -107,7 +119,7 @@ public class MetricLogMapperTest {
         LocalDateTime oneSecondBefore = now.minusMinutes(1);
 
         //2초 간격으로 데이터 삽입, 처음 삽입한 데이터 5개만 삭제
-        int result = metricLogMapper.deleteLogBeforeTime(oneSecondBefore);
+        int result = metricLogMapper.deleteLogBeforeTime();
         assertThat(result).isGreaterThan(5);
     }
 
