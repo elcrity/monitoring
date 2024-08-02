@@ -202,8 +202,8 @@ public class osInfoController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        System.out.println("=================osBean" + osBean);
         String cpuArch = osBean.getArch();
         String cpuName = osBean.getName();
         double ProcessLoad = osBean.getProcessCpuLoad();
@@ -217,7 +217,7 @@ public class osInfoController {
 
     public static void getMemory() {
 //        System 메모리
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         long sysFreeMemory = (osBean.getFreeMemorySize());
         long sysTotalMemory = (osBean.getTotalMemorySize());
         long sysUsedMemory = sysTotalMemory - sysFreeMemory;

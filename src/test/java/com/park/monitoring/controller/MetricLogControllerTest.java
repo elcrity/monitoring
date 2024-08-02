@@ -5,18 +5,14 @@ import com.park.monitoring.model.MetricLog;
 import com.park.monitoring.service.MetricLogService;
 import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ServerInfoUtil;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -24,8 +20,8 @@ import java.util.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,6 +41,16 @@ public class MetricLogControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+    private MockedStatic<ServerInfoUtil> mockedStatic;
+    @BeforeEach
+    void setUp() {
+        mockedStatic = Mockito.mockStatic(ServerInfoUtil.class);
+    }
+
+    @AfterEach
+    void tearDown() {
+        mockedStatic.close();
+    }
 
     @DisplayName("/log 정상 동작 테스트")
     @Test
@@ -183,7 +189,6 @@ public class MetricLogControllerTest {
     @Test
     void t07_insertServerLog() throws Exception {
         String ip = "";
-        Mockito.mockStatic(ServerInfoUtil.class);
         when(ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs())).thenReturn(ip);
 
 

@@ -32,6 +32,7 @@ public class ServerInfoServiceTest {
     @Autowired
     ServerInfoMapper serverInfoMapper;
 
+
     ServerInfoService serverInfoService;
 
     @BeforeEach

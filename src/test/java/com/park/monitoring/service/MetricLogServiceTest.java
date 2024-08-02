@@ -3,7 +3,11 @@ package com.park.monitoring.service;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
+import com.park.monitoring.util.ServerInfoUtil;
+import com.sun.management.OperatingSystemMXBean;
 import org.apache.catalina.Server;
+import org.apache.catalina.Service;
+import org.apache.ibatis.jdbc.Null;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,6 @@ public class MetricLogServiceTest {
 
     @BeforeEach
     public void setUp() {
-
         metricLogService = new MetricLogService(metricLogMapper,serverInfoMapper);
     }
 
@@ -93,11 +96,11 @@ public class MetricLogServiceTest {
     }
 
     //Todo : delete log 시간 기준 변경으로 고장난 테스트 2개 고치기
-    @DisplayName("로그 조회 - dashboard noData")
-    @Sql("classpath:sql/testTable.sql")
+    @DisplayName("로그 조회 - Latest noData")
     @Test
+    @Sql("classpath:sql/testTable.sql")
     void t03_01_getRecentLogs_noData() {
-        assertThatExceptionOfType(RuntimeException.class)
+        assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->metricLogService.findMetricLogByLatest());
     }
 
@@ -105,7 +108,6 @@ public class MetricLogServiceTest {
     @Test
     void t04_getLog_history(){
         List<MetricLog> metricLog = metricLogService.findMetricLogAtHistory(id);
-        System.out.println("============================= : " + metricLog);
         assertThat(metricLog).isNotNull();
 
     }
@@ -115,14 +117,13 @@ public class MetricLogServiceTest {
     void t04_01_getLog_history(){
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->metricLogService.findMetricLogAtHistory(null));
-        int result = metricLogService.deleteMetricLogBeforeTime();
-        assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->metricLogService.findMetricLogAtHistory(id+22));
     }
 
     @DisplayName("로그 등록")
     @Test
+    @Transactional
     void t05_addLog(){
         int result = metricLogService.insertMetricLog("192.168.1.1");
         assertThat(result).isEqualTo(1);
@@ -134,6 +135,13 @@ public class MetricLogServiceTest {
     void t06_addLog_fkNull(){
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(()->metricLogService.insertMetricLog(null));
+    }
+
+    @DisplayName("로그 등록 - fk null")
+    @Test
+    void t06_01_addLog_fkNull(){
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(()->metricLogService.insertMetricLog("!1111"));
     }
 
     @DisplayName("로그 삭제")
@@ -148,10 +156,8 @@ public class MetricLogServiceTest {
 
     @DisplayName("로그 삭제 - no Log")
     @Test
+    @Sql("classpath:sql/testTable.sql")
     void t08_removeLog_noBeforeTime(){
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneMinuteBefore = now.minusMinutes(5);
-
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime());
 

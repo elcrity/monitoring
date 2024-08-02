@@ -5,6 +5,8 @@ import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
 import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.util.ServerInfoUtil;
+import com.sun.management.OperatingSystemMXBean;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,10 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.time.LocalDateTime;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MetricLogService {
@@ -24,9 +28,17 @@ public class MetricLogService {
     private final ServerInfoMapper serverInfoMapper;
     MetricLogMapper metricLogMapper;
 
+    private OperatingSystemMXBean osBean;
+
     public MetricLogService(MetricLogMapper metricLogMapper, ServerInfoMapper serverInfoMapper) {
         this.metricLogMapper = metricLogMapper;
         this.serverInfoMapper = serverInfoMapper;
+
+        OperatingSystemMXBean tempOsBean = null;
+        while (tempOsBean == null) {
+            tempOsBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        }
+        this.osBean = tempOsBean;
     }
 
     public List<MetricLog> findMetricLogAll() {
@@ -48,7 +60,7 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogByLatest() {
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
-        if (metricLogs == null) {
+        if (metricLogs.isEmpty()) {
             throw new NoSuchElementException("로그가 존재하지 않습니다");
         }
         return metricLogs;
@@ -66,9 +78,15 @@ public class MetricLogService {
     public int insertMetricLog(String serverIp) {
         if(serverIp == null) throw new DataIntegrityViolationException("참조할 서버키값이 null입니다.");
         ServerInfo serverInfo = serverInfoMapper.findServerInfoByIp(serverIp);
-        double cpuUsage = (Double.parseDouble(String.format("%.2f", ServerInfoUtil.getCPUProcess().getCpuLoad()*100)));
-        double memoryUsage = (double) ServerInfoUtil.getServerMemory().get("usedMemoryPercentage");
-        List<File> diskData = ServerInfoUtil.getDiskUsage();
+        if(serverInfo == null) throw new NullPointerException("해당하는 서버가 없습니다.");
+//        while(osBean==null){
+//            osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+//        }
+        double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
+        long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
+        long sysTotalMemory = ServerInfoUtil.getTotalMemory(osBean);
+        double memoryUsage = ServerInfoUtil.getUsageMemoryP(sysTotalMemory, sysFreeMemory);
+        List<File> diskData = Arrays.asList(File.listRoots());
         List<Double> diskTotalData = new ArrayList<>();
         List<Double> diskUsageData = new ArrayList<>();
         List<String> diskName = new ArrayList<>();

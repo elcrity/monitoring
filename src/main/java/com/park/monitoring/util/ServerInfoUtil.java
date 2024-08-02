@@ -15,6 +15,7 @@ import java.util.*;
 
 public class ServerInfoUtil {
 
+
     public static String getServerOs() {
         return System.getProperty("os.name").toLowerCase();
     }
@@ -33,8 +34,19 @@ public class ServerInfoUtil {
         return hostname;
     }
 
-    public static Map<String, Object> getServerMemory() {
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+    public static long getFreeMemory(OperatingSystemMXBean osBean){
+        return osBean.getFreeMemorySize();
+    }
+
+    public static long getTotalMemory(OperatingSystemMXBean osBean){
+        return osBean.getTotalMemorySize();
+    }
+
+    public static double getUsageMemoryP(long totalMemory, long freeMemory){
+        return Double.parseDouble(String.format("%.2f", ((double) totalMemory - freeMemory / totalMemory) * 100));
+    }
+
+    public static Map<String, Object> getServerMemory(OperatingSystemMXBean osBean) {
         long sysFreeMemory = (osBean.getFreeMemorySize());
         long sysTotalMemory = (osBean.getTotalMemorySize());
         long sysUsedMemory = sysTotalMemory - sysFreeMemory;

@@ -5,6 +5,7 @@ import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ConvertUtil;
 import com.park.monitoring.util.ServerInfoUtil;
+import com.sun.management.OperatingSystemMXBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -23,9 +25,17 @@ public class ServerInfoController {
     ServerInfoService serverInfoService;
     DiskService diskService;
 
+    OperatingSystemMXBean osBean;
+
     public ServerInfoController(ServerInfoService serverInfoService, DiskService diskService) {
         this.serverInfoService = serverInfoService;
         this.diskService = diskService;
+
+        OperatingSystemMXBean tempOsBean = null;
+        while (tempOsBean == null) {
+            tempOsBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        }
+        this.osBean = tempOsBean;
     }
 
     @GetMapping
@@ -69,7 +79,7 @@ public class ServerInfoController {
     public String addServer(@RequestParam String purpose) {
         String os = ServerInfoUtil.getServerOs();
         String hostname = ServerInfoUtil.getServerHostname();
-        long totalMemory = (long) ServerInfoUtil.getServerMemory().get("totalMemory");
+        long totalMemory = (long) ServerInfoUtil.getTotalMemory(osBean);
         String serverIp = ServerInfoUtil.getServerIp(os);
         int result;
         try {
