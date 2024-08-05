@@ -72,16 +72,12 @@ public class DiskMapperTest {
     @Test
     void t03_updateDisk() {
         int id = 1;
-        Disk disk = new Disk.Builder()
-                .diskId(id)
-                .diskName("TDisk")
-                .diskServerInfoFk(2)
-                .build();
-        int result = diskMapper.updateDisk(disk);
+        Disk testDisk = diskMapper.selectDiskById(id);
+        int result = diskMapper.updateDisk(testDisk);
         assertThat(1).isEqualTo(result);
 
         Disk updatedDisk = diskMapper.selectDiskById(id);
-        assertThat(updatedDisk.getDiskName()).isEqualTo("TDisk");
+        assertThat(updatedDisk.getDiskName()).isEqualTo("disk1");
 
     }
     @DisplayName("디스크 delete 테스트")

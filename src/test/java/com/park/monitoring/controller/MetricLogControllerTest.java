@@ -172,16 +172,16 @@ public class MetricLogControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("/log/history/nonExistingId")
+    @DisplayName("/log/history/invalid")
     @Test
     void t06_getServerLog_nonExistentId() throws Exception {
         int nonExistentServerId = 999; // 존재하지 않는 ID
 
         when(metricLogService.findMetricLogAtHistory(nonExistentServerId))
                 .thenThrow(new NoSuchElementException("없는 서버입니다"));
-        mvc.perform(post("/log/history" + nonExistentServerId))
-                .andExpect(status().isNotFound())
-                .andDo(print()); // 예외가 발생하면 HTTP 상태 코드는 404가 되어야 함
+        mvc.perform(post("/history/{serverId}", nonExistentServerId))
+                .andExpect(status().isNotFound()) // 상태 코드가 NOT FOUND인지 확인
+                .andDo(print());
 
     }
 

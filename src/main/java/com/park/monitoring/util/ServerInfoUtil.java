@@ -1,17 +1,21 @@
 package com.park.monitoring.util;
 
+import com.park.monitoring.dto.DiskInfo;
+import com.park.monitoring.model.Disk;
 import com.sun.management.OperatingSystemMXBean;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 
 public class ServerInfoUtil {
 
@@ -46,30 +50,6 @@ public class ServerInfoUtil {
         return Double.parseDouble(String.format("%.2f", ((double) totalMemory - freeMemory / totalMemory) * 100));
     }
 
-    public static Map<String, Object> getServerMemory(OperatingSystemMXBean osBean) {
-        long sysFreeMemory = (osBean.getFreeMemorySize());
-        long sysTotalMemory = (osBean.getTotalMemorySize());
-        long sysUsedMemory = sysTotalMemory - sysFreeMemory;
-        double usedMemoryPercentage = Double.parseDouble(String.format("%.2f", ((double) sysUsedMemory / sysTotalMemory) * 100));
-
-        Map<String, Object> memoryInfoMap = new HashMap<>();
-        addMemoryInfo(memoryInfoMap, "freeMemory", sysFreeMemory);
-        addMemoryInfo(memoryInfoMap, "totalMemory", sysTotalMemory);
-        addMemoryInfo(memoryInfoMap, "usedMemoryPercentage", usedMemoryPercentage);
-        return memoryInfoMap;
-    }
-
-    private static void addMemoryInfo(Map<String, Object> map, String key, Object value) {
-        if (value instanceof Long) {
-            map.put(key, value);
-        } else if (value instanceof Double) {
-            try {
-                map.put(key, value);
-            } catch (NumberFormatException e) {
-                System.err.println("포맷이 맞지 않음 " + key + ": " + value);
-            }
-        }
-    }
 
     public static String getServerIp(String os) {
         String hostAddr = "";
@@ -105,36 +85,21 @@ public class ServerInfoUtil {
         return "";
     }
 
-    public static OperatingSystemMXBean getCPUProcess() {
-        BufferedReader buffReader = null;
-        Process p = null;
-        String hostname;
-        try {
-            p = Runtime.getRuntime().exec("hostname");
-            buffReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            hostname = buffReader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public static DiskInfo getDiskInfo() {
+        List<File> diskData = Arrays.asList(File.listRoots());
+        List<Double> diskTotalData = new ArrayList<>();
+        List<Double> diskUsageData = new ArrayList<>();
+        List<String> diskName = new ArrayList<>();
+
+        for (File disk : diskData) {
+            double diskTotal = disk.getTotalSpace();
+            double usagePercentage = ((double) (diskTotal - disk.getFreeSpace()) / diskTotal) * 100;
+
+            diskTotalData.add(diskTotal / Math.pow(1024.0, 2));  // MB 단위로 변환
+            diskUsageData.add(Double.valueOf(String.format("%.2f", usagePercentage)));
+            diskName.add(disk.getAbsolutePath());
         }
 
-        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        return osBean;
-//        String cpuArch = osBean.getArch();
-//        String cpuName = osBean.getName();
-//        double ProcessLoad = osBean.getProcessCpuLoad();
-//        String cpuVersion = osBean.getVersion();
-//        int availableProcessors = osBean.getAvailableProcessors();
-//        String cpuUsage = String.format("%.2f", osBean.getCpuLoad() * 100);
-//        log.info("Cpu Info : {}.{}.{}.{}", cpuName, cpuVersion, cpuArch, hostname);
-//        log.info("Process Load : {}% ", String.format("%.2f", ProcessLoad * 100));
-//        log.info("Cpu Usage : {}%", cpuUsage);
-    }
-
-    public static List<File> getDiskUsage()  {
-        //linux df -h 사용시, 장치명, 할당 용량, 사용 용량, 사용 가능 용량, 사용률, 마운트포인트(디렉토리) 표시
-        File[] roots = File.listRoots();
-        List<File> files = new ArrayList<>();
-        files.addAll(Arrays.asList(roots));
-        return files;
+        return new DiskInfo(diskTotalData, diskUsageData, diskName);
     }
 }

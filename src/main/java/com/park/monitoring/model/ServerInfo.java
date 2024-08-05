@@ -4,8 +4,7 @@ package com.park.monitoring.model;
 import java.util.Objects;
 
 public class ServerInfo {
-    int serverId;
-
+    Integer serverId;
     String serverOs;
     String serverHostname;
     Long memoryTotal;
@@ -24,14 +23,14 @@ public class ServerInfo {
     }
 
     public static class Builder{
-        private int serverId;
+        private Integer serverId;
         private String serverOs;
         private String serverHostname;
         private Long memoryTotal;
         private String purpose;
         private String serverIp;
 
-        public Builder serverId(int serverId){
+        public Builder serverId(Integer serverId){
             this.serverId = serverId;
             return this;
         }
@@ -105,6 +104,11 @@ public class ServerInfo {
     public String getServerIp() {
         return serverIp;
     }
+
+    public void setServerId(Integer serverId) {
+        this.serverId = serverId;
+    }
+
     @Override
     public String toString() {
         return "ServerInfo{" +

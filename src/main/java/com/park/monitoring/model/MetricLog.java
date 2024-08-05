@@ -1,7 +1,6 @@
 package com.park.monitoring.model;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class MetricLog {
     Integer logId;

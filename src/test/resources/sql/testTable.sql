@@ -41,3 +41,5 @@ CREATE TABLE metric_log (
                             disk_name4 varchar(30) NULL,
                             PRIMARY KEY (log_id)
 );
+
+CREATE INDEX idx_server_ip ON server_info (server_ip);

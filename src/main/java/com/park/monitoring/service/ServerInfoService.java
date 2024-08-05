@@ -2,6 +2,7 @@ package com.park.monitoring.service;
 
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
+import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,17 @@ public class ServerInfoService {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     ServerInfoMapper serverInfoMapper;
+    OperatingSystemMXBean osBean;
 
     public ServerInfoService(ServerInfoMapper serverInfoMapper) {
+
         this.serverInfoMapper = serverInfoMapper;
+
+        OperatingSystemMXBean tempOsBean = null;
+        while (tempOsBean == null) {
+            tempOsBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        }
+        this.osBean = tempOsBean;
     }
 
 
@@ -45,6 +54,17 @@ public List<ServerInfo> findAllServerInfo() {
         return serverInfo;
     }
 
+    public ServerInfo findServerInfoByIp(String ip) {
+        if (ip == null) {
+            throw new IllegalArgumentException("입력된 Ip가 null입니다.");
+        }
+        ServerInfo serverInfo = serverInfoMapper.findServerInfoByIp(ip);
+        if (serverInfo == null) {
+            throw new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음. - " + this.getClass());
+        }
+        return serverInfo;
+    }
+
     public ServerInfo findServerInfoAtHistory(Integer id) {
         if (id == null) throw new IllegalArgumentException("입력받은 값이 null입니다.");
         ServerInfo serverInfo = serverInfoMapper.selectServerInfoAtHistory(id);
@@ -53,20 +73,32 @@ public List<ServerInfo> findAllServerInfo() {
     }
 
     @Transactional
-    public int addServerInfo(ServerInfo serverInfo) {
-        if (serverInfo.getServerIp() == null
-            || serverInfo.getServerHostname() == null
-            || serverInfo.getServerOs() == null
-            || serverInfo.getMemoryTotal() == null) {
+    public String addServerInfo(String purpose) {
+        String os = ServerInfoUtil.getServerOs();
+        String hostname = ServerInfoUtil.getServerHostname();
+        Long totalMemory = ServerInfoUtil.getTotalMemory(osBean);
+        String serverIp = ServerInfoUtil.getServerIp(os);
+        if (serverIp == null
+            || hostname == null
+            || os == null
+            || totalMemory == null) {
             throw new IllegalArgumentException("필수 값이 null입니다.");
         }
-        if(serverInfoMapper.isIpExists(serverInfo.getServerIp()) == 1){
+
+
+        if(serverInfoMapper.isIpExists(serverIp) == 1){
             throw new DataIntegrityViolationException("이미 존재하는 ip입니다.");
         }
+        ServerInfo serverInfo =  new ServerInfo.Builder()
+                .serverOs(os)
+                .serverHostname(hostname)
+                .memoryTotal(totalMemory)
+                .purpose(purpose)
+                .serverIp(serverIp)
+                .build();
         int result = serverInfoMapper.insertServerInfo(serverInfo);
         if (result < 1) throw new RuntimeException("데이터 등록 실패");
-        return result;
-
+        return serverIp;
     }
 
 

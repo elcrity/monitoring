@@ -2,7 +2,10 @@ package com.park.monitoring.service;
 
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
+import com.park.monitoring.util.ServerInfoUtil;
 import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -32,14 +37,20 @@ public class ServerInfoServiceTest {
     @Autowired
     ServerInfoMapper serverInfoMapper;
 
-
     ServerInfoService serverInfoService;
+
+    private MockedStatic<ServerInfoUtil> mockedStatic;
 
     @BeforeEach
     void init() {
         serverInfoService = new ServerInfoService(serverInfoMapper);
+        mockedStatic = Mockito.mockStatic(ServerInfoUtil.class);
     }
 
+    @AfterEach
+    void tearDown() {
+        mockedStatic.close();
+    }
     @DisplayName("서버 데이터 조회")
     @Test
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
@@ -126,34 +137,49 @@ public class ServerInfoServiceTest {
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t04_testAddServer() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverOs("window")
-                .serverHostname("test")
-                .memoryTotal(8012L)
-                .purpose("서버")
-                .serverIp("192.168.1.11")
-                .build();
-        assertThat(serverInfoService.addServerInfo(serverInfo)).isEqualTo(1);
+        String purpose = "test";
+        when(ServerInfoUtil.getServerOs()).thenReturn("window");
+        when(ServerInfoUtil.getServerHostname()).thenReturn("test");
+        when(ServerInfoUtil.getTotalMemory(any())).thenReturn(8012L);
+        when(ServerInfoUtil.getServerIp(any())).thenReturn("192.168.1.11");
+
+        assertThat(serverInfoService.addServerInfo(purpose)).isEqualTo("192.168.1.11");
     }
 
     @DisplayName("서버 데이터 등록 - 필수값 null")
     @Test
     @Transactional
     void t05_testAddServer_nullUnique() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverOs("window")
-                .serverHostname("test")
-                .memoryTotal(8012L)
-                .purpose("서버")
-                .serverIp(null)
-                .build();
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
-        serverInfo.setServerIp("192.168.1.11");
-        serverInfo.setServerOs(null);
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
-        serverInfo.setServerOs("window");
-        serverInfo.setServerHostname(null);
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
+        String purpose = "test";
+
+        // Mocking the ServerInfoUtil methods
+        when(ServerInfoUtil.getServerOs()).thenReturn(null);
+        when(ServerInfoUtil.getServerHostname()).thenReturn("test");
+        when(ServerInfoUtil.getTotalMemory(any())).thenReturn(8012L);
+        when(ServerInfoUtil.getServerIp(any())).thenReturn("192.168.1.11");
+
+        // Testing when OS is null
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
+                .withMessage("필수 값이 null입니다.");
+
+        // Setting up the next mock
+        when(ServerInfoUtil.getServerOs()).thenReturn("window");
+        when(ServerInfoUtil.getServerHostname()).thenReturn(null);
+
+        // Testing when Hostname is null
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
+                .withMessage("필수 값이 null입니다.");
+
+        // Setting up the next mock
+        when(ServerInfoUtil.getServerHostname()).thenReturn("test");
+        when(ServerInfoUtil.getServerIp(any())).thenReturn(null);
+
+        // Testing when IP is null
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
+                .withMessage("필수 값이 null입니다.");
     }
 
     @DisplayName("서버 데이터 등록 - unique 중복")
@@ -161,16 +187,15 @@ public class ServerInfoServiceTest {
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
     void t06_testAddServer_DuplicateIp() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverOs("windows")
-                .serverHostname("test")
-                .memoryTotal(8012L)
-                .purpose("서버")
-                .serverIp("192.168.1.1") // 중복 IP 설정
-                .build();
+        String purpose = "test";
+        when(ServerInfoUtil.getServerOs()).thenReturn("window");
+        when(ServerInfoUtil.getServerHostname()).thenReturn("test");
+        when(ServerInfoUtil.getTotalMemory(any())).thenReturn(8012L);
+        when(ServerInfoUtil.getServerIp(any())).thenReturn("192.168.1.1");
 
         assertThatExceptionOfType(DataIntegrityViolationException.class)
-                .isThrownBy(() -> serverInfoService.addServerInfo(serverInfo));
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
+                .withMessage("이미 존재하는 ip입니다.");
     }
 
     @DisplayName("서버 데이터 수정")

@@ -5,7 +5,9 @@
 	<title>Server Information</title>
 	<link rel="stylesheet" th:href="@{/css/dashboard.css}">
 	<script th:inline="javascript">
+     /*<![CDATA[*/
      const diskList = /*[[${diskList}]]*/ [];
+     /*]]>*/
 	</script>
 	<script th:src="@{/js/dashboard.js}" defer></script>
 </head>
@@ -26,7 +28,7 @@
 		</tr>
 		</thead>
 		<tbody>
-		<tr th:each="serverInfo : ${serverInfoList}"
+		<tr th:each="serverInfo : ${serverDtoList}"
 		    th:onclick="|handleRowClick(${serverInfo.serverId})|">
 			<td th:text="${serverInfo.serverId}">Server ID</td>
 			<td th:text="${serverInfo.serverOs}">OS</td>
@@ -34,9 +36,10 @@
 			<td th:text="${serverInfo.memoryTotal}">Total Memory</td>
 			<td th:text="${serverInfo.purpose}">Purpose</td>
 			<td th:text="${serverInfo.serverIp}">IP Address</td>
-<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).cpuUsage}">CPU usage</td>-->
-<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).memoryUsage}">Memory usage</td>-->
-<!--			<td th:text="${getMetricLogByServerId(serverInfo.serverId).diskUsage}">Disk usage</td>-->
+			<!-- CPU, Memory, Disk usage should be updated dynamically with JavaScript -->
+			<td>Loading...</td>
+			<td>Loading...</td>
+			<td>Loading...</td>
 		</tr>
 		</tbody>
 	</table>
@@ -47,12 +50,8 @@
 			<div id="diskContent">선택된 디스크 없음.</div>
 		</div>
 		<div class="button-container">
-
+			<!-- Buttons will be added dynamically by JavaScript -->
 		</div>
 	</div>
-
-
-
-
 </body>
 </html>

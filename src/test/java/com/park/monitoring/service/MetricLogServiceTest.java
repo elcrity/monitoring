@@ -3,11 +3,6 @@ package com.park.monitoring.service;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.util.ServerInfoUtil;
-import com.sun.management.OperatingSystemMXBean;
-import org.apache.catalina.Server;
-import org.apache.catalina.Service;
-import org.apache.ibatis.jdbc.Null;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +78,6 @@ public class MetricLogServiceTest {
     @Test
     void t03_getRecentLogs_Latest() {
         List<MetricLog> metricLogs = metricLogService.findMetricLogByLatest();
-        System.out.println("================= : " + metricLogs);
         assertThat(metricLogs).isNotNull();
         assertThat(metricLogs.size()).isGreaterThan(0);
         for (MetricLog log : metricLogs) {
@@ -130,16 +124,16 @@ public class MetricLogServiceTest {
     }
 
 
-    @DisplayName("로그 등록 - fk null")
+    @DisplayName("로그 등록 - ip null")
     @Test
     void t06_addLog_fkNull(){
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(()->metricLogService.insertMetricLog(null));
     }
 
-    @DisplayName("로그 등록 - fk null")
+    @DisplayName("로그 등록 - row null")
     @Test
-    void t06_01_addLog_fkNull(){
+    void t06_01_addLog_rowNull(){
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(()->metricLogService.insertMetricLog("!1111"));
     }

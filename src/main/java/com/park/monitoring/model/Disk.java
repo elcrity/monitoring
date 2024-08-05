@@ -3,9 +3,9 @@ package com.park.monitoring.model;
 import java.time.LocalDateTime;
 
 public class Disk {
-    int diskId;
+    Integer diskId;
     String diskName;
-    int diskServerInfoFk;
+    Integer diskServerInfoFk;
 
     LocalDateTime createdDate;
 
@@ -13,20 +13,19 @@ public class Disk {
     }
 
     public Disk(Builder builder) {
-        this.diskId = builder.diskId;
         this.diskName = builder.diskName;
         this.diskServerInfoFk = builder.diskServerInfoFk;
         this.createdDate = builder.createdDate;
     }
 
     public static class Builder {
-        private int diskId;
+        private Integer diskId;
         private String diskName;
-        private int diskServerInfoFk;
+        private Integer diskServerInfoFk;
 
         private LocalDateTime createdDate;
 
-        public Builder diskId(int diskId) {
+        public Builder diskId(Integer diskId) {
             this.diskId = diskId;
             return this;
         }
@@ -36,7 +35,7 @@ public class Disk {
             return this;
         }
 
-        public Builder diskServerInfoFk(int diskServerInfoFk) {
+        public Builder diskServerInfoFk(Integer diskServerInfoFk) {
             this.diskServerInfoFk = diskServerInfoFk;
             return this;
         }

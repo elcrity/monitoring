@@ -1,12 +1,12 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.dto.DiskInfo;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
 import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class MetricLogService {
@@ -28,7 +27,7 @@ public class MetricLogService {
     private final ServerInfoMapper serverInfoMapper;
     MetricLogMapper metricLogMapper;
 
-    private OperatingSystemMXBean osBean;
+    private final OperatingSystemMXBean osBean;
 
     public MetricLogService(MetricLogMapper metricLogMapper, ServerInfoMapper serverInfoMapper) {
         this.metricLogMapper = metricLogMapper;
@@ -79,26 +78,12 @@ public class MetricLogService {
         if(serverIp == null) throw new DataIntegrityViolationException("참조할 서버키값이 null입니다.");
         ServerInfo serverInfo = serverInfoMapper.findServerInfoByIp(serverIp);
         if(serverInfo == null) throw new NullPointerException("해당하는 서버가 없습니다.");
-//        while(osBean==null){
-//            osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-//        }
+
         double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
         long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
         long sysTotalMemory = ServerInfoUtil.getTotalMemory(osBean);
         double memoryUsage = ServerInfoUtil.getUsageMemoryP(sysTotalMemory, sysFreeMemory);
-        List<File> diskData = Arrays.asList(File.listRoots());
-        List<Double> diskTotalData = new ArrayList<>();
-        List<Double> diskUsageData = new ArrayList<>();
-        List<String> diskName = new ArrayList<>();
-
-        for (File disk : diskData) {
-            double diskTotal = disk.getTotalSpace();
-            double usagePercentage = ((double) (diskTotal - disk.getFreeSpace()) / diskTotal) * 100;
-
-            diskTotalData.add(diskTotal/Math.pow(1024.0, 2));
-            diskUsageData.add(Double.valueOf(String.format("%.2f", usagePercentage)));
-            diskName.add(disk.getAbsolutePath());
-        }
+        DiskInfo diskInfo = ServerInfoUtil.getDiskInfo();
 
 
         MetricLog.Builder builder = new MetricLog.Builder()
@@ -106,27 +91,27 @@ public class MetricLogService {
                 .memoryUsage(memoryUsage)
                 .serverMetricFk(serverInfo.getServerId());
 
-        for (int i = 0; i < diskName.size() && i < 4; i++) {
+        for (int i = 0; i < diskInfo.getDiskName().size() && i < 4; i++) {
             switch (i) {
                 case 0:
-                    builder.diskName1(diskName.get(i))
-                            .diskTotal1(diskTotalData.get(i))
-                            .diskUsage1(diskUsageData.get(i));
+                    builder.diskName1(diskInfo.getDiskName().get(i))
+                            .diskTotal1(diskInfo.getDiskTotalData().get(i))
+                            .diskUsage1(diskInfo.getDiskUsageData().get(i));
                     break;
                 case 1:
-                    builder.diskName2(diskName.get(i))
-                            .diskTotal2(diskTotalData.get(i))
-                            .diskUsage2(diskUsageData.get(i));
+                    builder.diskName2(diskInfo.getDiskName().get(i))
+                            .diskTotal2(diskInfo.getDiskTotalData().get(i))
+                            .diskUsage2(diskInfo.getDiskUsageData().get(i));
                     break;
                 case 2:
-                    builder.diskName3(diskName.get(i))
-                            .diskTotal3(diskTotalData.get(i))
-                            .diskUsage3(diskUsageData.get(i));
+                    builder.diskName3(diskInfo.getDiskName().get(i))
+                            .diskTotal3(diskInfo.getDiskTotalData().get(i))
+                            .diskUsage3(diskInfo.getDiskUsageData().get(i));
                     break;
                 case 3:
-                    builder.diskName4(diskName.get(i))
-                            .diskTotal4(diskTotalData.get(i))
-                            .diskUsage4(diskUsageData.get(i));
+                    builder.diskName4(diskInfo.getDiskName().get(i))
+                            .diskTotal4(diskInfo.getDiskTotalData().get(i))
+                            .diskUsage4(diskInfo.getDiskUsageData().get(i));
                     break;
             }
         }

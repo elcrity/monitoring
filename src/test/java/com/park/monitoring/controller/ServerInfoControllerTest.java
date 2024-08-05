@@ -6,7 +6,6 @@ import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +13,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
@@ -167,7 +170,7 @@ public class ServerInfoControllerTest {
     void t07_history_IllegalArgumentException() throws Exception {
         when(serverInfoService.findServerInfoAtHistory(null)).thenThrow(new IllegalArgumentException("입력된 id값 이상 : "));
         mvc.perform(post("/history/"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
 
@@ -183,84 +186,75 @@ public class ServerInfoControllerTest {
 
     @DisplayName("/regForm")
     @Test
-    void t09_toRegPage() throws Exception {
+    void t09_testToRegFrom() throws Exception {
         mvc.perform(get("/regForm"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"));
+                .andExpect(view().name("register"))
+                .andExpect(model().attributeExists("serverDto"))
+                .andExpect(model().attribute("serverDto", new ServerInfo()));
     }
 
     @DisplayName("/regServer")
     @Test
-    void t10_addServer() throws Exception {
-        when(ServerInfoUtil.getServerOs()).thenReturn(os);
-        when(ServerInfoUtil.getServerHostname()).thenReturn(hostname);
-        when(ServerInfoUtil.getTotalMemory(any(OperatingSystemMXBean.class))).thenReturn(totalMemory);
-        when(ServerInfoUtil.getServerIp(os)).thenReturn(serverIp);
+    void t09_testAddServer_Success() throws Exception {
+        String purpose = "Test Purpose";
+        String serverIp = "192.168.1.1";
+        int serverId = 1;
 
-        // Mock serverInfoService.addServerInfo to return 1
-        ServerInfo expectedServerInfo = new ServerInfo.Builder()
-                .serverOs(os)
-                .serverHostname(hostname)
-                .memoryTotal(totalMemory)
+        // Mocking service layer methods
+        when(serverInfoService.addServerInfo(purpose)).thenReturn(serverIp);
+        when(serverInfoService.findServerInfoByIp(serverIp)).thenReturn(new ServerInfo.Builder()
+                .serverId(serverId)
+                .serverOs("Ubuntu")
+                .serverHostname("server")
+                .memoryTotal(16000L)
                 .purpose(purpose)
                 .serverIp(serverIp)
-                .build();
+                .build());
 
-        // Mock serverInfoService.addServerInfo to return 1
-        when(serverInfoService.addServerInfo(any(ServerInfo.class))).thenReturn(1);
+        when(diskService.insertDisk(serverId)).thenReturn(1); // Assuming the insert returns a success indicator
 
         mvc.perform(post("/regServer")
                         .param("purpose", purpose))
-                .andExpect(status().is3xxRedirection()) // Expect redirection
-                .andExpect(redirectedUrl("/"))
-                .andDo(print());
-
-        verify(serverInfoService).addServerInfo(expectedServerInfo);
+                .andExpect(status().is3xxRedirection()) // Expecting a redirect
+                .andExpect(redirectedUrl("/"));
     }
 
     @DisplayName("/regServer null테스트")
     @Test
     void t10_addServer_null() throws Exception {
+        String purpose = "test";
 
         when(ServerInfoUtil.getServerOs()).thenReturn(os);
         when(ServerInfoUtil.getServerHostname()).thenReturn(hostname);
         when(ServerInfoUtil.getTotalMemory(any(OperatingSystemMXBean.class))).thenReturn(totalMemory);
-        when(ServerInfoUtil.getServerIp(os)).thenReturn(serverIp);
+        when(ServerInfoUtil.getServerIp(os)).thenReturn(null);
 
         // Configure the service mock to throw DataIntegrityViolationException
-        when(serverInfoService.addServerInfo(any(ServerInfo.class)))
-                .thenThrow(new DataIntegrityViolationException("이미 존재하는 IP입니다."));
+        when(serverInfoService.addServerInfo(purpose))
+                .thenThrow(new IllegalArgumentException("필수 값이 null입니다."));
 
         // Act and Assert
         mvc.perform(post("/regServer")
                         .param("purpose", purpose))
-                .andExpect(status().isConflict()) // Expect 409 Conflict
+                .andExpect(status().isBadRequest()) // Expect 409 Conflict
                 .andDo(print());
 
         // Verify that addServerInfo was called with any ServerInfo object
-        verify(serverInfoService, times(1)).addServerInfo(any(ServerInfo.class));
+        verify(serverInfoService, times(1)).addServerInfo(purpose);
 
     }
 
     @DisplayName("/regServer duplicate ip")
     @Test
-    void t10_addServer_duplicate() throws Exception {
-        // Mock static methods from ServerInfoUtil
+    void t11_addServer_duplicate() throws Exception {
 
-        String os = "Linux";
-        String hostname = "test-hostname";
-        long totalMemory = 8192L;
-        String serverIp = "192.168.1.1";
-        String purpose = "Test Server";
-
-        // Mock static methods
         when(ServerInfoUtil.getServerOs()).thenReturn(os);
         when(ServerInfoUtil.getServerHostname()).thenReturn(hostname);
         when(ServerInfoUtil.getTotalMemory(any(OperatingSystemMXBean.class))).thenReturn(totalMemory);
         when(ServerInfoUtil.getServerIp(os)).thenReturn(serverIp);
 
-        // Configure the service mock to throw DataIntegrityViolationException
-        when(serverInfoService.addServerInfo(any(ServerInfo.class)))
+        when(serverInfoService.addServerInfo(purpose))
                 .thenThrow(new DataIntegrityViolationException("이미 존재하는 IP입니다."));
 
         // Act and Assert
@@ -270,8 +264,119 @@ public class ServerInfoControllerTest {
                 .andDo(print());
 
         // Verify that addServerInfo was called with any ServerInfo object
-        verify(serverInfoService, times(1)).addServerInfo(any(ServerInfo.class));
+        verify(serverInfoService, times(1)).addServerInfo(purpose);
     }
+
+    @DisplayName("/editForm/{serverId}")
+    @Test
+    void t12_toRegPage() throws Exception {
+        int serverId = 1;
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(serverId)
+                .serverOs("Ubuntu")
+                .serverHostname("server1")
+                .memoryTotal(16384L)
+                .purpose("Web Server")
+                .serverIp("192.168.1.1")
+                .build();
+
+        when(serverInfoService.findServerInfoById(serverId)).thenReturn(serverInfo);
+
+        mvc.perform(post("/editForm/{serverId}",serverId))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("serverDto",serverInfo))
+                .andExpect(view().name("register"));
+    }
+
+    @DisplayName("/editForm/{serverId}")
+    @Test
+    void t12_01_toRegPage_badRequest() throws Exception {
+        Integer serverId = 1;
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(serverId)
+                .serverOs("Ubuntu")
+                .serverHostname("server1")
+                .memoryTotal(19222L)
+                .purpose("Web Server")
+                .serverIp("192.168.1.1")
+                .build();
+
+        when(serverInfoService.findServerInfoById(null)).thenThrow(new IllegalArgumentException("입력된 Id가 null입니다."));
+
+        mvc.perform(post("/editForm/"))
+                .andExpect(status().isBadRequest());
+    }
+    @DisplayName("/editForm/{serverId}")
+    @Test
+    void t12_02_toRegPage() throws Exception {
+        int serverId = 111;
+
+        when(serverInfoService.findServerInfoById(serverId)).thenThrow(new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음. - "));
+
+        mvc.perform(post("/editForm/{serverId}",serverId))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @DisplayName("/updateServer")
+    @Test
+    void t13_updateServer() throws Exception {
+        int serverId = 1;
+        String purpose = "New Purpose";
+
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverOs("Linux")
+                .serverHostname("host1")
+                .memoryTotal(1024L)
+                .purpose(purpose)
+                .serverIp("192.168.1.1")
+                .build();
+        serverInfo.setServerId(serverId);
+        // Mocking the service method to return the serverId
+        when(serverInfoService.updateServerInfo(serverInfo)).thenReturn(1);
+
+        mvc.perform(put("/updateServer")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("serverId", String.valueOf(serverInfo.getServerId()))
+                        .param("serverOs", serverInfo.getServerOs())
+                        .param("serverHostname", serverInfo.getServerHostname())
+                        .param("memoryTotal", String.valueOf(serverInfo.getMemoryTotal()))
+                        .param("purpose", serverInfo.getPurpose())
+                        .param("serverIp", serverInfo.getServerIp()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/history/" + serverId));  // Use serverId variable here
+
+        verify(serverInfoService, times(1)).updateServerInfo(any(ServerInfo.class));
+    }
+
+    @DisplayName("/updateServer")
+    @Test
+    void t13_updateServer_Illegal() throws Exception {
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverOs("Linux")
+                .serverHostname("host1")
+                .memoryTotal(1024L)
+                .purpose(purpose)
+                .serverIp(null)  // 이 경우 IllegalArgumentException을 던지도록 설계됨
+                .build();
+
+        // 예외 발생을 위한 설정
+        doThrow(new IllegalArgumentException("입력받은 값이 비정상입니다.")).when(serverInfoService).updateServerInfo(any(ServerInfo.class));
+
+        // PUT 요청에 서버 정보 포함
+        // @ModelAttribute를 사용하면 서버 정보까지 담아 보내야함
+        mvc.perform(put("/updateServer")
+                        .param("serverOs", serverInfo.getServerOs())
+                        .param("serverHostname", serverInfo.getServerHostname())
+                        .param("memoryTotal", serverInfo.getMemoryTotal().toString())
+                        .param("purpose", serverInfo.getPurpose())
+                        .param("serverIp", serverInfo.getServerIp()))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
+        verify(serverInfoService, times(1)).updateServerInfo(any(ServerInfo.class));
+    }
+
 
     @DisplayName("/delete/{serverId}")
     @Test
@@ -295,14 +400,23 @@ public class ServerInfoControllerTest {
                 .andExpect(status().isNotFound()); // 리디렉션 상태 코드 검증// 플래시 메시지 검증
     }
 
-    //Todo : RuntimeException부터 테스트 하기
     @DisplayName("/delete/{serverId} Exception")
     @Test
     public void t10_deleteServer_Exception() throws Exception {
-        when(serverInfoService.deleteServerInfo(null)).thenThrow(new IllegalArgumentException("예상하지 못한 에러 발생."));
+        when(serverInfoService.deleteServerInfo(null)).thenThrow(new IllegalArgumentException("입력된 Id가 null입니다."));
 
         mvc.perform(delete("/delete/"))
                 .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @DisplayName("/delete/{serverId} RuntimeException")
+    @Test
+    public void t11_deleteServer_RuntimeException() throws Exception {
+        when(serverInfoService.deleteServerInfo(null)).thenThrow(new RuntimeException("데이터 삭제 실패"));
+
+        mvc.perform(delete("/delete/"))
+                .andExpect(status().isInternalServerError())
                 .andDo(print());
     }
 }
