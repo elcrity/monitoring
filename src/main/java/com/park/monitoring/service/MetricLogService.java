@@ -9,14 +9,10 @@ import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -51,7 +47,7 @@ public class MetricLogService {
             throw new IllegalArgumentException("입력받은 서버의 id가 null입니다.");
         }
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(serverId);
-        if (metricLogs.isEmpty()) {
+        if (metricLogs.isEmpty()||metricLogs == null) {
             throw new NoSuchElementException("해당하는 로그가 존재하지 않습니다");
         }
         return metricLogs;
@@ -67,17 +63,17 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogAtHistory(Integer serverId) {
         if (serverId == null) throw new IllegalArgumentException("입력받은 서버의 id가 null입니다.");
-        List<MetricLog> metricLog = metricLogMapper.selectLogHistory(serverId);
-        if (metricLog.isEmpty()) throw new NoSuchElementException("없는 서버입니다");
-        return metricLog;
+        List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(serverId);
+        if (metricLogs.isEmpty() ||metricLogs == null) throw new NoSuchElementException("없는 서버입니다");
+        return metricLogs;
 
     }
 
     @Transactional
     public int insertMetricLog(String serverIp) {
-        if(serverIp == null) throw new DataIntegrityViolationException("참조할 서버키값이 null입니다.");
-        ServerInfo serverInfo = serverInfoMapper.findServerInfoByIp(serverIp);
-        if(serverInfo == null) throw new NullPointerException("해당하는 서버가 없습니다.");
+        if(serverIp == null) throw new IllegalArgumentException("참조할 값이 null입니다.");
+        Integer serverInfo = serverInfoMapper.findServerIdByIp(serverIp);
+        if(serverInfo == null) throw new NoSuchElementException("해당하는 서버가 없습니다.");
 
         double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
         long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
@@ -85,11 +81,10 @@ public class MetricLogService {
         double memoryUsage = ServerInfoUtil.getUsageMemoryP(sysTotalMemory, sysFreeMemory);
         DiskInfo diskInfo = ServerInfoUtil.getDiskInfo();
 
-
         MetricLog.Builder builder = new MetricLog.Builder()
                 .cpuUsage(cpuUsage)
                 .memoryUsage(memoryUsage)
-                .serverMetricFk(serverInfo.getServerId());
+                .serverMetricFk(serverInfo);
 
         for (int i = 0; i < diskInfo.getDiskName().size() && i < 4; i++) {
             switch (i) {
@@ -117,7 +112,6 @@ public class MetricLogService {
         }
         MetricLog metricLog = builder.build();
 
-
         if (metricLog.getMemoryUsage() == null || metricLog.getCpuUsage() == null
                 || metricLog.getDiskName1() == null || metricLog.getDiskTotal1() == null
                 || metricLog.getDiskUsage1() == null) {
@@ -138,8 +132,8 @@ public class MetricLogService {
 
     public int findMetricLogByIp(String serverIp){
         if(serverIp == null) throw new IllegalArgumentException("입력받은 ip가 Null입니다.");
-        ServerInfo server = serverInfoMapper.findServerInfoByIp(serverIp);
-        if(server == null) throw new NoSuchElementException("해당되는 데이터가 없습니다.");
-        return server.getServerId();
+        Integer serverId = serverInfoMapper.findServerIdByIp(serverIp);
+        if(serverId == null) throw new NoSuchElementException("해당되는 데이터가 없습니다.");
+        return serverId;
     }
 }

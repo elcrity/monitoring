@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.sql.DataSource;
@@ -13,7 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Controller
-@RequestMapping("/test")
+@RequestMapping("/")
 public class homeController {
 	
 	private static final Logger log = LoggerFactory.getLogger(homeController.class);
@@ -28,13 +29,14 @@ public class homeController {
 
     @GetMapping
 	public String start() {
-		log.error("------------error home controller----------------");
-		log.warn("------------warn home controller----------------");
-		log.info("------------access home controller----------------");
-		log.debug("------------debug home controller----------------");
-		log.trace("------------trace home controller----------------");
-		return "Home";
+		return "dashboard";
 	}
+
+    @GetMapping("/history/{serverId}")
+    public String history(@PathVariable String serverId,Model model) {
+        model.addAttribute("serverId", serverId);
+        return "history";
+    }
 
     @GetMapping("/data")
     public String data(Model model){

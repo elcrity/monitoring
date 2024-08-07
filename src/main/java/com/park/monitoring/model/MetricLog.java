@@ -256,14 +256,6 @@ public class MetricLog {
         this.diskTotal4 = diskTotal4;
     }
 
-    public Integer getServerMetricFk() {
-        return serverMetricFk;
-    }
-
-    public void setServerMetricFk(Integer serverMetricFk) {
-        this.serverMetricFk = serverMetricFk;
-    }
-
     public String getDiskName1() {
         return diskName1;
     }

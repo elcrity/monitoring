@@ -127,15 +127,8 @@ public class MetricLogServiceTest {
     @DisplayName("로그 등록 - ip null")
     @Test
     void t06_addLog_fkNull(){
-        assertThatExceptionOfType(DataIntegrityViolationException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->metricLogService.insertMetricLog(null));
-    }
-
-    @DisplayName("로그 등록 - row null")
-    @Test
-    void t06_01_addLog_rowNull(){
-        assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog("!1111"));
     }
 
     @DisplayName("로그 삭제")

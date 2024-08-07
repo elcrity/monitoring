@@ -7,13 +7,9 @@ import com.park.monitoring.util.ServerInfoUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
@@ -46,15 +42,20 @@ public class MetricLogController {
     }
 
 
-    @PostMapping({"/history/{serverId}", "/history"})
+    @PostMapping({"/history/{serverId}", "/history/"})
     ResponseEntity<List<MetricLog>> getServerLog(@PathVariable(required = false) Integer serverId) {
         // 서버 로그를 가져오기
+        try{
         List<MetricLog> metricLogs = metricLogService.findMetricLogAtHistory(serverId);
-        return ResponseEntity.ok().body(metricLogs);
+            return ResponseEntity.ok().body(metricLogs);
+        }catch (NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
-    @PostMapping("/start")
-    public void startLogging() {
+    @GetMapping("/start")
+    public ResponseEntity<String> startLogging() {
         String ip = ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs());
         Runnable task = () -> metricLogService.insertMetricLog(ip);
 
@@ -62,22 +63,17 @@ public class MetricLogController {
             if (scheduledFuture != null && !scheduledFuture.isDone()) {
                 scheduledFuture.cancel(false);
             }
-            scheduledFuture = scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES);
+            scheduledFuture = scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
+            return ResponseEntity.ok().body("로그 입력 성공");
         }catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PostMapping("/stop")
+    @GetMapping("/stop")
     void stopLogging() {
         if (scheduledFuture != null && !scheduledFuture.isDone()) {
             scheduledFuture.cancel(true); // true를 전달하여 현재 실행 중인 작업도 중단할 수 있음
         }
     }
-
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public String handleIllegalArgumentException(IllegalArgumentException e) {
-//        return e.getMessage();
-//    }
 }

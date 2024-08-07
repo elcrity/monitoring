@@ -20,12 +20,108 @@
 	<h1>Server and Disk Details</h1>
 
 	<!-- Display Server Info -->
-	<h2>Server Info</h2>
-	<p><strong>Server ID:</strong> <span th:text="${serverDto.serverId}"></span></p>
-	<p><strong>Operating System:</strong> <span th:text="${serverDto.serverOs}"></span></p>
-	<p><strong>Hostname:</strong> <span th:text="${serverDto.serverHostname}"></span></p>
-	<p><strong>Purpose:</strong> <span th:text="${serverDto.purpose}"></span></p>
-	<p><strong>IP Address:</strong> <span th:text="${serverDto.serverIp}"></span></p>
+	<h2 id="serverInfoDiv">Server Info</h2>
+	<p><strong>Server ID:</strong> <span id="serverId"></span></p>
+	<p><strong>Operating System:</strong> <span id="serverOs"></span></p>
+	<p><strong>Hostname:</strong> <span id="serverHostname"></span></p>
+	<p><strong>Purpose:</strong> <span id="purpose"></span></p>
+	<p><strong>IP Address:</strong> <span id="serverIp"></span></p>
 
+	<!-- Display Metric Logs -->
+	<h2>Metric Logs</h2>
+	<table>
+		<thead>
+		<tr>
+			<th>Log ID</th>
+			<th>CPU Usage</th>
+			<th>Memory Usage</th>
+			<th>Server Metric FK</th>
+			<th>Created Date</th>
+			<th>Disk Usage 1</th>
+			<th>Disk Usage 2</th>
+			<th>Disk Usage 3</th>
+			<th>Disk Usage 4</th>
+			<th>Disk Total 1</th>
+			<th>Disk Total 2</th>
+			<th>Disk Total 3</th>
+			<th>Disk Total 4</th>
+			<th>Disk Name 1</th>
+			<th>Disk Name 2</th>
+			<th>Disk Name 3</th>
+			<th>Disk Name 4</th>
+		</tr>
+		</thead>
+		<tbody id="metricLogTableBody">
+		</tbody>
+	</table>
+
+	<script>
+     document.addEventListener("DOMContentLoaded", function() {
+       const pathSegments = window.location.pathname.split('/');
+       const serverId = pathSegments[pathSegments.length - 1] || null;
+       const url = serverId ? `/log/history/${serverId}` : `/history/`;
+
+       fetch(url, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         }
+       })
+          .then(response => response.json())
+          .then(data => {
+            const tableBody = document.getElementById('metricLogTableBody');
+            data.forEach(log => {
+              const row = document.createElement('tr');
+
+              // Null 처리 로직
+              const diskUsage2 = log.diskUsage2 || '';
+              const diskUsage3 = log.diskUsage3 || '';
+              const diskUsage4 = log.diskUsage4 || '';
+              const diskTotal2 = log.diskTotal2 || '';
+              const diskTotal3 = log.diskTotal3 || '';
+              const diskTotal4 = log.diskTotal4 || '';
+              const diskName2 = log.diskName2 || '';
+              const diskName3 = log.diskName3 || '';
+              const diskName4 = log.diskName4 || '';
+
+              row.innerHTML = `
+                        <td>${log.logId}</td>
+                        <td>${log.cpuUsage}</td>
+                        <td>${log.memoryUsage}</td>
+                        <td>${log.serverId}</td>
+                        <td>${log.createdDate}</td>
+                        <td>${log.diskUsage1}</td>
+                        <td>${diskUsage2}</td>
+                        <td>${diskUsage3}</td>
+                        <td>${diskUsage4}</td>
+                        <td>${log.diskTotal1}</td>
+                        <td>${diskTotal2}</td>
+                        <td>${diskTotal3}</td>
+                        <td>${diskTotal4}</td>
+                        <td>${log.diskName1}</td>
+                        <td>${diskName2}</td>
+                        <td>${diskName3}</td>
+                        <td>${diskName4}</td>
+                    `;
+              tableBody.appendChild(row);
+            });
+          })
+          .catch(error => console.error('Error fetching data:', error));
+       fetch(`/api/history/${serverId}`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         }
+       })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('serverId').textContent = data.serverId || 'N/A';
+            document.getElementById('serverOs').textContent = data.serverOs || 'N/A';
+            document.getElementById('serverHostname').textContent = data.serverHostname || 'N/A';
+            document.getElementById('purpose').textContent = data.purpose || 'N/A';
+            document.getElementById('serverIp').textContent = data.serverIp || 'N/A';
+          })
+     });
+	</script>
 </body>
 </html>

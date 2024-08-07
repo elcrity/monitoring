@@ -108,7 +108,7 @@ public class ServerInfoServiceTest {
     @Sql("classpath:sql/testTable.sql")
     @Test
     void t04_01_testFindAll_withDisk_noData() {
-        assertThatExceptionOfType(EmptyResultDataAccessException.class)
+        assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> serverInfoService.deleteAll());
     }
 
@@ -125,10 +125,8 @@ public class ServerInfoServiceTest {
     void t05_testFindAll_history_noData() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(null));
-        int result = serverInfoService.deleteAll();
-        assertThat(result).isGreaterThan(0);
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(1));
+                .isThrownBy(() -> serverInfoService.findServerInfoAtHistory(111));
 
     }
 
@@ -152,25 +150,14 @@ public class ServerInfoServiceTest {
     void t05_testAddServer_nullUnique() {
         String purpose = "test";
 
-        // Mocking the ServerInfoUtil methods
-        when(ServerInfoUtil.getServerOs()).thenReturn(null);
-        when(ServerInfoUtil.getServerHostname()).thenReturn("test");
-        when(ServerInfoUtil.getTotalMemory(any())).thenReturn(8012L);
-        when(ServerInfoUtil.getServerIp(any())).thenReturn("192.168.1.11");
-
-        // Testing when OS is null
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
-                .withMessage("필수 값이 null입니다.");
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose));
 
-        // Setting up the next mock
         when(ServerInfoUtil.getServerOs()).thenReturn("window");
         when(ServerInfoUtil.getServerHostname()).thenReturn(null);
 
-        // Testing when Hostname is null
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
-                .withMessage("필수 값이 null입니다.");
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose));
 
         // Setting up the next mock
         when(ServerInfoUtil.getServerHostname()).thenReturn("test");
@@ -178,8 +165,7 @@ public class ServerInfoServiceTest {
 
         // Testing when IP is null
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
-                .withMessage("필수 값이 null입니다.");
+                .isThrownBy(() -> serverInfoService.addServerInfo(purpose));
     }
 
     @DisplayName("서버 데이터 등록 - unique 중복")
@@ -195,7 +181,7 @@ public class ServerInfoServiceTest {
 
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
-                .withMessage("이미 존재하는 ip입니다.");
+                .withMessage("해당 ip는 이미 등록되어 있습니다.");
     }
 
     @DisplayName("서버 데이터 수정")

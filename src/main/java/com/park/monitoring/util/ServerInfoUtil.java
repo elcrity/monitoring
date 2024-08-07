@@ -47,7 +47,7 @@ public class ServerInfoUtil {
     }
 
     public static double getUsageMemoryP(long totalMemory, long freeMemory){
-        return Double.parseDouble(String.format("%.2f", ((double) totalMemory - freeMemory / totalMemory) * 100));
+        return Double.parseDouble(String.format("%.2f", ((double) (totalMemory - freeMemory) / totalMemory) * 100));
     }
 
 

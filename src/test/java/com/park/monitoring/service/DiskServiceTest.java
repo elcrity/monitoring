@@ -57,7 +57,7 @@ public class DiskServiceTest {
     @Test
     void t01_02_testAllDiskFind_nullId() {
         Integer serverId = null;
-        assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->diskService.findAllDisksByServerId(serverId));
     }
 
@@ -82,7 +82,7 @@ public class DiskServiceTest {
     @Test
     void t03_testFindDisk_nullId() {
         Integer id = null;
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(()->
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(()->
                 diskService.findDiskById(id));
     }
 

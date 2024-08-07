@@ -9,7 +9,7 @@ CREATE TABLE server_info (
                              server_hostname varchar(50) NOT NULL,
                              memory_total BIGINT not NULL,
                              purpose varchar(100) NULL,
-                             server_ip VARCHAR(128) not NULL unique ,
+                             server_ip VARCHAR(128) not NULL unique,
                              PRIMARY KEY (server_id)
 );
 
@@ -18,7 +18,8 @@ CREATE TABLE disk (
                       created_date datetime not NULL default now(),
                       disk_server_info_fk int NOT NULL,
                       disk_name varchar(50) NULL,
-                      PRIMARY KEY (disk_id)
+                      PRIMARY KEY (disk_id),
+                      FOREIGN KEY (disk_server_info_fk) REFERENCES server_info(server_id) ON DELETE CASCADE
 );
 
 CREATE TABLE metric_log (
@@ -39,7 +40,8 @@ CREATE TABLE metric_log (
                             disk_name2 varchar(30) NULL,
                             disk_name3 varchar(30) NULL,
                             disk_name4 varchar(30) NULL,
-                            PRIMARY KEY (log_id)
+                            PRIMARY KEY (log_id),
+                            FOREIGN KEY (server_metric_fk) REFERENCES server_info(server_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_server_ip ON server_info (server_ip);

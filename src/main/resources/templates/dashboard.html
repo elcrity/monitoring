@@ -2,17 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Server Information</title>
+	<title>서버 정보</title>
 	<link rel="stylesheet" th:href="@{/css/dashboard.css}">
-	<script th:inline="javascript">
-     /*<![CDATA[*/
-     const diskList = /*[[${diskList}]]*/ [];
-     /*]]>*/
-	</script>
 	<script th:src="@{/js/dashboard.js}" defer></script>
+	<script th:inline="javascript">
+     let serverList = /*[[${dashBoardDtoList}]]*/[];
+     console.log(serverList);
+     let metricLogs = /*[[${testList}]]*/[];
+	</script>
 </head>
 <body>
-	<h1>Server Information List</h1>
+	<h1>서버 정보 목록</h1>
 	<table>
 		<thead>
 		<tr>
@@ -22,25 +22,13 @@
 			<th>Total Memory</th>
 			<th>Purpose</th>
 			<th>IP Address</th>
-			<th>CPU usage</th>
-			<th>Memory usage</th>
-			<th>Disk usage</th>
+			<th>CPU Usage</th>
+			<th>Memory Usage</th>
+			<th>Disk Usage</th>
 		</tr>
 		</thead>
-		<tbody>
-		<tr th:each="serverInfo : ${serverDtoList}"
-		    th:onclick="|handleRowClick(${serverInfo.serverId})|">
-			<td th:text="${serverInfo.serverId}">Server ID</td>
-			<td th:text="${serverInfo.serverOs}">OS</td>
-			<td th:text="${serverInfo.serverHostname}">Hostname</td>
-			<td th:text="${serverInfo.memoryTotal}">Total Memory</td>
-			<td th:text="${serverInfo.purpose}">Purpose</td>
-			<td th:text="${serverInfo.serverIp}">IP Address</td>
-			<!-- CPU, Memory, Disk usage should be updated dynamically with JavaScript -->
-			<td>Loading...</td>
-			<td>Loading...</td>
-			<td>Loading...</td>
-		</tr>
+		<tbody id="serverTableBody">
+		<!-- 서버 데이터는 JavaScript로 동적으로 추가됩니다 -->
 		</tbody>
 	</table>
 
@@ -50,8 +38,15 @@
 			<div id="diskContent">선택된 디스크 없음.</div>
 		</div>
 		<div class="button-container">
-			<!-- Buttons will be added dynamically by JavaScript -->
+			<div th:with="serverId='11'">
+				<!-- 서버 ID를 URL 파라미터로 넘기기 위한 버튼 -->
+<!--				<a th:href="@{/history/{serverId}(serverId=${serverId})}" class="btn btn-primary">Go to History</a>-->
+			</div>
+			<!-- 클릭된 서버의 상세 정보를 보기 위한 버튼을 동적으로 추가합니다 -->
 		</div>
 	</div>
+
+	<!-- 서버 데이터와 메트릭 데이터를 담을 변수 선언 -->
+
 </body>
 </html>

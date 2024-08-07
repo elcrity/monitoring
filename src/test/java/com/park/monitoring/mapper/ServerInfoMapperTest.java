@@ -63,7 +63,6 @@ public class ServerInfoMapperTest {
     void t03_getServerInfoAtHistory(){
         int serverId = 1;
         ServerInfo dto = serverInfoMapper.selectServerInfoAtHistory(serverId);
-        System.out.println("================= : " + dto.toString());
         assertThat(dto).isNotNull();
         assertThat(dto.getServerId()).isEqualTo(serverId);
     }
@@ -134,7 +133,7 @@ public class ServerInfoMapperTest {
     @DisplayName("findByIp")
     @Test
     void t089_findByIp(){
-        ServerInfo result = serverInfoMapper.findServerInfoByIp("192.168.1.1");
-        assertThat(result.getServerId()).isEqualTo(1);
+        int result = serverInfoMapper.findServerIdByIp("192.168.1.1");
+        assertThat(result).isEqualTo(1);
     }
 }

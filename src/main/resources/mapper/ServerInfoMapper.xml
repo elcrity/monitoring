@@ -38,6 +38,7 @@
         SELECT si.server_id,
         si.server_os,
         si.server_hostname,
+        si.memory_total,
         si.purpose,
         si.server_ip
         FROM server_info si
@@ -50,7 +51,7 @@
         WHERE server_ip = #{ip}
     </select>
 
-    <select id="findServerInfoByIp" parameterType="String" resultType="com.park.monitoring.model.ServerInfo">
+    <select id="findServerIdByIp" parameterType="String" resultType="int">
         select server_id
         from server_info
         where server_ip=#{serverIp}

@@ -6,7 +6,6 @@ public class Disk {
     Integer diskId;
     String diskName;
     Integer diskServerInfoFk;
-
     LocalDateTime createdDate;
 
     public Disk() {

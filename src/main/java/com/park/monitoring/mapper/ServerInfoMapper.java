@@ -17,5 +17,5 @@ public interface ServerInfoMapper {
     int deleteAll();
     int isIpExists(String ip);
 
-    ServerInfo findServerInfoByIp(String serverIp);
+    int findServerIdByIp(String serverIp);
 }
