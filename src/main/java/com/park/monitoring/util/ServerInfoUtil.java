@@ -1,7 +1,6 @@
 package com.park.monitoring.util;
 
 import com.park.monitoring.dto.DiskInfo;
-import com.park.monitoring.model.Disk;
 import com.sun.management.OperatingSystemMXBean;
 
 import java.io.BufferedReader;

@@ -1,41 +1,24 @@
 package com.park.monitoring.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.park.monitoring.dto.DashBoardDto;
-import com.park.monitoring.model.Disk;
-import com.park.monitoring.model.ServerInfo;
-import com.park.monitoring.service.DiskService;
-import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.junit.jupiter.api.*;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.mockito.Mockito.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -116,30 +99,30 @@ public class ServerInfoControllerTest {
                 .andExpect(status().isMethodNotAllowed());
     }
 
-//    @DisplayName("/api/history/{serverId} BAD_REQUEST 테스트")
-//    @Test
-//    void t06_history_BAD_REQUEST() throws Exception {
-//        mvc.perform(post("/api/history/" + 1.1))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//    @DisplayName("/api/history/{serverId} IllegalArgumentException 테스트")
-//    @Test
-//    void t07_history_IllegalArgumentException() throws Exception {
-//        mvc.perform(post("/api/history/"))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//
-//    @DisplayName("/api/history/{serverId} NoSuchElementException 테스트")
-//    @Test
-//    void t08_history_NoSuchElementException() throws Exception {
-//        mvc.perform(post("/api/history/" + 123))
-//                .andExpect(status().isNotFound())
-//                .andDo(print());
-//
-//    }
-//
+    @DisplayName("/api/history/{serverId} BAD_REQUEST 테스트")
+    @Test
+    void t06_history_BAD_REQUEST() throws Exception {
+        mvc.perform(post("/api/history/"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/history/undefined"))
+                .andExpect(status().isBadRequest());
+    }
+    @DisplayName("/api/history/{serverId} Invalid 테스트")
+    @Test
+    void t07_history_IllegalArgumentException() throws Exception {
+        mvc.perform(post("/api/history/192"))
+                .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("/api/history/{serverId} NoSuchElementException 테스트")
+    @Test
+    void t08_history_NoSuchElementException() throws Exception {
+        mvc.perform(post("/api/history/" + 123))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+
+    }
+
     @DisplayName("/regForm")
     @Test
     void t09_testToRegFrom() throws Exception {
@@ -162,39 +145,22 @@ public class ServerInfoControllerTest {
                         .param("purpose", purpose)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().string("성공"))
+                .andExpect(content().json("{'message': '등록되었습니다'}"))
                 .andDo(print());
     }
-//    @DisplayName("/regServer null테스트")
-//    @Test
-//    void t10_addServer_null() throws Exception {
-//        String purpose = "test";
-//        when(serverInfoService.addServerInfo(purpose))
-//                .thenThrow(new IllegalArgumentException("필수 값이 null입니다."));
-//
-//        mvc.perform(post("/regserver")
-//                        .param("purpose", purpose))
-//                .andExpect(status().isBadRequest()) // Expect 409 Conflict
-//                .andDo(print());
-//
-//        verify(serverInfoService, times(1)).addServerInfo(purpose);
-//    }
-//
-//    @DisplayName("/regServer duplicate ip")
-//    @Test
-//    void t11_addServer_duplicate() throws Exception {
-//        String purpose = "test";
-//        when(serverInfoService.addServerInfo(purpose))
-//                .thenThrow(new DataIntegrityViolationException("이미 존재하는 IP입니다."));
-//
-//        mvc.perform(post("/regserver")
-//                        .param("purpose", purpose))
-//                .andExpect(status().isConflict()) // Expect 409 Conflict
-//                .andDo(print());
-//
-//        verify(serverInfoService, times(1)).addServerInfo(purpose);
-//    }
-//
+
+    @DisplayName("/regServer duplicate ip")
+    @Test
+    void t11_addServer_duplicate() throws Exception {
+        String purpose = "test";
+        mvc.perform(post("/api/regserver"))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/regserver")
+                        .param("purpose", purpose))
+                .andExpect(status().isInternalServerError()) // Expect 409 Conflict
+                .andDo(print());
+    }
+
     @DisplayName("/regform/{serverId}")
     @Test
     void t12_toRegPage() throws Exception {
@@ -202,148 +168,113 @@ public class ServerInfoControllerTest {
         mvc.perform(post("/api/regform/{serverId}", serverId))
                 .andExpect(status().isOk());
     }
-//
-//    @DisplayName("/editForm/{serverId}")
-//    @Test
-//    void t12_01_toRegPage_badRequest() throws Exception {
-//        Integer serverId = 1;
-//
-//        when(serverInfoService.findServerInfoById(null)).thenThrow(new IllegalArgumentException("입력된 Id가 null입니다."));
-//
-//        mvc.perform(post("/regform/"))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//    @DisplayName("/regform/{serverId} invalid id")
-//    @Test
-//    void t12_02_toRegPage() throws Exception {
-//        int serverId = 111;
-//
-//        when(serverInfoService.findServerInfoById(serverId)).thenThrow(new NoSuchElementException("service, 해당 ip로 가져온 데이터 없음. - "));
-//
-//        mvc.perform(post("/regform/{serverId}", serverId))
-//                .andExpect(status().isNotFound())
-//                .andDo(print());
-//    }
+
+    @DisplayName("/regform/{serverId}")
+    @Test
+    void t12_01_toRegPage_badRequest() throws Exception {
+        mvc.perform(post("/api/regform/"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/regform/undefined"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("/regform/{serverId} invalid id")
+    @Test
+    void t12_02_toRegPage() throws Exception {
+
+
+        mvc.perform(post("/regform/1233"))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
 //
     @DisplayName("/updateServer")
     @Test
     void t13_updateServer() throws Exception {
         int serverId = 1;
         String purpose = "New Purpose";
-
+        String ip = "192.168.2.222";
         mvc.perform(put("/api/updateServer")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("serverId", String.valueOf(serverId))
                         .param("serverOs", "Linux")
                         .param("serverHostname", "test-hostname")
                         .param("memoryTotal", String.valueOf(8192L))
                         .param("purpose", purpose)
-                        .param("serverIp", "192.168.2.2"))
+                        .param("serverIp", "192.168.2.222"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("성공"))
+                .andExpect(content().json("{'message': '192.168.2.222 서버를 수정했습니다'}"))
                 .andDo(print());  // Use serverId variable here
     }
-//
-////    @DisplayName("/updateServer null")
-////    @Test
-////    void t13_updateServer_Illegal() throws Exception {
-////        int serverId = 1;
-//////        ServerInfo serverInfo = new ServerInfo.Builder()
-//////                .serverId(serverId)
-//////                .serverOs("Linux")
-//////                .serverHostname("test-hostname")
-//////                .memoryTotal(8192L)
-//////                .purpose("Test Server")
-//////                .serverIp(null)  // 이 경우 IllegalArgumentException을 던지도록 설계됨
-//////                .build();
-////
-////
-////        // 예외 발생을 위한 설정
-//////        doThrow(new IllegalArgumentException("입력받은 값이 비정상입니다.")).when(serverInfoService).updateServerInfo(any(ServerInfo.class));
-////        when(serverInfoService.updateServerInfo(any(ServerInfo.class))).thenThrow(new IllegalArgumentException("service, 해당 ip로 가져온 데이터 없음. - "));
-////        // PUT 요청에 서버 정보 포함
-////        // @ModelAttribute를 사용하면 서버 정보까지 담아 보내야함
-////        mvc.perform(put("/updateServer")
-////                        .param("serverOs", "Linux")
-////                        .param("serverHostname", "test-hostname")
-////                        .param("memoryTotal", String.valueOf(8192L))
-////                        .param("purpose", "Test Server")
-////                        .param("serverIp", null)
-////                        .param("serverId", String.valueOf(serverId)))
-////                .andExpect(status().isBadRequest())
-////                .andDo(print());
-////
-////        verify(serverInfoService, times(1)).updateServerInfo(any(ServerInfo.class));
-////    }
-////
-////    @DisplayName("/updateServer NoSuch")
-////    @Test
-////    void t09_updateServer_noSuch() throws Exception {
-////        int id = 1;
-////        ServerInfo serverInfo = new ServerInfo.Builder()
-////                .serverId(id+111)
-////                .serverOs("테스트Os")
-////                .memoryTotal(11223L)
-////                .purpose("테스트용")
-////                .serverHostname("testServer")
-////                .build();
-////
-////        // 예외 발생을 위한 설정
-//////        doThrow(new IllegalArgumentException("입력받은 값이 비정상입니다.")).when(serverInfoService).updateServerInfo(any(ServerInfo.class));
-////        when(serverInfoService.updateServerInfo(serverInfo)).thenThrow(new IllegalArgumentException("입력받은 값이 비정상입니다."));
-////        // PUT 요청에 서버 정보 포함
-////        // @ModelAttribute를 사용하면 서버 정보까지 담아 보내야함
-////        mvc.perform(put("/updateServer")
-////                        .param("serverOs", os)
-////                        .param("serverHostname", hostname)
-////                        .param("memoryTotal", String.valueOf(totalMemory))
-////                        .param("purpose", purpose)
-////                        .param("serverIp", serverIp))
-////                .andExpect(status().isNotFound())
-////                .andDo(print());
-////
-////        verify(serverInfoService, times(1)).updateServerInfo(any(ServerInfo.class));
-////    }
-//
+
+    @DisplayName("/updateServer invalid Ip")
+    @Test
+    void t13_updateServer_invalid() throws Exception {
+        int serverId = 1;
+        // 예외 발생을 위한 설정
+        // PUT 요청에 서버 정보 포함
+        // @ModelAttribute를 사용하면 서버 정보까지 담아 보내야함
+        mvc.perform(put("/api/updateServer")
+                        .param("serverOs", "Linux")
+                        .param("serverHostname", "test-hostname")
+                        .param("memoryTotal", String.valueOf(8192L))
+                        .param("purpose", "Test Server")
+                        .param("serverId", String.valueOf(serverId)))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @DisplayName("/updateServer NoSuch")
+    @Test
+    void t09_updateServer_noSuch() throws Exception {
+        int serverId = 21;
+        mvc.perform(put("/api/updateServer")
+                        .param("serverOs", "Linux")
+                        .param("serverHostname", "test-hostname")
+                        .param("memoryTotal", String.valueOf(8192L))
+                        .param("purpose", "Test Server")
+                        .param("serverIp", "192.168.2.22")
+                        .param("serverId", String.valueOf(serverId)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @DisplayName("/updateServer Duplicate")
+    @Test
+    void t09_updateServer_Dup() throws Exception {
+        int serverId = 1;
+        mvc.perform(put("/api/updateServer")
+                        .param("serverOs", "Linux")
+                        .param("serverHostname", "test-hostname")
+                        .param("memoryTotal", String.valueOf(8192L))
+                        .param("purpose", "Test Server")
+                        .param("serverIp", "192.168.1.1")
+                        .param("serverId", String.valueOf(serverId)))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
     @DisplayName("/delete/{serverId}")
     @Test
     public void t10_deleteServer() throws Exception {
         Integer serverId = 1;
 
         mvc.perform(delete("/api/delete/{serverId}", serverId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("삭제 성공"));
+                .andExpect(status().isOk());
     }
-//
-//    @DisplayName("/delete/{serverId} IllegalArgumentException")
-//    @Test
-//    public void t09_deleteServer_IllegalArgumentException() throws Exception {
-//
-//        int serverId = 123;
-//        when(serverInfoService.deleteServerInfo(serverId)).thenThrow(new NoSuchElementException("존재하지 않는 서버입니다."));
-//
-//        mvc.perform(delete("/delete/{serverId}", serverId))
-//                .andExpect(status().isNotFound()); // 리디렉션 상태 코드 검증// 플래시 메시지 검증
-//    }
-//
-//    @DisplayName("/delete/{serverId} Exception")
-//    @Test
-//    public void t10_deleteServer_Exception() throws Exception {
-//        when(serverInfoService.deleteServerInfo(null)).thenThrow(new IllegalArgumentException("입력된 Id가 null입니다."));
-//
-//        mvc.perform(delete("/delete/"))
-//                .andExpect(status().isBadRequest())
-//                .andDo(print());
-//    }
-//
-//    @DisplayName("/delete/{serverId} RuntimeException")
-//    @Test
-//    public void t11_deleteServer_RuntimeException() throws Exception {
-//        when(serverInfoService.deleteServerInfo(null)).thenThrow(new RuntimeException("데이터 삭제 실패"));
-//
-//        mvc.perform(delete("/delete/"))
-//                .andExpect(status().isInternalServerError())
-//                .andDo(print());
-//    }
+
+    @DisplayName("/delete/{serverId} IllegalArgumentException")
+    @Test
+    public void t09_deleteServer_IllegalArgumentException() throws Exception {
+        int serverId = 111;
+        mvc.perform(delete("/api/delete/{serverId}", serverId))
+                .andExpect(status().isNotFound()); // 리디렉션 상태 코드 검증// 플래시 메시지 검증
+    }
+
+    @DisplayName("/delete/{serverId} invalid id")
+    @Test
+    public void t10_deleteServer_invalid() throws Exception {
+        int serverId = 111;
+        mvc.perform(delete("/api/delete/"))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
 }

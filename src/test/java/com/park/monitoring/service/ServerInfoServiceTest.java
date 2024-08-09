@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,7 +180,7 @@ public class ServerInfoServiceTest {
 
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(() -> serverInfoService.addServerInfo(purpose))
-                .withMessage("해당 ip는 이미 등록되어 있습니다.");
+                .withMessage("중복된 엔티티가 존재합니다.");
     }
 
     @DisplayName("서버 데이터 수정")

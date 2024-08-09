@@ -1,10 +1,13 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.config.error.ErrorCode;
+import com.park.monitoring.config.error.Exception.BadRequestException;
+import com.park.monitoring.config.error.Exception.BaseException;
+import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.dto.DiskInfo;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
@@ -38,42 +41,42 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogAll() {
         List<MetricLog> metricLogs = metricLogMapper.selectAll();
-        if (metricLogs.isEmpty()) throw new NoSuchElementException("로그를 불러오지 못했습니다.");
+        if (metricLogs.isEmpty()) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return metricLogs;
     }
 
     public List<MetricLog> findMetricLogAllByServerId(Integer serverId) {
         if (serverId == null) {
-            throw new IllegalArgumentException("입력받은 서버의 id가 null입니다.");
+            throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         }
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(serverId);
         if (metricLogs.isEmpty()||metricLogs == null) {
-            throw new NoSuchElementException("해당하는 로그가 존재하지 않습니다");
+            throw new NotFoundException(ErrorCode.NOT_FOUND);
         }
         return metricLogs;
     }
 
     public List<MetricLog> findMetricLogByLatest() {
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
-        if (metricLogs.isEmpty()) {
-            throw new NoSuchElementException("로그가 존재하지 않습니다");
+        if (metricLogs == null) {
+            throw new NotFoundException(ErrorCode.NOT_FOUND);
         }
         return metricLogs;
     }
 
     public List<MetricLog> findMetricLogAtHistory(Integer serverId) {
-        if (serverId == null) throw new IllegalArgumentException("입력받은 서버의 id가 null입니다.");
+        if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(serverId);
-        if (metricLogs.isEmpty() ||metricLogs == null) throw new NoSuchElementException("없는 서버입니다");
+        if (metricLogs.isEmpty() ||metricLogs == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return metricLogs;
 
     }
 
     @Transactional
     public int insertMetricLog(String serverIp) {
-        if(serverIp == null) throw new IllegalArgumentException("참조할 값이 null입니다.");
+        if(serverIp == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         Integer serverInfo = serverInfoMapper.findServerIdByIp(serverIp);
-        if(serverInfo == null) throw new NoSuchElementException("해당하는 서버가 없습니다.");
+        if(serverInfo == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
 
         double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
         long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
@@ -115,10 +118,10 @@ public class MetricLogService {
         if (metricLog.getMemoryUsage() == null || metricLog.getCpuUsage() == null
                 || metricLog.getDiskName1() == null || metricLog.getDiskTotal1() == null
                 || metricLog.getDiskUsage1() == null) {
-            throw new IllegalArgumentException("필수 값이 누락되었습니다.");
+            throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         }
         int result = metricLogMapper.insertLog(metricLog);
-        if (result < 1) throw new RuntimeException("로그 등록 실패");
+        if (result < 1) throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
         return result;
     }
 
@@ -126,14 +129,14 @@ public class MetricLogService {
     @Transactional
     public int deleteMetricLogBeforeTime() {
         int result = metricLogMapper.deleteLogBeforeTime();
-        if (result < 1) throw new RuntimeException("로그 삭제에 실패했습니다.");
+        if (result < 1) throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
         return result;
     }
 
     public int findMetricLogByIp(String serverIp){
-        if(serverIp == null) throw new IllegalArgumentException("입력받은 ip가 Null입니다.");
+        if(serverIp == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         Integer serverId = serverInfoMapper.findServerIdByIp(serverIp);
-        if(serverId == null) throw new NoSuchElementException("해당되는 데이터가 없습니다.");
+        if(serverId == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return serverId;
     }
 }

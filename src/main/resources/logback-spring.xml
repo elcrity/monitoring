@@ -9,7 +9,7 @@
 <!--    #%L : 로깅이 발생한 호출지의 라인 수-->
 <!--    #%thread : 현재 Thread 명-->
 <!--    #%n : 줄바꿈(new line)-->
-    <property name="Config_Pattern" value="%d %highlight(%-5level) [%thread] %logger{12} [%F:%L] %msg%n"/>
+    <property name="Config_Pattern" value="%d{yy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{12} [%F:%L] %msg%n"/>
     <property name="Config_Path" value="/app/logs/"/>
 
 
@@ -74,18 +74,24 @@
         <logger name="com.park.monitoring" level="DEBUG">
             <appender-ref ref="FILE_DEBUG"/>
         </logger>
+        <logger name="com.park.monitoring" level="ERROR">
+            <appender-ref ref="FILE-ERR" />
+        </logger>
         <root level="info">
             <appender-ref ref="STDOUT" />
             <appender-ref ref="FILE" />
-            <appender-ref ref="FILE-ERR" />
         </root>
     </springProfile>
     <springProfile name="dev">
-        <root level="info">
+        <root level="INFO">
             <appender-ref ref="STDOUT" />
             <appender-ref ref="FILE" />
             <appender-ref ref="FILE-ERR" />
         </root>
+        <logger name="com.park.monitoring" level="ERROR">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE-ERR" />
+        </logger>
     </springProfile>
 
 </configuration>

@@ -1,7 +1,5 @@
 package com.park.monitoring.dto;
 
-import org.springframework.web.ErrorResponse;
-
 public class ErrorResponseDto {
     private int status;
     private String message;

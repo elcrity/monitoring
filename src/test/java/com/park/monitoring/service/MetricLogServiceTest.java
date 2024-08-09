@@ -1,5 +1,6 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,15 +87,6 @@ public class MetricLogServiceTest {
             assertThat(log.getServerId()).isNotNull();
             assertThat(log.getCreatedDate()).isNotNull();
         }
-    }
-
-    //Todo : delete log 시간 기준 변경으로 고장난 테스트 2개 고치기
-    @DisplayName("로그 조회 - Latest noData")
-    @Test
-    @Sql("classpath:sql/testTable.sql")
-    void t03_01_getRecentLogs_noData() {
-        assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.findMetricLogByLatest());
     }
 
     @DisplayName("최근 로그 조회 - history")

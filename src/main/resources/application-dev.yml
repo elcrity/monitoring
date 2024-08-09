@@ -5,7 +5,7 @@ spring:
     username: park
     password: gupark
   thymeleaf:
-    cache: false
+    check-template-location: false
 
 
 mybatis:

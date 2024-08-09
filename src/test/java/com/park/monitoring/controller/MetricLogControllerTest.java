@@ -1,30 +1,19 @@
 package com.park.monitoring.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.service.MetricLogService;
-import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ServerInfoUtil;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
 import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,26 +52,6 @@ public class MetricLogControllerTest {
                 .andDo(print()); // Print the result to console for debugging
     }
 
-//    @DisplayName("/log - 비어 있는 경우")
-//    @Test
-//    void t02_getDashboardLog_empty() throws Exception {
-//        // 서비스가 빈 리스트를 반환하도록 설정
-//
-//        mvc.perform(post("/log"))
-//                .andExpect(status().isNoContent())
-//                .andDo(print());
-//    }
-
-//    @DisplayName("/log - null인 경우")
-//    @Test
-//    void t02_getDashboardLog_null() throws Exception {
-//        // 서비스가 빈 리스트를 반환하도록 설정
-//
-//        mvc.perform(post("/log"))
-//                .andExpect(status().isNotFound())
-//                .andDo(print());
-//    }
-
     @DisplayName("/log - method not Allowed")
     @Test
     void t03_getDashboardLog_method() throws Exception {
@@ -91,8 +60,6 @@ public class MetricLogControllerTest {
         mvc.perform(get("/log"))
                 .andExpect(status().isMethodNotAllowed())
                 .andDo(print());
-
-
     }
 
     @DisplayName("/log/history/{serverId}")
@@ -105,14 +72,14 @@ public class MetricLogControllerTest {
 
     }
 
-//    @DisplayName("/log/history/null")
-//    @Test
-//    void t05_getServerLog_history_null() throws Exception {
-//        // 서비스가 빈 리스트를 반환하도록 설정
-//        mvc.perform(post("/log/history/"))
-//                .andExpect(status().isBadRequest())
-//                .andDo(print());
-//    }
+    @DisplayName("/log/history/null")
+    @Test
+    void t05_getServerLog_history_null() throws Exception {
+        // 서비스가 빈 리스트를 반환하도록 설정
+        mvc.perform(post("/log/history/"))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
 
     @DisplayName("/log/history/invalid")
     @Test
@@ -131,7 +98,7 @@ public class MetricLogControllerTest {
         String ip = "";
         mvc.perform(get("/log/start"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("로그 입력 성공"))
+                .andExpect(content().json("{'message':'로깅 시작'}"))
                 .andDo(print());
 
     }

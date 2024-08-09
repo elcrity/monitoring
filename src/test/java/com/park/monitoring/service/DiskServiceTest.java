@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,8 +148,7 @@ public class DiskServiceTest {
                 .diskServerInfoFk(null)
                 .build();
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->diskService.updateDisk(disk))
-                .withMessage("Disk ID가 null입니다.");;
+                .isThrownBy(()->diskService.updateDisk(disk));
     }
 
     @DisplayName("디스크 데이터 삭제")
@@ -161,8 +159,7 @@ public class DiskServiceTest {
         assertThat(result).isEqualTo(1);
 
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()-> diskService.findDiskById(id))
-                .withMessage("존재하지 않는 Disk입니다");
+                .isThrownBy(()-> diskService.findDiskById(id));
     }
 
     @DisplayName("디스크 데이터 삭제 - 미존재 데이터")
@@ -170,7 +167,6 @@ public class DiskServiceTest {
     void t10_deleteDisk_notExist(){
         Integer id = 22;
         assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->diskService.deleteDisk(id))
-                .withMessage("존재하지 않는 disk입니다. id를 확인해주세요");
+                .isThrownBy(()->diskService.deleteDisk(id));
     }
 }

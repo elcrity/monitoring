@@ -2,12 +2,14 @@ package com.park.monitoring.config.error.Exception;
 
 import com.park.monitoring.config.error.ErrorCode;
 
-public class NotFoundException extends BaseException{
-    public NotFoundException(ErrorCode errorCode) {
-        super(errorCode.getMessage(), errorCode);
-    }
+import java.util.NoSuchElementException;
 
-    public NotFoundException(){
-        super(ErrorCode.NOT_FOUND);
+public class NotFoundException extends NoSuchElementException {
+    ErrorCode errorCode;
+    public NotFoundException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+    }
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
 }

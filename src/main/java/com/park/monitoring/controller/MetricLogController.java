@@ -10,8 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,9 +36,6 @@ public class MetricLogController {
     @PostMapping()
     ResponseEntity<List<MetricLog>> getDashboardLog() {
         List<MetricLog> metricLogList = metricLogService.findMetricLogByLatest();
-        if (metricLogList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
         return ResponseEntity.ok().body(metricLogList);
     }
 
@@ -45,18 +43,19 @@ public class MetricLogController {
     @PostMapping({"/history/{serverId}", "/history/"})
     ResponseEntity<List<MetricLog>> getServerLog(@PathVariable(required = false) Integer serverId) {
         // 서버 로그를 가져오기
-        try{
+//        try {
         List<MetricLog> metricLogs = metricLogService.findMetricLogAtHistory(serverId);
-            return ResponseEntity.ok().body(metricLogs);
-        }catch (NoSuchElementException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok().body(metricLogs);
+//        }catch (NoSuchElementException e){
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
 
     }
 
     @GetMapping("/start")
-    public ResponseEntity<String> startLogging() {
+    public ResponseEntity<Map<String,String>> startLogging() {
         String ip = ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs());
+        Map<String,String> response = new HashMap<>();
         Runnable task = () -> metricLogService.insertMetricLog(ip);
 
         try {
@@ -64,8 +63,9 @@ public class MetricLogController {
                 scheduledFuture.cancel(false);
             }
             scheduledFuture = scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
-            return ResponseEntity.ok().body("로그 입력 성공");
-        }catch (DataIntegrityViolationException e) {
+            response.put("message", "로깅 시작");
+            return ResponseEntity.ok().body(response);
+        } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
