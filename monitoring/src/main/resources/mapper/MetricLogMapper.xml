@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.park.monitoring.mapper.MetricLogMapper">
+    <select id="selectAll" resultType="com.park.monitoring.model.MetricLog">
+        SELECT *
+        FROM metric_log;
+    </select>
+    <select id="selectLogAllByServerId" resultType="com.park.monitoring.model.MetricLog">
+        SELECT *
+        FROM metric_log
+        where server_metric_fk=#{serverId};
+    </select>
+
+    <select id="selectLogAllByLatest" parameterType="int" resultType="com.park.monitoring.model.MetricLog">
+        SELECT ml.server_metric_fk AS server_id,
+            ml.log_id,
+            ml.cpu_usage,
+            ml.memory_usage,
+            ml.created_date,
+            ml.disk_usage1 as disk_usage1,
+            IFNULL(ml.disk_usage2, null) as disk_usage2,
+            IFNULL(ml.disk_usage3, null) as disk_usage3,
+            IFNULL(ml.disk_usage4, null) as disk_usage4,
+            ml.disk_total1 as disk_total1,
+            IFNULL(ml.disk_total2, null) as disk_total2,
+            IFNULL(ml.disk_total3, null) as disk_total3,
+            IFNULL(ml.disk_total4, null) as disk_total4,
+            ml.disk_total1 as disk_name1,
+            IFNULL(ml.disk_name2, null) as disk_name2,
+            IFNULL(ml.disk_name3, null) as disk_name3,
+            IFNULL(ml.disk_name4, null) as disk_name4
+        FROM metric_log ml
+        WHERE ml.created_date = (
+            SELECT MAX(sub_ml.created_date)
+            FROM metric_log sub_ml
+            WHERE sub_ml.server_metric_fk = ml.server_metric_fk
+        );
+    </select>
+    <select id="selectLogHistory" parameterType="int" resultType="com.park.monitoring.model.MetricLog">
+        SELECT
+            server_metric_fk AS server_id,
+            log_id,
+            cpu_usage,
+            memory_usage,
+            created_date,
+            disk_usage1 as disk_usage1,
+            IFNULL(disk_usage2, null) as disk_usage2,
+            IFNULL(disk_usage3, null) as disk_usage3,
+            IFNULL(disk_usage4, null) as disk_usage4,
+            disk_total1 as disk_total1,
+            IFNULL(disk_total2, null) as disk_total2,
+            IFNULL(disk_total3, null) as disk_total3,
+            IFNULL(disk_total4, null) as disk_total4,
+            disk_name1 as disk_name1,
+            IFNULL(disk_name2, null) as disk_name2,
+            IFNULL(disk_name3, null) as disk_name3,
+            IFNULL(disk_name4, null) as disk_name4
+        FROM
+            metric_log
+        WHERE
+            server_metric_fk = #{serverId}
+        ORDER BY
+            created_date;
+    </select>
+    <insert id="insertLog" parameterType="com.park.monitoring.model.MetricLog">
+        INSERT INTO metric_log (
+            cpu_usage,
+            memory_usage,
+            server_metric_fk,
+            disk_usage1, disk_usage2, disk_usage3, disk_usage4,
+            disk_total1, disk_total2, disk_total3, disk_total4,
+            disk_name1, disk_name2, disk_name3, disk_name4
+        )
+            VALUES (
+            #{cpuUsage},
+            #{memoryUsage},
+            #{serverMetricFk},
+            #{diskUsage1}, #{diskUsage2}, #{diskUsage3}, #{diskUsage4},
+            #{diskTotal1}, #{diskTotal2}, #{diskTotal3},  #{diskTotal4},
+            #{diskName1}, #{diskName2}, #{diskName3}, #{diskName4}
+        );
+    </insert>
+<!--    <update id="updateLog" parameterType="com.park.monitoring.model.MetricLog">-->
+<!--        UPDATE metric_log-->
+<!--        SET cpu_usage=#{cpuUsage}, memory_usage=#{memoryUsage}-->
+<!--        WHERE log_id=#{logId};-->
+<!--    </update>-->
+    <delete id="deleteLogBeforeTime">
+        DELETE FROM metric_log
+        WHERE created_date
+        <![CDATA[
+        <
+        ]]>
+        CURRENT_TIMESTAMP;
+    </delete>
+
+</mapper>

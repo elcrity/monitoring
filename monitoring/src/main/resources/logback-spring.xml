@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+<!--	<property resource="logback.properties" />-->
+<!--    #%d %-5level [%thread] %logger{36} [%file:%line] %msg%n-->
+<!--    #%-5level : 로그 레벨, -5는 출력의 고정폭 값(5글자)-->
+<!--    #%msg : - 로그 메시지-->
+<!--    #%d : 로그 기록시간-->
+<!--    #%F : 로깅이 발생한 프로그램 파일명-->
+<!--    #%L : 로깅이 발생한 호출지의 라인 수-->
+<!--    #%thread : 현재 Thread 명-->
+<!--    #%n : 줄바꿈(new line)-->
+    <property name="Config_Pattern" value="%d{yy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{12} [%F:%L] %msg%n"/>
+    <property name="Config_Path" value="/app/logs/"/>
+
+
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+		<encoder>
+			<pattern>${Config_Pattern}</pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${Config_Pattern}</pattern>
+		</encoder>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${Config_Path}%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+	</appender>
+	<appender name="FILE-ERR" 
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<encoder>
+			<pattern>${Config_Pattern}</pattern>
+		</encoder>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${Config_Path}Err-%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+	</appender>
+    <appender name="FILE_DEBUG"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${Config_Pattern}</pattern>
+        </encoder>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${Config_Path}debug-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 파일당 최대 사이즈 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 보관 갯수, 일이 기준이라면 x일, 시간이 기준이라면 x시간 -->
+            <maxHistory>30</maxHistory>
+            <!-- 최대 인덱스 갯수 -->
+            <maxIndex>15</maxIndex>
+        </rollingPolicy>
+    </appender>
+<!--	<logger name="com.park.monitoring.controller" level="debug">-->
+<!--		<appender-ref ref="DEBUGING" />-->
+<!--	</logger>-->
+    <springProfile name="local">
+        <logger name="com.park.monitoring" level="DEBUG">
+            <appender-ref ref="FILE_DEBUG"/>
+        </logger>
+        <logger name="com.park.monitoring" level="ERROR">
+            <appender-ref ref="FILE-ERR" />
+        </logger>
+        <root level="info">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE" />
+            <appender-ref ref="FILE-ERR" />
+        </root>
+        <logger name="com.park.monitoring" level="ERROR">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE-ERR" />
+        </logger>
+    </springProfile>
+
+</configuration>

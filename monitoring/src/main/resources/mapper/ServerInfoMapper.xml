@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.park.monitoring.mapper.ServerInfoMapper">
+
+    <select id="selectAllServerInfo" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT *
+        FROM server_info;
+    </select>
+    <select id="selectServerInfoById" parameterType="int" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT *
+        FROM server_info WHERE server_id=#{id};
+    </select>
+
+<!--disk join mapper-->
+<!--ServerInfoWithDiskDto타입 매칭-->
+<!--    <resultMap id="serverInfoWithDiskDtoResultMap" type="com.park.monitoring.dto.ServerInfoWithDiskDto">-->
+<!--        <id property="serverId" column="server_id"/>-->
+<!--        <result property="serverOs" column="server_os"/>-->
+<!--        <result property="serverHostname" column="server_hostname"/>-->
+<!--        <result property="purpose" column="purpose"/>-->
+<!--        <result property="serverIp" column="server_ip"/>-->
+<!--        &lt;!&ndash; Disks 컬렉션 매핑 &ndash;&gt;-->
+<!--        <collection property="disk" javaType="List" ofType="com.park.monitoring.model.Disk" select="com.park.monitoring.mapper.DiskMapper.selectAllDiskByServerId" column="server_id"/>-->
+<!--    </resultMap>-->
+
+<!--만들어진 resultMap을 이용하여 쿼리-->
+<!--    <select id="selectServerInfoWithDisks" resultMap="serverInfoWithDiskDtoResultMap">-->
+<!--        SELECT si.server_id,-->
+<!--            si.server_os,-->
+<!--            si.server_hostname,-->
+<!--            si.purpose,-->
+<!--            si.server_ip-->
+<!--        FROM server_info si;-->
+<!--    </select>-->
+    <select id="selectServerInfoAtHistory" parameterType="int" resultType="com.park.monitoring.model.ServerInfo">
+        SELECT si.server_id,
+        si.server_os,
+        si.server_hostname,
+        si.memory_total,
+        si.purpose,
+        si.server_ip
+        FROM server_info si
+        WHERE si.server_id = #{serverId};
+    </select>
+
+    <select id="isIpExists" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM server_info
+        WHERE server_ip = #{ip}
+    </select>
+
+    <select id="findServerIdByIp" parameterType="String" resultType="int">
+        select server_id
+        from server_info
+        where server_ip=#{serverIp}
+    </select>
+
+
+    <insert id="insertServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
+        INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
+        VALUES (#{serverOs}, #{serverHostname}, #{memoryTotal}, #{purpose}, #{serverIp});
+    </insert>
+
+    <update id="updateServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
+        UPDATE server_info
+        SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose},
+        server_ip=#{serverIp}
+        WHERE server_id=#{serverId};
+    </update>
+
+    <delete id="deleteServerInfoById" parameterType="int">
+        DELETE FROM server_info
+        WHERE server_id=#{serverId};
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM server_info
+        WHERE server_id > 0;
+    </delete>
+</mapper>

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: monitoring
+  profiles:
+    active: local
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  sql:
+    init:
+      encoding:
+server:
+  error:
+    whitelabel:
+      enabled: false
