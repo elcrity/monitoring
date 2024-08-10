@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>Chart.js Example</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--	<link rel="stylesheet" href="chart.css">-->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="/js/line-chart.js"></script>
+	<script src="/js/bar-chart.js"></script>
+	<script src="/js/doughnut-chart.js"></script>
+	<style>
+       body, html {
+           height: 100%;
+	        width: 100%;
+           margin: 0;
+           display: flex;
+       }
+
+       .container {
+           display: grid;
+           width: 100%;
+           height: 97%;
+           grid-template-columns: 15% 85%;
+           grid-template-rows: 65% 35%;
+	        padding: 1% 1%;
+       }
+
+       .left-side {
+           grid-row: 1 / 3;
+           background-color: #f0f0f0; /* 왼쪽 div의 배경색을 지정 */
+       }
+
+       .top-right {
+           grid-column: 2;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+
+       .bottom-right {
+           grid-column: 2;
+           grid-row: 2;
+           background-color: #d0d0d0; /* 하단 오른쪽 div의 배경색을 지정 */
+       }
+
+       canvas {
+           display: block;
+           margin: 10px;
+       }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="left-side"></div>
+		<div class="top-right">
+			<canvas id="acquisitions"></canvas>
+<!--			<canvas id="bar"></canvas>-->
+		</div>
+		<div class="bottom-right"></div>
+	</div>
+	<!--	<h1>Acquisitions by Year</h1>-->
+	<!--	<div style="text-align: center; width:100%">-->
+	<!-- Doughnut Chart 1 -->
+	<!--		<select>-->
+	<!--			<option value="option1">옵션 1</option>-->
+	<!--			<option value="option2">옵션 2</option>-->
+	<!--		</select>-->
+	<!--		<div style="width:45%; float: left; position: relative;">-->
+	<!--			<canvas id="doughnut1"></canvas>-->
+	<!--			<div id="doughnut1-center-text"-->
+	<!--			     style="position: absolute; top: 50%; left: 50%;-->
+	<!--			     transform: translate(-50%, -50%); font-size: 1.5em;-->
+	<!--			     text-align: center;"></div>-->
+	<!--		</div>-->
+	<!--		&lt;!&ndash; Doughnut Chart 2 &ndash;&gt;-->
+	<!--		<div style="width:45%; float: left;">-->
+	<!--			<canvas id="doughnut2"></canvas>-->
+	<!--		</div>-->
+	<!--	</div>-->
+
+	<!--	&lt;!&ndash; Doughnut Chart 3 &ndash;&gt;-->
+	<!--	<canvas id="doughnut3" style="display: block; margin: 20px auto; width: 300px; height: 300px;"></canvas>-->
+
+	<!--	<canvas id="doughnut"></canvas>-->
+</body>
+</html>
