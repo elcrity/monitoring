@@ -71,9 +71,15 @@ public class MetricLogController {
     }
 
     @GetMapping("/stop")
-    void stopLogging() {
+    ResponseEntity<Map<String,String>> stopLogging() {
+        Map<String,String> response = new HashMap<>();
         if (scheduledFuture != null && !scheduledFuture.isDone()) {
             scheduledFuture.cancel(true); // true를 전달하여 현재 실행 중인 작업도 중단할 수 있음
+            response.put("message", "로깅 중지");
+            return ResponseEntity.ok().body(response);
         }
+        response.put("message", "로깅 중지중 오류");
+        return ResponseEntity.ok().body(response);
+
     }
 }
