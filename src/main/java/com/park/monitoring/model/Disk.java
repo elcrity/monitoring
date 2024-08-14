@@ -12,6 +12,7 @@ public class Disk {
     }
 
     public Disk(Builder builder) {
+        this.diskId = builder.diskId;
         this.diskName = builder.diskName;
         this.diskServerInfoFk = builder.diskServerInfoFk;
         this.createdDate = builder.createdDate;

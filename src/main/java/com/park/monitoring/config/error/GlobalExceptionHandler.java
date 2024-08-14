@@ -1,25 +1,22 @@
 package com.park.monitoring.config.error;
 
-import com.park.monitoring.config.error.Exception.*;
+import com.park.monitoring.config.error.Exception.BadRequestException;
+import com.park.monitoring.config.error.Exception.BaseException;
+import com.park.monitoring.config.error.Exception.DataIntegrityException;
+import com.park.monitoring.config.error.Exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     Logger log = LoggerFactory.getLogger(this.getClass());
+
 
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e){
@@ -37,8 +34,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
-    @ExceptionHandler(DuplicateDataException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateDataException(DuplicateDataException e) {
+    @ExceptionHandler(DataIntegrityException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateDataException(DataIntegrityException e) {
+//            throw new DataIntegrityException(ErrorCode.DUPLICATED_ENTITY);
         log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
@@ -55,4 +53,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
+
 }

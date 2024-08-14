@@ -1,15 +1,35 @@
-INSERT INTO server_info (server_id, server_os, server_hostname, memory_total, purpose, server_ip)
+INSERT INTO server_info (server_os, server_hostname, memory_total, purpose, server_ip)
 VALUES
-    (1, 'Ubuntu 20.04', 'server1', 16384, 'Web Server', '192.168.1.1'),
-    (2, 'Windows Server 2019', 'server2', 32768, 'Database Server', '192.168.1.2'),
-    (3, 'CentOS 7', 'server3', 8192, 'File Server', '192.168.1.3'),
-    (4, 'Debian 10', 'server4', 20480, 'Application Server', '192.168.1.4'),
-    (5, 'Ubuntu 20.04', 'server5', 16384, 'Backup Server', '192.168.1.5'),
-    (6, 'Windows Server 2019', 'server6', 32768, 'Mail Server', '192.168.1.6'),
-    (7, 'CentOS 7', 'server7', 8192, 'Proxy Server', '192.168.1.7'),
-    (8, 'Debian 10', 'server8', 20480, 'Monitoring Server', '192.168.1.8'),
-    (9, 'Ubuntu 20.04', 'server9', 16384, 'DNS Server', '192.168.1.9'),
-    (10, 'Windows Server 2019', 'server10', 32768, 'ERP Server', '192.168.1.10');
+    ('Ubuntu 20.04', 'server1', 16384, 'Web Server', '192.168.1.1'),
+    ('Windows Server 2019', 'server2', 32768, 'Database Server', '192.168.1.2'),
+    ('CentOS 7', 'server3', 8192, 'File Server', '192.168.1.3'),
+    ('Debian 10', 'server4', 20480, 'Application Server', '192.168.1.4'),
+    ('Ubuntu 20.04', 'server5', 16384, 'Backup Server', '192.168.1.5'),
+    ('Windows Server 2019', 'server6', 32768, 'Mail Server', '192.168.1.6'),
+    ('CentOS 7', 'server7', 8192, 'Proxy Server', '192.168.1.7'),
+    ('Debian 10', 'server8', 20480, 'Monitoring Server', '192.168.1.8'),
+    ('Ubuntu 20.04', 'server9', 16384, 'DNS Server', '192.168.1.9'),
+    ('Windows Server 2019', 'server10', 32768, 'ERP Server', '192.168.1.10'),
+    ('Ubuntu 20.04', 'server11', 8192, 'Development Server', '192.168.1.11'),
+    ('Windows Server 2019', 'server12', 16384, 'QA Server', '192.168.1.12'),
+    ('CentOS 7', 'server13', 32768, 'Production Server', '192.168.1.13'),
+    ('Debian 10', 'server14', 20480, 'Test Server', '192.168.1.14'),
+    ('Ubuntu 20.04', 'server15', 16384, 'Staging Server', '192.168.1.15'),
+    ('Windows Server 2019', 'server16', 32768, 'HR Server', '192.168.1.16'),
+    ('CentOS 7', 'server17', 8192, 'Finance Server', '192.168.1.17'),
+    ('Debian 10', 'server18', 20480, 'Inventory Server', '192.168.1.18'),
+    ('Ubuntu 20.04', 'server19', 16384, 'CRM Server', '192.168.1.19'),
+    ('Windows Server 2019', 'server20', 32768, 'Logistics Server', '192.168.1.20'),
+    ('Ubuntu 20.04', 'server21', 8192, 'Analytics Server', '192.168.1.21'),
+    ('Windows Server 2019', 'server22', 16384, 'Support Server', '192.168.1.22'),
+    ('CentOS 7', 'server23', 32768, 'Billing Server', '192.168.1.23'),
+    ('Debian 10', 'server24', 20480, 'License Server', '192.168.1.24'),
+    ('Ubuntu 20.04', 'server25', 16384, 'Chat Server', '192.168.1.25'),
+    ('Windows Server 2019', 'server26', 32768, 'API Server', '192.168.1.26'),
+    ('CentOS 7', 'server27', 8192, 'CI/CD Server', '192.168.1.27'),
+    ('Debian 10', 'server28', 20480, 'Backup Database Server', '192.168.1.28'),
+    ('Ubuntu 20.04', 'server29', 16384, 'Security Server', '192.168.1.29'),
+    ('Windows Server 2019', 'server30', 32768, 'Media Server', '192.168.1.30');
 
 INSERT INTO disk (disk_id, created_date, disk_server_info_fk, disk_name)
 VALUES
@@ -78,7 +98,7 @@ INSERT INTO metric_log (
 (90.8, 75.2, NOW(), 3, 23.7, 33.1, NULL, NULL, 210.1, 310.2, NULL, NULL, 'disk1', 'disk2', NULL, NULL),
 
 -- For server_info 4
-(75.9, 50.7, NOW() - INTERVAL 3 MINUTE, 4, 20.4, 30.6, 40.5, 50.8, 220.5, 320.6, 4217, 5228, 'disk1', 'disk2', 'disk3', 'disk4'),
-(80.1, 55.3, NOW() - INTERVAL 2 MINUTE, 4, 25.2, 35.7, 45.8, 55.3, 230.9, 330.0, 4321, 5332, 'disk1', 'disk2', 'disk3', 'disk4'),
-(85.4, 60.9, NOW() - INTERVAL 1 MINUTE, 4, 22.6, 32.3, 42.1, 52.6, 240.3, 340.4, 4425, 5436, 'disk1', 'disk2', 'disk3', 'disk4'),
-(70.8, 65.5, NOW(), 4, 24.1, 34.4, 44.9, 54.7, 250.7, 350.8, 4529, 5540, 'disk1', 'disk2', 'disk3', 'disk4');
+(75.9, 50.7, NOW() - INTERVAL 3 MINUTE, 4, 20.4, 30.6, 40.5, 50.8, 220.5, 320.6, 4217, 5228, 'disk1', 'disk2', NULL, NULL),
+(80.1, 55.3, NOW() - INTERVAL 2 MINUTE, 4, 25.2, 35.7, 45.8, 55.3, 230.9, 330.0, 4321, 5332, 'disk1', 'disk2', NULL, NULL),
+(85.4, 60.9, NOW() - INTERVAL 1 MINUTE, 4, 22.6, 32.3, 42.1, 52.6, 240.3, 340.4, 4425, 5436, 'disk1', 'disk2', NULL, NULL),
+(70.8, 65.5, NOW(), 4, 24.1, 34.4, 44.9, 54.7, 250.7, 350.8, 4529, 5540, 'disk1', 'disk2', NULL, NULL);

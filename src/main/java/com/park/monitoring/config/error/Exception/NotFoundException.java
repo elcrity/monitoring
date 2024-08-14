@@ -12,4 +12,7 @@ public class NotFoundException extends NoSuchElementException {
     public ErrorCode getErrorCode() {
         return errorCode;
     }
+    public String getMessage(){
+        return errorCode.getMessage();
+    }
 }

@@ -8,6 +8,7 @@ import com.park.monitoring.dto.DiskInfo;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
+import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class MetricLogService {
@@ -39,26 +39,9 @@ public class MetricLogService {
         this.osBean = tempOsBean;
     }
 
-    public List<MetricLog> findMetricLogAll() {
-        List<MetricLog> metricLogs = metricLogMapper.selectAll();
-        if (metricLogs.isEmpty()) throw new NotFoundException(ErrorCode.NOT_FOUND);
-        return metricLogs;
-    }
-
-    public List<MetricLog> findMetricLogAllByServerId(Integer serverId) {
-        if (serverId == null) {
-            throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
-        }
-        List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(serverId);
-        if (metricLogs.isEmpty()||metricLogs == null) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND);
-        }
-        return metricLogs;
-    }
-
     public List<MetricLog> findMetricLogByLatest() {
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
-        if (metricLogs == null) {
+        if (metricLogs == null || metricLogs.isEmpty()) {
             throw new NotFoundException(ErrorCode.NOT_FOUND);
         }
         return metricLogs;
@@ -73,10 +56,9 @@ public class MetricLogService {
     }
 
     @Transactional
-    public int insertMetricLog(String serverIp) {
-        if(serverIp == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
-        Integer serverInfo = serverInfoMapper.findServerIdByIp(serverIp);
+    public int insertMetricLog(ServerInfo serverInfo) {
         if(serverInfo == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
+        if(serverInfo.getServerIp() == null || serverInfo.getServerId() == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
 
         double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
         long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
@@ -87,7 +69,7 @@ public class MetricLogService {
         MetricLog.Builder builder = new MetricLog.Builder()
                 .cpuUsage(cpuUsage)
                 .memoryUsage(memoryUsage)
-                .serverMetricFk(serverInfo);
+                .serverMetricFk(serverInfo.getServerId());
 
         for (int i = 0; i < diskInfo.getDiskName().size() && i < 4; i++) {
             switch (i) {
@@ -131,12 +113,5 @@ public class MetricLogService {
         int result = metricLogMapper.deleteLogBeforeTime();
         if (result < 1) throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
         return result;
-    }
-
-    public int findMetricLogByIp(String serverIp){
-        if(serverIp == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
-        Integer serverId = serverInfoMapper.findServerIdByIp(serverIp);
-        if(serverId == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
-        return serverId;
     }
 }

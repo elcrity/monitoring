@@ -1,6 +1,7 @@
 package com.park.monitoring.controller;
 
 import com.park.monitoring.model.MetricLog;
+import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.MetricLogService;
 import com.park.monitoring.service.ServerInfoService;
 import com.park.monitoring.util.ServerInfoUtil;
@@ -39,31 +40,30 @@ public class MetricLogController {
         return ResponseEntity.ok().body(metricLogList);
     }
 
-
     @PostMapping({"/history/{serverId}", "/history/"})
     ResponseEntity<List<MetricLog>> getServerLog(@PathVariable(required = false) Integer serverId) {
         // 서버 로그를 가져오기
-//        try {
         List<MetricLog> metricLogs = metricLogService.findMetricLogAtHistory(serverId);
         return ResponseEntity.ok().body(metricLogs);
-//        }catch (NoSuchElementException e){
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-
     }
 
     @GetMapping("/start")
     public ResponseEntity<Map<String,String>> startLogging() {
         String ip = ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs());
+        int serverId = serverInfoService.findServerIdByIp(ip);
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(serverId)
+                .serverIp(ip)
+                .build();
         Map<String,String> response = new HashMap<>();
-        Runnable task = () -> metricLogService.insertMetricLog(ip);
+        Runnable task = () -> metricLogService.insertMetricLog(serverInfo);
 
         try {
             if (scheduledFuture != null && !scheduledFuture.isDone()) {
                 scheduledFuture.cancel(false);
             }
-            scheduledFuture = scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
-            response.put("message", "로깅 시작");
+            scheduledFuture = scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES);
+            response.put("message", "로그 시작");
             return ResponseEntity.ok().body(response);
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -75,10 +75,10 @@ public class MetricLogController {
         Map<String,String> response = new HashMap<>();
         if (scheduledFuture != null && !scheduledFuture.isDone()) {
             scheduledFuture.cancel(true); // true를 전달하여 현재 실행 중인 작업도 중단할 수 있음
-            response.put("message", "로깅 중지");
+            response.put("message", "로그 정지");
             return ResponseEntity.ok().body(response);
         }
-        response.put("message", "로깅 중지중 오류");
+        response.put("message", "로그 정지 오류");
         return ResponseEntity.ok().body(response);
 
     }

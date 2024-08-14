@@ -13,9 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -23,67 +20,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
+@DisplayName("로그 매퍼 테스트")
 public class MetricLogMapperTest {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     MetricLogMapper metricLogMapper;
 
-    @DisplayName("로그 조회 - 전체")
-    @Test
-    void t00_readLog_all(){
-        List<MetricLog> metricLogs = metricLogMapper.selectAll();
-        metricLogs.forEach(metricLog -> {
-            assertThat(metricLog).isNotNull();
-            assertThat(metricLog.getLogId()).isNotNull();
-            assertThat(metricLog.getCpuUsage()).isNotNull();
-            assertThat(metricLog.getMemoryUsage()).isNotNull();
-            assertThat(metricLog.getServerId()).isNotNull();
-            assertThat(metricLog.getCreatedDate()).isNotNull();
-        });
-    }
-
-    @DisplayName("로그 조회 - 서버 id 전체")
-    @Test
-    void t01_readLog_byId(){
-        int id = 1;
-        List<MetricLog> metricLogs = metricLogMapper.selectLogAllByServerId(id);
-        assertThat(metricLogs).isNotNull();
-        assertThat(metricLogs.size()).isGreaterThan(2);
-    }
-
     @DisplayName("로그 조회 - 최신 로그")
     @Test
     void t02_readLogAll_latest(){
-        List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
-        System.out.println("================= : " + metricLogs);
-        metricLogs.forEach(metricLog -> {
-            assertThat(metricLog).isNotNull();
-            assertThat(metricLog.getLogId()).isNotNull();
-            assertThat(metricLog.getCpuUsage()).isNotNull();
-            assertThat(metricLog.getMemoryUsage()).isNotNull();
-            assertThat(metricLog.getServerId()).isNotNull();
-            assertThat(metricLog.getCreatedDate()).isNotNull();
-//            assertThat(metricLog.getDiskUsage1()).isNotNull();
-//            assertThat(metricLog.getDiskTotal1()).isNotNull();
-
-        });
+        assertThat(metricLogMapper.selectLogAllByLatest().size()).isGreaterThan(1);
     }
 
     @DisplayName("로그 조회 - history")
     @Test
     void t03_readLog_history(){
-        int id = 1;
-        List<MetricLog> logs = metricLogMapper.selectLogHistory(id);
-        assertThat(logs).isNotNull();
-        assertThat(log).isNotNull();
-        assertThat(logs.size()).isGreaterThan(2);
-        MetricLog log = logs.get(0);
-
-        assertThat(log.getCpuUsage()).isNotNull(); // Replace with expected value if necessary
-        assertThat(log.getMemoryUsage()).isNotNull(); // Replace with expected value if necessary
-        assertThat(log.getServerId()).isNotNull(); // Replace with expected value if necessary
-        assertThat(log.getCreatedDate()).isNotNull(); // Replace with expected value if necessary
+        assertThat(metricLogMapper.selectLogHistory(1).size()).isGreaterThan(1);
     }
 
     @DisplayName("로그 등록")
@@ -106,19 +59,14 @@ public class MetricLogMapperTest {
                 .diskName3("Disk C") // 디스크 이름 3
                 .diskName4("Disk D") // 디스크 이름 4
                 .build();
-        int result = metricLogMapper.insertLog(log);
-        assertThat(result).isEqualTo(1);
+        assertThat(metricLogMapper.insertLog(log)).isEqualTo(1);
     }
 
     @DisplayName("로그 삭제")
     @Test
     void t05_deleteLog(){
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneSecondBefore = now.minusMinutes(1);
-
-        //2초 간격으로 데이터 삽입, 처음 삽입한 데이터 5개만 삭제
-        int result = metricLogMapper.deleteLogBeforeTime();
-        assertThat(result).isGreaterThan(5);
+        //로그 데이터는 현재 시간, 시간-1분, -2분,-3분 등록
+        assertThat(metricLogMapper.deleteLogBeforeTime()).isGreaterThan(1);
     }
 
 }

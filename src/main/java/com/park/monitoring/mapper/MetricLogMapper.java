@@ -8,10 +8,6 @@ import java.util.List;
 @Mapper
 public interface MetricLogMapper {
 
-    List<MetricLog> selectAll();
-
-    List<MetricLog> selectLogAllByServerId(int serverId);
-
     List<MetricLog> selectLogAllByLatest();
 
     List<MetricLog> selectLogHistory(int serverId);

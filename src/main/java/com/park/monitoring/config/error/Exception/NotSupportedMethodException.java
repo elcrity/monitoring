@@ -12,4 +12,8 @@ public class NotSupportedMethodException extends HttpRequestMethodNotSupportedEx
     public ErrorCode getErrorCode() {
         return errorCode;
     }
+
+    public String getMessage(){
+        return errorCode.getMessage();
+    }
 }

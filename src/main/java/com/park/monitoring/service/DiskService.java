@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class DiskService {
@@ -46,7 +44,7 @@ public class DiskService {
     }
 
     public int insertDisk(Integer serverId) {
-        List<File> diskData = Arrays.asList(File.listRoots());
+        File[] diskData = File.listRoots();
         List<Double> diskTotalData = new ArrayList<>();
         List<Double> diskUsageData = new ArrayList<>();
         List<String> diskName = new ArrayList<>();

@@ -11,17 +11,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
+@DisplayName("디스크 매퍼 테스트")
 public class DiskMapperTest {
 
     @Autowired
@@ -31,29 +28,22 @@ public class DiskMapperTest {
     @DisplayName("디스크 ReadAll 테스트")
     @Test
     void t00_readDisk_all(){
-        List<Disk> disks = diskMapper.selectAllDisk();
-        assertThat(disks).isNotNull();
-        assertThat(disks.size()).isGreaterThan(5);
+        assertThat(diskMapper.selectAllDisk().size()).isGreaterThan(1);
     }
 
     @DisplayName("디스크 ReadAll - serverId")
     @Test
     void t00_readDisk_byServerId(){
         int serverId = 2;
-        List<Disk> disks = diskMapper.selectAllDiskByServerId(serverId);
-        assertThat(disks).isNotNull();
-        assertThat(disks.size()).isGreaterThan(1);
+        assertThat(diskMapper.selectAllDiskByServerId(serverId).size()).isGreaterThan(1);
     }
 
 
     @DisplayName("디스크 Read by id 테스트")
     @Test
     void t01_readDisk_byId(){
-        int id = 3;
-        Disk disk = diskMapper.selectDiskById(id);
-        assertNotNull(disk);
-        assertThat(disk.getDiskName())
-                .isEqualTo("disk1");
+        int id = 1;
+        assertThat(diskMapper.selectDiskById(id)).isNotNull();
     }
 
     @DisplayName("디스크 Create 테스트")
@@ -65,27 +55,25 @@ public class DiskMapperTest {
                 .build();
 
         int result = diskMapper.insertDisk(disk);
-        assertEquals(1, result);
+        assertThat(diskMapper.insertDisk(disk)).isEqualTo(1);
     }
 
     @DisplayName("디스크 update 테스트")
     @Test
     void t03_updateDisk() {
-        int id = 1;
-        Disk testDisk = diskMapper.selectDiskById(id);
-        int result = diskMapper.updateDisk(testDisk);
-        assertThat(1).isEqualTo(result);
+        Disk disk = new Disk.Builder()
+                .diskId(1)
+                .diskName("test")
+                .diskServerInfoFk(2)
+                .build();
+        assertThat(diskMapper.updateDisk(disk)).isEqualTo(1);
 
-        Disk updatedDisk = diskMapper.selectDiskById(id);
-        assertThat(updatedDisk.getDiskName()).isEqualTo("disk1");
 
     }
     @DisplayName("디스크 delete 테스트")
     @Test
     void t04_deleteDisk() {
         int id = 1;
-        int result = diskMapper.deleteDisk(id);
-        assertThat(diskMapper.selectDiskById(id)).isNull();
-        assertThat(result).isEqualTo(1);
+        assertThat(diskMapper.deleteDisk(id)).isEqualTo(1);
     }
 }

@@ -8,8 +8,6 @@ import com.park.monitoring.service.ServerInfoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +65,11 @@ public class ServerInfoController {
 
     @PostMapping({"/history/{serverId}", "/history/"})
     public ResponseEntity<ServerInfo> detail(@PathVariable(required = false) Integer serverId) {
-        ServerInfo serverDto = serverInfoService.findServerInfoAtHistory(serverId);
+        ServerInfo serverInfo = serverInfoService.findServerInfoById(serverId);
+        ServerInfo serverDto = new ServerInfo.Builder()
+                .serverHostname(serverInfo.getServerHostname())
+                .serverIp(serverInfo.getServerIp())
+                .build();
         return ResponseEntity.ok().body(serverDto);
     }
 
@@ -76,22 +78,25 @@ public class ServerInfoController {
         return ResponseEntity.ok().body(new ServerInfo());
     }
 
-    //    @PostMapping("/regserver")
-//    public ResponseEntity<String> addServer(@RequestParam(required = false) String purpose) {
-//        String serverIp;
-//        serverIp = serverInfoService.addServerInfo(purpose);
-//        int serverId = serverInfoService.findServerIdByIp(serverIp);
-//        int result = diskService.insertDisk(serverId);
-////      성공 유무 확인 못함
-//        return ResponseEntity.ok().body("성공");
-//    }
     @PostMapping("/regserver")
-    public ResponseEntity<Map<String, String>> addServer(@RequestParam(required = false) String purpose) {
-        String serverIp;
+    public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
+        String purpose = "test";
+        ServerInfo testServerInfo = new ServerInfo.Builder()
+                .serverOs("window")
+                .serverHostname("Test Host")
+                .memoryTotal(16440L)
+                .purpose("test")
+                .serverIp("192.168.2.2")
+                .build();
+        if(serverInfo == null){
+            serverInfo = testServerInfo;
+        }
+
+
         Map<String, String> response = new HashMap<>();
-        serverIp = serverInfoService.addServerInfo(purpose);
-        int serverId = serverInfoService.findServerIdByIp(serverIp);
-        int result = diskService.insertDisk(serverId);
+        int serverResult = serverInfoService.addServerInfo(serverInfo);
+        int serverId = serverInfoService.findServerIdByIp(serverInfo.getServerIp());
+        int diskResult = diskService.insertDisk(serverId);
 
         response.put("message", "등록되었습니다");
         return ResponseEntity.ok(response);
@@ -109,7 +114,7 @@ public class ServerInfoController {
     public ResponseEntity<Map<String,String>> updateServer(@ModelAttribute ServerInfo serverInfo) {
         serverInfoService.updateServerInfo(serverInfo);
         Map<String, String> response = new HashMap<>();
-        response.put("message", serverInfo.getServerIp() + " 서버를 수정했습니다");
+        response.put("message", serverInfo.getServerIp() + " 서버가 수정됐습니다");
         return ResponseEntity.ok().body(response);
     }
 

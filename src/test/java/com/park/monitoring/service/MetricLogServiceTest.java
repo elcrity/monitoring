@@ -1,9 +1,12 @@
 package com.park.monitoring.service;
 
+import com.park.monitoring.config.error.ErrorCode;
+import com.park.monitoring.config.error.Exception.BadRequestException;
+import com.park.monitoring.config.error.Exception.BaseException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
-import com.park.monitoring.model.MetricLog;
+import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -25,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
+@DisplayName("로그 서비스 테스트")
 public class MetricLogServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
 
@@ -36,7 +36,6 @@ public class MetricLogServiceTest {
 
     MetricLogService metricLogService;
 
-    @Autowired
     private ServerInfoService serverInfoService;
 
     @BeforeEach
@@ -44,90 +43,100 @@ public class MetricLogServiceTest {
         metricLogService = new MetricLogService(metricLogMapper,serverInfoMapper);
     }
 
-    @DisplayName("로그 조회 - 전체")
+    @DisplayName("최근 로그 조회")
     @Test
-    void t00_getLog_All(){
-        List<MetricLog> metricLogs = metricLogService.findMetricLogAll();
-        assertThat(metricLogs).isNotNull();
-        assertThat(metricLogs.size()).isGreaterThan(0);
+    void t01_getLogRecent(){
+        assertThat(metricLogService.findMetricLogByLatest().size())
+                .isGreaterThan(1);
     }
 
-    @DisplayName("로그 조회 - byId")
+    @DisplayName("최근 로그 조회 - noData")
     @Test
-    void t00_getLogs_byId(){
-        List<MetricLog> metricLogs = metricLogService.findMetricLogAllByServerId(id);
-        assertThat(metricLogs.size()).isGreaterThan(2);
+    @Sql("classpath:sql/testTable.sql")
+    void t01_e01_getLogRecent_noData(){
+        assertThatExceptionOfType(NotFoundException.class)
+                .isThrownBy(()->metricLogService.findMetricLogByLatest())
+                .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
-    @DisplayName("로그 조회 - 없는 id")
+    @DisplayName("히스토리 로그 조회")
     @Test
-    void t01_getLogAll_noId() {
-        assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAllByServerId(id+21));
-    }
-
-    @DisplayName("로그 조회 - id == null")
-    @Test
-    void t02_getLogAll_nullId() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAllByServerId(null));
+    void t02_getLog_history(){
+        assertThat(metricLogService.findMetricLogAtHistory(id).size())
+                .isGreaterThan(1);
 
     }
 
-    @DisplayName("로그 조회 - Latest")
+    @DisplayName("히스토리 로그 조회 - null Id")
     @Test
-    void t03_getRecentLogs_Latest() {
-        List<MetricLog> metricLogs = metricLogService.findMetricLogByLatest();
-        assertThat(metricLogs).isNotNull();
-        assertThat(metricLogs.size()).isGreaterThan(0);
-        for (MetricLog log : metricLogs) {
-            assertThat(log.getLogId()).isNotNull();
-            assertThat(log.getCpuUsage()).isNotNull();
-            assertThat(log.getMemoryUsage()).isNotNull();
-            assertThat(log.getServerId()).isNotNull();
-            assertThat(log.getCreatedDate()).isNotNull();
-        }
+    void t02_e01_getLogHistory_nullId(){
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(()->metricLogService.findMetricLogAtHistory(null))
+                .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
-
-    @DisplayName("최근 로그 조회 - history")
+    @DisplayName("히스토리 로그 조회 - not exist server")
     @Test
-    void t04_getLog_history(){
-        List<MetricLog> metricLog = metricLogService.findMetricLogAtHistory(id);
-        assertThat(metricLog).isNotNull();
-
-    }
-
-    @DisplayName("최근 로그 조회 - history exception")
-    @Test
-    void t04_01_getLog_history(){
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAtHistory(null));
-        assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAtHistory(id+22));
+    void t02_e02_getLog_history_noServer(){
+        assertThatExceptionOfType(NotFoundException.class)
+                .isThrownBy(()->metricLogService.findMetricLogAtHistory(id+522))
+                .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
     @DisplayName("로그 등록")
     @Test
     @Transactional
-    void t05_addLog(){
-        int result = metricLogService.insertMetricLog("192.168.1.1");
-        assertThat(result).isEqualTo(1);
+    void t03_addLog(){
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(1)
+                .serverOs("Ubuntu 20.04")
+                .serverHostname("server-hostname")
+                .memoryTotal(16384L)
+                .purpose("Development")
+                .serverIp("192.168.1.100")
+                .build();
+
+        assertThat(metricLogService.insertMetricLog(serverInfo))
+                .isEqualTo(1);
     }
 
 
     @DisplayName("로그 등록 - ip null")
     @Test
-    void t06_addLog_fkNull(){
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog(null));
+    void t03_e01_addLog_ipNull(){
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(1000)
+                .serverOs("Ubuntu 20.04")
+                .serverHostname("server-hostname")
+                .memoryTotal(16384L)
+                .purpose("Development")
+                .serverIp(null)
+                .build();
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(()->metricLogService.insertMetricLog(serverInfo))
+                .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
+    }
+
+    @DisplayName("로그 등록 - notFoundServer")
+    @Test
+    void t03_e02_addLog_notFound(){
+        ServerInfo serverInfo = new ServerInfo.Builder()
+                .serverId(1000)
+                .serverOs("Ubuntu 20.04")
+                .serverHostname("server-hostname")
+                .memoryTotal(16384L)
+                .purpose("Development")
+                .serverIp("192.168.1.100")
+                .build();
+
+        assertThatExceptionOfType(NotFoundException.class)
+                .isThrownBy(()->metricLogService.insertMetricLog(null))
+                .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
     @DisplayName("로그 삭제")
     @Test
-    void t07_removeLog(){
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneMinuteBefore = now.minusMinutes(1);
-
+    void t04_removeLog(){
         int result = metricLogService.deleteMetricLogBeforeTime();
         assertThat(result).isGreaterThan(0);
     }
@@ -135,9 +144,9 @@ public class MetricLogServiceTest {
     @DisplayName("로그 삭제 - no Log")
     @Test
     @Sql("classpath:sql/testTable.sql")
-    void t08_removeLog_noBeforeTime(){
-        assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime());
-
+    void t04_e01_removeLog_noBeforeTime(){
+        assertThatExceptionOfType(BaseException.class)
+                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime())
+                .withMessage(ErrorCode.UNEXPECTED_ERROR.getMessage());
     }
 }
