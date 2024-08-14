@@ -88,7 +88,7 @@ public class ServerInfoControllerTest {
     @DisplayName("/regserver")
     @Test
     void t03_testAddServer_Success() throws Exception {
-        String requestBody = "{\"serverOs\": \"windows 11\", \"serverHostname\": \"DESKTOP-61V7M8K\", \"memoryTotal\": 16440, \"purpose\": \"test\", \"serverIp\": \"192.168.2.1\"}";
+        String requestBody = "{\"serverOs\": \"windows 11\", \"serverHostname\": \"DESKTOP-61V7M8K\", \"purpose\": \"test\", \"serverIp\": \"192.168.2.1\"}";
         mvc.perform(post("/api/regserver")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))

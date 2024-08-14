@@ -7,6 +7,7 @@ import com.park.monitoring.config.error.Exception.DataIntegrityException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
+import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +70,14 @@ public class ServerInfoService {
     @Transactional
     public int addServerInfo(ServerInfo serverInfo) {
         int result;
-        if (serverInfo.getServerIp() == null
-                || serverInfo.getServerHostname() == null
+        String os = System.getProperty("os.name").toLowerCase();
+        serverInfo.setServerOs(os);
+        if(serverInfo.getServerIp()==null) {
+            serverInfo.setServerIp(ServerInfoUtil.getServerIp(os));
+        }
+        serverInfo.setMemoryTotal(osBean.getTotalMemorySize() / 1000000);
+        System.out.println(serverInfo);
+        if (serverInfo.getServerHostname() == null
                 || serverInfo.getServerOs() == null
                 || serverInfo.getMemoryTotal() == null) {
             throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
@@ -100,7 +107,7 @@ public class ServerInfoService {
                 throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
             }
             return result;
-        }catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             throw new DataIntegrityException(ErrorCode.DUPLICATED_ENTITY);
         }
     }

@@ -98,7 +98,6 @@ public class ServerInfoServiceTest {
     void t04_testAddServer() {
         String purpose = "test";
         ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverOs("windows 11")
                 .serverHostname("DESKTOP-61V7M8K")
                 .memoryTotal(16440L)
                 .purpose(purpose)
@@ -115,7 +114,7 @@ public class ServerInfoServiceTest {
         String purpose = "test";
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("windows 11")
-                .serverHostname("DESKTOP-61V7M8K")
+                .serverHostname(null)
                 .memoryTotal(16440L)
                 .purpose(purpose)
                 .serverIp(null)

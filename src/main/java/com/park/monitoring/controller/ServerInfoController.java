@@ -5,6 +5,7 @@ import com.park.monitoring.model.Disk;
 import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
+import com.park.monitoring.util.ServerInfoUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +80,9 @@ public class ServerInfoController {
     }
 
     @PostMapping("/regserver")
-    public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
+        public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
         String purpose = "test";
+        serverInfo.setServerOs(ServerInfoUtil.getServerOs());
         ServerInfo testServerInfo = new ServerInfo.Builder()
                 .serverOs("window")
                 .serverHostname("Test Host")
@@ -91,8 +93,7 @@ public class ServerInfoController {
         if(serverInfo == null){
             serverInfo = testServerInfo;
         }
-
-
+        System.out.println("controller : " + serverInfo);
         Map<String, String> response = new HashMap<>();
         int serverResult = serverInfoService.addServerInfo(serverInfo);
         int serverId = serverInfoService.findServerIdByIp(serverInfo.getServerIp());

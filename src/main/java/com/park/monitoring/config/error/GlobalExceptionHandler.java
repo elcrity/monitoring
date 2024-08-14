@@ -20,37 +20,37 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e){
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         // 예외 메시지를 사용하여 BAD_REQUEST 상태와 함께 응답을 생성합니다.
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(BadRequestException e) {
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
     @ExceptionHandler(DataIntegrityException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateDataException(DataIntegrityException e) {
 //            throw new DataIntegrityException(ErrorCode.DUPLICATED_ENTITY);
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(BaseException e) {
         // 예외 메시지를 사용하여 INTERNAL_SERVER_ERROR 상태와 함께 응답을 생성합니다.
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception e) {
-        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
+        log.error("Exception [Err_Location] : {}", e.getStackTrace());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 

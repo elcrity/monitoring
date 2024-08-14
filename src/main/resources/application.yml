@@ -2,7 +2,7 @@ spring:
   application:
     name: monitoring
   profiles:
-    active: local
+    active: dev
   devtools:
     livereload:
       enabled: true
