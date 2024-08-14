@@ -25,7 +25,6 @@ public class MetricLogController {
 
     private final ServerInfoService serverInfoService;
     MetricLogService metricLogService;
-
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static ScheduledFuture<?> scheduledFuture;
 
