@@ -64,7 +64,7 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-/monitoring-front
+monitoring-front/
 /node_modules
 /.pnp
 .pnp.js
