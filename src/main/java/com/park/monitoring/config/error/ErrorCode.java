@@ -9,6 +9,7 @@ public enum ErrorCode {
     DUPLICATED_ENTITY(HttpStatus.CONFLICT, "E4", "주어진 값으로 중복된 엔티티가 존재합니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "E5", "존재하지 않는 엔티티입니다."),
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E6", "예상치 못한 에러가 발생했습니다."),
+    NO_CONTENT(HttpStatus.NO_CONTENT, "s1", "작업이 성공적으로 완료되었으나 반환할 데이터가 없습니다")
     ;
 
     private final String message;

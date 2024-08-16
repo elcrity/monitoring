@@ -29,7 +29,6 @@ public class ServerInfoController {
     ServerInfoService serverInfoService;
     DiskService diskService;
 
-
     public ServerInfoController(ServerInfoService serverInfoService, DiskService diskService) {
         this.serverInfoService = serverInfoService;
         this.diskService = diskService;
@@ -58,7 +57,6 @@ public class ServerInfoController {
                     .serverId(serverDto.getServerId())
                     .disks(serverDisks)
                     .build();
-
             dashBoardDtoList.add(dashBoardDto);
         }
         return ResponseEntity.ok().body(dashBoardDtoList);
@@ -70,14 +68,15 @@ public class ServerInfoController {
         ServerInfo serverDto = new ServerInfo.Builder()
                 .serverHostname(serverInfo.getServerHostname())
                 .serverIp(serverInfo.getServerIp())
+                .memoryTotal(serverInfo.getMemoryTotal())
                 .build();
         return ResponseEntity.ok().body(serverDto);
     }
 
-    @GetMapping("/regform")
-    public ResponseEntity<ServerInfo> showRegistrationForm(Model model) {
-        return ResponseEntity.ok().body(new ServerInfo());
-    }
+//    @GetMapping("/regform")
+//    public ResponseEntity<ServerInfo> showRegistrationForm(Model model) {
+//        return ResponseEntity.ok().body(new ServerInfo());
+//    }
 
     @PostMapping("/regserver")
         public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
@@ -104,12 +103,12 @@ public class ServerInfoController {
 
 
     }
-
-    @PostMapping({"/regform/{serverId}", "/regform/"})
-    public ResponseEntity<ServerInfo> editForm(@PathVariable(required = false) Integer serverId) {
-        ServerInfo serverDto = serverInfoService.findServerInfoById(serverId);
-        return ResponseEntity.ok().body(serverDto);
-    }
+//
+//    @PostMapping({"/regform/{serverId}", "/regform/"})
+//    public ResponseEntity<ServerInfo> editForm(@PathVariable(required = false) Integer serverId) {
+//        ServerInfo serverDto = serverInfoService.findServerInfoById(serverId);
+//        return ResponseEntity.ok().body(serverDto);
+//    }
 
     @PutMapping("/updateServer")
     public ResponseEntity<Map<String,String>> updateServer(@ModelAttribute ServerInfo serverInfo) {

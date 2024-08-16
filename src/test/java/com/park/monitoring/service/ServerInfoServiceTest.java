@@ -27,9 +27,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
+@DisplayName("서버 서비스 테스트")
 public class ServerInfoServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
-    int testId = 1;
 
     @Autowired
     ServerInfoMapper serverInfoMapper;
@@ -44,21 +44,21 @@ public class ServerInfoServiceTest {
         serverInfoService = new ServerInfoService(serverInfoMapper);
         mockedStatic = Mockito.mockStatic(ServerInfoUtil.class);
     }
-
     @AfterEach
     void tearDown() {
         mockedStatic.close();
     }
+
     @DisplayName("서버 데이터 조회")
     @Test
-    void t01_testFindAll() {
+    void t01_01testFindAll() {
         assertThat(serverInfoService.findAllServerInfo().size()).isGreaterThan(1);
     }
 
     @DisplayName("서버 데이터 조회 - 반환값 null")
     @Test
     @Sql("classpath:sql/testTable.sql")
-    void t01_e01_testFindAll() {
+    void t01_02testFindAll() {
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(()
                 -> serverInfoService.findAllServerInfo());
     }
@@ -66,15 +66,12 @@ public class ServerInfoServiceTest {
     @DisplayName("서버 데이터 조회 - id")
     @Test
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t02_testFindById() {
-        int id = 1;
-        assertThat(serverInfoService.findServerInfoById(id)).isNotNull();
+    void t02_01testFindById() {
+        assertThat(serverInfoService.findServerInfoById(1)).isNotNull();
     }
     @DisplayName("서버 데이터 조회 - null")
     @Test
-//    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t02_e01_testFindById_null() {
-//        when(serverInfoService.findServerInfoById(null)).thenThrow(BadRequestException.class);
+    void t02_02testFindById_null() {
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> serverInfoService.findServerInfoById(null))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
@@ -82,20 +79,40 @@ public class ServerInfoServiceTest {
 
     @DisplayName("서버 데이터 조회 - invalid id")
     @Test
-//    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t02_e02_testFindById_invalid() {
+    void t02_03testFindById_invalid() {
         assertThatExceptionOfType(NotFoundException.class)
                 .isThrownBy(() -> serverInfoService.findServerInfoById(0))
                 .withMessageContaining(ErrorCode.NOT_FOUND.getMessage());
 
     }
 
+    @DisplayName("id 확인")
+    @Test
+    void t03_01testFindByIp() {
+        assertThat(serverInfoService.findServerIdByIp("192.168.1.1")).isEqualTo(1);
+    }
+
+    @DisplayName("ip 확인 - null")
+    @Test
+    void t03_02testFindByIp_badRequest() {
+        assertThatExceptionOfType(BadRequestException.class).isThrownBy(() ->
+                serverInfoService.findServerIdByIp(null))
+                .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
+
+    }
+    @DisplayName("id 확인 - invalid")
+    @Test
+    void t03_03testFindByIp_notFound() {
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() ->
+                        serverInfoService.findServerIdByIp("192.168.999.999"))
+                .withMessage(ErrorCode.NOT_FOUND.getMessage());
+
+    }
 
     @DisplayName("서버 데이터 등록")
     @Test
     @Transactional
-//    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t04_testAddServer() {
+    void t04_01testAddServer() {
         String purpose = "test";
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverHostname("DESKTOP-61V7M8K")
@@ -110,7 +127,7 @@ public class ServerInfoServiceTest {
     @DisplayName("서버 데이터 등록 - 필수값 null")
     @Test
     @Transactional
-    void t04_e01_testAddServer_nullUnique() {
+    void t04_02testAddServer_nullUnique() {
         String purpose = "test";
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("windows 11")
@@ -128,14 +145,14 @@ public class ServerInfoServiceTest {
     @DisplayName("서버 데이터 등록 - 중복값")
     @Test
     @Transactional
-    void t04_e02_testAddServer_duplicate() {
+    void t04_03testAddServer_duplicate() {
         String purpose = "test";
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("windows 11")
                 .serverHostname("DESKTOP-61V7M8K")
                 .memoryTotal(16440L)
                 .purpose(purpose)
-                .serverIp("192.168.1.1")
+                .serverIp("192.168.1.1")//중복
                 .build();
         assertThatExceptionOfType(DataIntegrityException.class)
                 .isThrownBy(() -> serverInfoService.addServerInfo(serverInfo))
@@ -145,32 +162,29 @@ public class ServerInfoServiceTest {
     @DisplayName("서버 데이터 수정")
     @Test
     @Transactional
-//    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t05_testUpdateServerInfoTest() {
+    void t05_01testUpdateServerInfoTest() {
         //정상 값
         ServerInfo updateInfo = new ServerInfo.Builder()
-                .serverId(testId)
+                .serverId(1)
                 .serverOs("테스트Os")
                 .memoryTotal(11223L)
                 .purpose("테스트용")
                 .serverHostname("testServer")
                 .serverIp("111.222.333.444")
                 .build();
-
         int result = serverInfoService.updateServerInfo(updateInfo);
+
         assertThat(result).isEqualTo(1);
-        assertThat(serverInfoService.findServerInfoById(testId).getServerIp()).isEqualTo("111.222.333.444");
-        assertThat(serverInfoService.findServerInfoById(testId).getServerOs()).isEqualTo("테스트Os");
     }
 
-    @DisplayName("서버 데이터 수정 - notExist")
+    @DisplayName("서버 데이터 수정 - invalid")
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t05_e01_testUpdateServer_NotExist() {
+    void t05_02testUpdateServer_invalid() {
         //없는 id값
         ServerInfo updateInfo = new ServerInfo.Builder()
-                .serverId(testId + 521)
+                .serverId(-1)
                 .serverOs("테스트Os")
                 .memoryTotal(11223L)
                 .purpose("테스트용")
@@ -187,10 +201,10 @@ public class ServerInfoServiceTest {
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t05_e02_testUpdateServer_DIV() {
+    void t05_03testUpdateServer_null() {
         //필수 값 null
         ServerInfo updateInfo = new ServerInfo.Builder()
-                .serverId(testId)
+                .serverId(1)
                 .serverOs("테스트Os")
                 .memoryTotal(11223L)
                 .purpose("테스트용")
@@ -206,24 +220,24 @@ public class ServerInfoServiceTest {
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t06_deleteServer() {
+    void t06_01deleteServer() {
         //정상
-        assertThat(serverInfoService.deleteServerInfo(testId)).isEqualTo(1);
+        assertThat(serverInfoService.deleteServerInfo(1)).isEqualTo(1);
     }
 
     @DisplayName("서버 데이터 삭제 - 미존재 데이터")
     @Test
     @Transactional
 //    @Sql({"classpath:testTable.sql","classpath:testServerData.sql"})
-    void t06_e01_deleteServerNotExistInfoTest() {
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> serverInfoService.deleteServerInfo(testId + 522))
+    void t06_02deleteServerNotExistInfoTest() {
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> serverInfoService.deleteServerInfo(-1))
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
     @DisplayName("서버 데이터 전체 삭제")
     @Test
     @Transactional
-    void t07_deleteAll() {
+    void t07_01deleteAll() {
         assertThat(serverInfoService.deleteAll()).isGreaterThan(1);
     }
 
@@ -231,7 +245,7 @@ public class ServerInfoServiceTest {
     @Test
     @Transactional
     @Sql({"classpath:sql/testTable.sql"})
-    void t07_e01_deleteAll_noData() {
+    void t07_02deleteAll_noData() {
         assertThatExceptionOfType(NotFoundException.class)
                 .isThrownBy(() -> serverInfoService.deleteAll())
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());

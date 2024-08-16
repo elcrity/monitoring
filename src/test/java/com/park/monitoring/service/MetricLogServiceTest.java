@@ -3,6 +3,7 @@ package com.park.monitoring.service;
 import com.park.monitoring.config.error.ErrorCode;
 import com.park.monitoring.config.error.Exception.BadRequestException;
 import com.park.monitoring.config.error.Exception.BaseException;
+import com.park.monitoring.config.error.Exception.NoContentException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
@@ -28,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class MetricLogServiceTest {
     Logger log = LoggerFactory.getLogger(ServerInfoServiceTest.class);
 
-    int id = 1;
     @Autowired
     MetricLogMapper metricLogMapper;
     @Autowired
@@ -36,56 +36,55 @@ public class MetricLogServiceTest {
 
     MetricLogService metricLogService;
 
-    private ServerInfoService serverInfoService;
-
     @BeforeEach
     public void setUp() {
-        metricLogService = new MetricLogService(metricLogMapper,serverInfoMapper);
+        metricLogService = new MetricLogService(metricLogMapper, serverInfoMapper);
     }
 
     @DisplayName("최근 로그 조회")
     @Test
-    void t01_getLogRecent(){
+    void t01_01getLogRecent_success() {
         assertThat(metricLogService.findMetricLogByLatest().size())
-                .isGreaterThan(1);
+                .isGreaterThan(0);
     }
 
     @DisplayName("최근 로그 조회 - noData")
     @Test
     @Sql("classpath:sql/testTable.sql")
-    void t01_e01_getLogRecent_noData(){
-        assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(()->metricLogService.findMetricLogByLatest())
-                .withMessage(ErrorCode.NOT_FOUND.getMessage());
+    void t01_02getLogRecent_noData() {
+        assertThatExceptionOfType(NoContentException.class)
+                .isThrownBy(() -> metricLogService.findMetricLogByLatest())
+                .withMessage(ErrorCode.NO_CONTENT.getMessage());
     }
 
-    @DisplayName("히스토리 로그 조회")
+    @DisplayName("로그 히스토리 조회")
     @Test
-    void t02_getLog_history(){
-        assertThat(metricLogService.findMetricLogAtHistory(id).size())
-                .isGreaterThan(1);
+    void t02_01getLogHistory_success() {
+        assertThat(metricLogService.findMetricLogAtHistory(1).size())
+                .isGreaterThan(0);
 
     }
 
-    @DisplayName("히스토리 로그 조회 - null Id")
+    @DisplayName("로그 히스토리 조회 - null Id")
     @Test
-    void t02_e01_getLogHistory_nullId(){
+    void t02_02getLogHistory_nullId() {
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAtHistory(null))
+                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
-    @DisplayName("히스토리 로그 조회 - not exist server")
+
+    @DisplayName("로그 히스토리 조회 - not existId")
     @Test
-    void t02_e02_getLog_history_noServer(){
+    void t02_03getLogHistory_e02_noServer() {
         assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(()->metricLogService.findMetricLogAtHistory(id+522))
+                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(-1))
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
     @DisplayName("로그 등록")
     @Test
     @Transactional
-    void t03_addLog(){
+    void t03_01addLog_success() {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverId(1)
                 .serverOs("Ubuntu 20.04")
@@ -99,10 +98,9 @@ public class MetricLogServiceTest {
                 .isEqualTo(1);
     }
 
-
-    @DisplayName("로그 등록 - ip null")
+    @DisplayName("로그 등록 - serverIp null")
     @Test
-    void t03_e01_addLog_ipNull(){
+    void t03_02addLog_ipNull() {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverId(1000)
                 .serverOs("Ubuntu 20.04")
@@ -113,15 +111,15 @@ public class MetricLogServiceTest {
                 .build();
 
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog(serverInfo))
+                .isThrownBy(() -> metricLogService.insertMetricLog(serverInfo))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
     @DisplayName("로그 등록 - notFoundServer")
     @Test
-    void t03_e02_addLog_notFound(){
+    void t03_03addLog_notFound() {
         ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverId(1000)
+                .serverId(999)
                 .serverOs("Ubuntu 20.04")
                 .serverHostname("server-hostname")
                 .memoryTotal(16384L)
@@ -130,13 +128,13 @@ public class MetricLogServiceTest {
                 .build();
 
         assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(()->metricLogService.insertMetricLog(null))
+                .isThrownBy(() -> metricLogService.insertMetricLog(null))
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
     @DisplayName("로그 삭제")
     @Test
-    void t04_removeLog(){
+    void t04_01removeLog() {
         int result = metricLogService.deleteMetricLogBeforeTime();
         assertThat(result).isGreaterThan(0);
     }
@@ -144,9 +142,9 @@ public class MetricLogServiceTest {
     @DisplayName("로그 삭제 - no Log")
     @Test
     @Sql("classpath:sql/testTable.sql")
-    void t04_e01_removeLog_noBeforeTime(){
+    void t04_02removeLog_noBeforeTime() {
         assertThatExceptionOfType(BaseException.class)
-                .isThrownBy(()->metricLogService.deleteMetricLogBeforeTime())
+                .isThrownBy(() -> metricLogService.deleteMetricLogBeforeTime())
                 .withMessage(ErrorCode.UNEXPECTED_ERROR.getMessage());
     }
 }

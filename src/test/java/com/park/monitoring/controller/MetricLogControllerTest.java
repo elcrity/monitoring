@@ -32,9 +32,9 @@ public class MetricLogControllerTest {
     private MockMvc mvc;
 
 
-    @DisplayName("/log 정상 동작 테스트")
+    @DisplayName("/log")
     @Test
-    void t01_getMetricLog() throws Exception {
+    void t01_01getMetricLog() throws Exception {
         mvc.perform(post("/log"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].logId",is(4)))// assuming the view name is "log"
@@ -43,7 +43,7 @@ public class MetricLogControllerTest {
 
     @DisplayName("/log - method not Allowed")
     @Test
-    void t01_e01_getDashboardLog_method() throws Exception {
+    void t01_02getDashboardLog_methodNotAllowed() throws Exception {
         // 서비스가 빈 리스트를 반환하도록 설정
 
         mvc.perform(get("/log"))
@@ -53,25 +53,25 @@ public class MetricLogControllerTest {
 
     @DisplayName("/log/history/{serverId}")
     @Test
-    void t02_getServerLog_history() throws Exception {
+    void t02_01getServerLog_history() throws Exception {
         int serverId = 1;
         mvc.perform(post("/log/history/{serverId}", serverId))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
-    @DisplayName("/log/history/null")
+    @DisplayName("/log/history/ - null")
     @Test
-    void t02_e01_getServerLog_badRequest() throws Exception {
+    void t02_02getServerLog_badRequest() throws Exception {
         // 서비스가 빈 리스트를 반환하도록 설정
         mvc.perform(post("/log/history/"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
-    @DisplayName("/log/history/invalid")
+    @DisplayName("/log/history/ - invalid")
     @Test
-    void t02_e02_getServerLog_nonExistentId() throws Exception {
+    void t02_03getServerLog_nonExistentId() throws Exception {
         int nonExistentServerId = 999; // 존재하지 않는 ID
 
         mvc.perform(post("/log/history/{serverId}", nonExistentServerId))

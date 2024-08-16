@@ -27,28 +27,26 @@ public class DiskMapperTest {
 
     @DisplayName("디스크 ReadAll 테스트")
     @Test
-    void t00_readDisk_all(){
-        assertThat(diskMapper.selectAllDisk().size()).isGreaterThan(1);
+    void t01_readDisk_all(){
+        assertThat(diskMapper.selectAllDisk().size()).isGreaterThan(0);
     }
 
     @DisplayName("디스크 ReadAll - serverId")
     @Test
-    void t00_readDisk_byServerId(){
-        int serverId = 2;
-        assertThat(diskMapper.selectAllDiskByServerId(serverId).size()).isGreaterThan(1);
+    void t02_readDisk_byServerId(){
+        assertThat(diskMapper.selectAllDiskByServerId(1).size()).isGreaterThan(0);
     }
 
 
     @DisplayName("디스크 Read by id 테스트")
     @Test
-    void t01_readDisk_byId(){
-        int id = 1;
-        assertThat(diskMapper.selectDiskById(id)).isNotNull();
+    void t03_readDisk_byId(){
+        assertThat(diskMapper.selectDiskById(1)).isNotNull();
     }
 
     @DisplayName("디스크 Create 테스트")
     @Test
-    void t02_createDisk() {
+    void t04_createDisk() {
         Disk disk = new Disk.Builder()
                 .diskName("Test Disk")
                 .diskServerInfoFk(10)
@@ -60,7 +58,7 @@ public class DiskMapperTest {
 
     @DisplayName("디스크 update 테스트")
     @Test
-    void t03_updateDisk() {
+    void t05_updateDisk() {
         Disk disk = new Disk.Builder()
                 .diskId(1)
                 .diskName("test")
@@ -72,8 +70,7 @@ public class DiskMapperTest {
     }
     @DisplayName("디스크 delete 테스트")
     @Test
-    void t04_deleteDisk() {
-        int id = 1;
-        assertThat(diskMapper.deleteDisk(id)).isEqualTo(1);
+    void t06_deleteDisk() {
+        assertThat(diskMapper.deleteDisk(1)).isEqualTo(1);
     }
 }

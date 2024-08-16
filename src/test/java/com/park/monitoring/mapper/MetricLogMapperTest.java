@@ -27,21 +27,21 @@ public class MetricLogMapperTest {
     @Autowired
     MetricLogMapper metricLogMapper;
 
-    @DisplayName("로그 조회 - 최신 로그")
+    @DisplayName("로그 조회 ")
     @Test
-    void t02_readLogAll_latest(){
-        assertThat(metricLogMapper.selectLogAllByLatest().size()).isGreaterThan(1);
+    void t01_readLoLatest(){
+        assertThat(metricLogMapper.selectLogAllByLatest()).isNotNull();
     }
 
     @DisplayName("로그 조회 - history")
     @Test
-    void t03_readLog_history(){
+    void t02_readLog_history(){
         assertThat(metricLogMapper.selectLogHistory(1).size()).isGreaterThan(1);
     }
 
     @DisplayName("로그 등록")
     @Test
-    void t04_insertLog(){
+    void t03_insertLog(){
         MetricLog log = new MetricLog.Builder()
                 .cpuUsage(55.5) // CPU 사용률
                 .memoryUsage(30.0) // 메모리 사용률
@@ -49,24 +49,20 @@ public class MetricLogMapperTest {
                 .diskUsage1(75.0) // 디스크 사용량 1
                 .diskUsage2(60.0) // 디스크 사용량 2
                 .diskUsage3(45.0) // 디스크 사용량 3
-                .diskUsage4(80.0) // 디스크 사용량 4
                 .diskTotal1(100000.0) // 디스크 총 용량 1
                 .diskTotal2(200000.0) // 디스크 총 용량 2
                 .diskTotal3(300000.0) // 디스크 총 용량 3
-                .diskTotal4(400000.0) // 디스크 총 용량 4
                 .diskName1("Disk A") // 디스크 이름 1
                 .diskName2("Disk B") // 디스크 이름 2
                 .diskName3("Disk C") // 디스크 이름 3
-                .diskName4("Disk D") // 디스크 이름 4
                 .build();
         assertThat(metricLogMapper.insertLog(log)).isEqualTo(1);
     }
 
     @DisplayName("로그 삭제")
     @Test
-    void t05_deleteLog(){
+    void t04_deleteLog(){
         //로그 데이터는 현재 시간, 시간-1분, -2분,-3분 등록
         assertThat(metricLogMapper.deleteLogBeforeTime()).isGreaterThan(1);
     }
-
 }

@@ -56,7 +56,7 @@ public class ServerInfoMapperTest {
     @Test
     void t03_getServerInfoAtHistory(){
         int serverId = 1;
-        ServerInfo dto = serverInfoMapper.selectServerInfoAtHistory(serverId);
+        ServerInfo dto = serverInfoMapper.selectServerInfoById(serverId);
         assertThat(dto.getServerId()).isEqualTo(serverId);
     }
 

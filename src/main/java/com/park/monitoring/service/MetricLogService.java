@@ -3,6 +3,7 @@ package com.park.monitoring.service;
 import com.park.monitoring.config.error.ErrorCode;
 import com.park.monitoring.config.error.Exception.BadRequestException;
 import com.park.monitoring.config.error.Exception.BaseException;
+import com.park.monitoring.config.error.Exception.NoContentException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.dto.DiskInfo;
 import com.park.monitoring.mapper.MetricLogMapper;
@@ -41,8 +42,8 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogByLatest() {
         List<MetricLog> metricLogs = metricLogMapper.selectLogAllByLatest();
-        if (metricLogs == null || metricLogs.isEmpty()) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND);
+        if (metricLogs.isEmpty()) {
+            throw new NoContentException(ErrorCode.NO_CONTENT);
         }
         return metricLogs;
     }
@@ -54,6 +55,7 @@ public class MetricLogService {
         return metricLogs;
 
     }
+
 
     @Transactional
     public int insertMetricLog(ServerInfo serverInfo) {

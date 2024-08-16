@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Transactional(readOnly = true)
 @ActiveProfiles("test")
 @Sql({"classpath:sql/testTable.sql", "classpath:sql/testData.sql"})
-@DisplayName("디스크 테스트")
+@DisplayName("디스크 서비스 테스트")
 public class DiskServiceTest {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
@@ -46,7 +46,7 @@ public class DiskServiceTest {
     }
     @DisplayName("데이터 조회 - serverId")
     @Test
-    void t01_testAllDiskFind_byServerId() {
+    void t01_01testAllDiskFind_byServerId() {
         Integer serverId = 2;
         List<Disk> disks = diskService.findAllDisksByServerId(serverId);
         assertThat(disks.size()).isGreaterThan(1);
@@ -54,7 +54,7 @@ public class DiskServiceTest {
 
     @DisplayName("데이터 조회 - nullServerId")
     @Test
-    void t01_02_testAllDiskFind_nullId() {
+    void t01_02testAllDiskFind_nullId() {
         Integer serverId = null;
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(()->diskService.findAllDisksByServerId(serverId));
@@ -62,7 +62,7 @@ public class DiskServiceTest {
 
     @DisplayName("데이터 조회 - notExistId")
     @Test
-    void t01_03_testAllDiskFind_notExistId() {
+    void t01_03testAllDiskFind_notExistId() {
         Integer serverId = 22;
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->diskService.findAllDisksByServerId(serverId));
@@ -70,7 +70,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 조회 - id")
     @Test
-    void t02_testFindDisk_byId() {
+    void t02_01testFindDisk_byId() {
         Integer id = 2;
         Disk disk = diskService.findDiskById(id);
         assertThat(disk).isNotNull();
@@ -79,7 +79,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 조회 - Null id")
     @Test
-    void t03_testFindDisk_nullId() {
+    void t02_02testFindDisk_nullId() {
         Integer id = null;
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(()->
                 diskService.findDiskById(id));
@@ -87,7 +87,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 조회 - No id")
     @Test
-    void t04_testFindDisk_noId() {
+    void t02_03testFindDisk_noId() {
         Integer id = 23;
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()-> diskService.findDiskById(id));
@@ -95,7 +95,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 등록")
     @Test
-    void t05_createDisk(){
+    void t03_01createDisk(){
         int serverId = 2;
         int result = diskService.insertDisk(serverId);
         assertThat(result).isGreaterThan(0);
@@ -105,21 +105,21 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 등록 - 필수 값 x")
     @Test
-    void t05_createDisk_isNull(){
+    void t03_02createDisk_isNull(){
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() ->diskService.insertDisk(null));
     }
 
     @DisplayName("디스크 데이터 등록 - 데이터 이상")
     @Test
-    void t05_02_createDisk_isNull(){
+    void t03_03createDisk_isNull(){
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() ->diskService.insertDisk(null));
     }
 
     @DisplayName("디스크 데이터 수정")
     @Test
-    void t06_updateDisk(){
+    void t0401updateDisk(){
         int id = 1;
 
         Disk disk = diskMapper.selectDiskById(id);
@@ -134,7 +134,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 수정 - 미존재 데이터")
     @Test
-    void t07_updateDisk_notExist(){
+    void t04_02updateDisk_notExist(){
             Disk disk = null;
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(()->diskService.updateDisk(disk));
@@ -142,7 +142,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 수정 - null 값")
     @Test
-    void t08_updateDisk_isNull(){
+    void t04_03updateDisk_isNull(){
         Disk disk = new Disk.Builder()
                 .diskName("I'm test")
                 .diskServerInfoFk(null)
@@ -153,7 +153,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 삭제")
     @Test
-    void t09_deleteDisk(){
+    void t05_01deleteDisk(){
         Integer id = 2;
         int result = diskService.deleteDisk(id);
         assertThat(result).isEqualTo(1);
@@ -164,7 +164,7 @@ public class DiskServiceTest {
 
     @DisplayName("디스크 데이터 삭제 - 미존재 데이터")
     @Test
-    void t10_deleteDisk_notExist(){
+    void t05_02deleteDisk_notExist(){
         Integer id = 22;
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->diskService.deleteDisk(id));

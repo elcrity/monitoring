@@ -12,23 +12,6 @@
         SELECT *
         FROM server_info WHERE server_id=#{id};
     </select>
-    <select id="selectServerInfoAtHistory" parameterType="int" resultType="com.park.monitoring.model.ServerInfo">
-        SELECT si.server_id,
-        si.server_os,
-        si.server_hostname,
-        si.memory_total,
-        si.purpose,
-        si.server_ip
-        FROM server_info si
-        WHERE si.server_id = #{serverId};
-    </select>
-
-    <select id="isIpExists" parameterType="String" resultType="Integer">
-        SELECT COUNT(*)
-        FROM server_info
-        WHERE server_ip = #{ip}
-    </select>
-
     <select id="findServerIdByIp" parameterType="String" resultType="int">
         select server_id
         from server_info
