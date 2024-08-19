@@ -93,8 +93,7 @@ public class ServerInfoService {
 
     @Transactional
     public int updateServerInfo(ServerInfo serverInfo) {
-        if (serverInfo.getServerId() == null || serverInfo.getServerIp() == null
-                || serverInfo.getServerIp().isEmpty()) {
+        if (serverInfo.getServerId() == null || serverInfo.getServerId().equals("")) {
             throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         }
         if (serverInfoMapper.selectServerInfoById(serverInfo.getServerId()) == null) {

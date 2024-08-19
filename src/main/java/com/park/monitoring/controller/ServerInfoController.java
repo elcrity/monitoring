@@ -17,9 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Todo : 컨트롤러 테스트
-//Todo : 예외 처리하기,
-//Todo : view단에서 데이터 출력, 각 컨트롤러 작동 작성하기
 @RestController
 @RequestMapping("/api")
 public class ServerInfoController {
@@ -65,17 +62,14 @@ public class ServerInfoController {
     public ResponseEntity<ServerInfo> detail(@PathVariable(required = false) Integer serverId) {
         ServerInfo serverInfo = serverInfoService.findServerInfoById(serverId);
         ServerInfo serverDto = new ServerInfo.Builder()
+                .serverId(serverInfo.getServerId())
                 .serverHostname(serverInfo.getServerHostname())
                 .serverIp(serverInfo.getServerIp())
                 .memoryTotal(serverInfo.getMemoryTotal())
+                .purpose(serverInfo.getPurpose())
                 .build();
         return ResponseEntity.ok().body(serverDto);
     }
-
-//    @GetMapping("/regform")
-//    public ResponseEntity<ServerInfo> showRegistrationForm(Model model) {
-//        return ResponseEntity.ok().body(new ServerInfo());
-//    }
 
     @PostMapping("/regserver")
         public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
@@ -102,15 +96,9 @@ public class ServerInfoController {
 
 
     }
-//
-//    @PostMapping({"/regform/{serverId}", "/regform/"})
-//    public ResponseEntity<ServerInfo> editForm(@PathVariable(required = false) Integer serverId) {
-//        ServerInfo serverDto = serverInfoService.findServerInfoById(serverId);
-//        return ResponseEntity.ok().body(serverDto);
-//    }
 
-    @PutMapping("/updateServer")
-    public ResponseEntity<Map<String,String>> updateServer(@ModelAttribute ServerInfo serverInfo) {
+    @PutMapping("/server")
+    public ResponseEntity<Map<String,String>> updateServer(@RequestBody ServerInfo serverInfo) {
         serverInfoService.updateServerInfo(serverInfo);
         Map<String, String> response = new HashMap<>();
         response.put("message", serverInfo.getServerIp() + " 서버가 수정됐습니다");

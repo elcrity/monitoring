@@ -26,8 +26,12 @@
 
     <update id="updateServerInfo" parameterType="com.park.monitoring.model.ServerInfo">
         UPDATE server_info
-        SET server_os=#{serverOs}, server_hostname=#{serverHostname}, memory_total=#{memoryTotal}, purpose=#{purpose},
-        server_ip=#{serverIp}
+        SET
+        server_os = CASE WHEN #{serverOs} IS NOT NULL THEN #{serverOs} ELSE server_os END,
+        server_hostname = CASE WHEN #{serverHostname} IS NOT NULL THEN #{serverHostname} ELSE server_hostname END,
+        memory_total = CASE WHEN #{memoryTotal} IS NOT NULL THEN #{memoryTotal} ELSE memory_total END,
+        purpose = CASE WHEN #{purpose} IS NOT NULL THEN #{purpose} ELSE purpose END,
+        server_ip = CASE WHEN #{serverIp} IS NOT NULL THEN #{serverIp} ELSE server_ip END
         WHERE server_id=#{serverId};
     </update>
 

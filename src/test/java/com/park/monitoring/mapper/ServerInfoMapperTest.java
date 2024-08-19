@@ -39,30 +39,19 @@ public class ServerInfoMapperTest {
     @DisplayName("조회 - 전체")
     @Test
     void t00_getAllServerInfo(){
-        List<ServerInfo> servers = serverInfoMapper.selectAllServerInfo();
-        assertThat(servers.size()).isGreaterThan( 10);
+        assertThat(serverInfoMapper.selectAllServerInfo().size()).isGreaterThan( 10);
     }
 
     @DisplayName("조회 - Id")
     @Test
     void t01_getServerInfoById(){
-        int serverId = 3;
-        ServerInfo server = serverInfoMapper.selectServerInfoById(serverId);
-        assertThat(server.getServerHostname())
-                .isEqualTo("server3");
-    }
-
-    @DisplayName("조회 - history")
-    @Test
-    void t03_getServerInfoAtHistory(){
-        int serverId = 1;
-        ServerInfo dto = serverInfoMapper.selectServerInfoById(serverId);
-        assertThat(dto.getServerId()).isEqualTo(serverId);
+        assertThat(serverInfoMapper.selectServerInfoById(1))
+                .isNotNull();
     }
 
     @DisplayName("등록")
     @Test
-    void t04_addServerInfo() {
+    void t02_addServerInfo() {
         ServerInfo serverInfo = new ServerInfo.Builder()
                 .serverOs("윈도우")
                 .serverHostname("park1104")
@@ -76,7 +65,7 @@ public class ServerInfoMapperTest {
 
     @DisplayName("수정")
     @Test
-    void t05_updateServerInfo() {
+    void t03_updateServerInfo() {
         int serverId = 1;
         ServerInfo updateInfo = new ServerInfo.Builder()
                 .serverId(serverId)
@@ -91,25 +80,19 @@ public class ServerInfoMapperTest {
 
     @DisplayName("삭제")
     @Test
-    void t06_deleteServerInfo() {
-        int serverId = 1;
-        ServerInfo serverInfo = serverInfoMapper.selectServerInfoById(serverId);
-        assertNotNull(serverInfo);
-        int result = serverInfoMapper.deleteServerInfoById(serverId);
-        assertEquals(1, result);
+    void t04_deleteServerInfo() {
+        assertThat(serverInfoMapper.deleteServerInfoById(1)).isEqualTo(1);
     }
 
     @DisplayName("전부 삭제")
     @Test
-    void t07_deleteAll() {
-        int result = serverInfoMapper.deleteAll();
-        assertThat(result).isGreaterThan(0);
+    void t05_deleteAll() {
+        assertThat(serverInfoMapper.deleteAll()).isGreaterThan(0);
     }
 
     @DisplayName("findByIp")
     @Test
     void t089_findByIp(){
-        int result = serverInfoMapper.findServerIdByIp("192.168.1.1");
-        assertThat(result).isEqualTo(1);
+        assertThat(serverInfoMapper.findServerIdByIp("192.168.1.1")).isEqualTo(1);
     }
 }

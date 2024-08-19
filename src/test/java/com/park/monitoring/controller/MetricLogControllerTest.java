@@ -37,15 +37,13 @@ public class MetricLogControllerTest {
     void t01_01getMetricLog() throws Exception {
         mvc.perform(post("/log"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].logId",is(4)))// assuming the view name is "log"
-                .andDo(print()); // Print the result to console for debugging
+                .andExpect(jsonPath("$[0].logId",is(4)))
+                .andDo(print());
     }
 
     @DisplayName("/log - method not Allowed")
     @Test
     void t01_02getDashboardLog_methodNotAllowed() throws Exception {
-        // 서비스가 빈 리스트를 반환하도록 설정
-
         mvc.perform(get("/log"))
                 .andExpect(status().isMethodNotAllowed())
                 .andDo(print());
@@ -54,8 +52,7 @@ public class MetricLogControllerTest {
     @DisplayName("/log/history/{serverId}")
     @Test
     void t02_01getServerLog_history() throws Exception {
-        int serverId = 1;
-        mvc.perform(post("/log/history/{serverId}", serverId))
+        mvc.perform(post("/log/history/{serverId}", 1))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -63,7 +60,6 @@ public class MetricLogControllerTest {
     @DisplayName("/log/history/ - null")
     @Test
     void t02_02getServerLog_badRequest() throws Exception {
-        // 서비스가 빈 리스트를 반환하도록 설정
         mvc.perform(post("/log/history/"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -72,10 +68,8 @@ public class MetricLogControllerTest {
     @DisplayName("/log/history/ - invalid")
     @Test
     void t02_03getServerLog_nonExistentId() throws Exception {
-        int nonExistentServerId = 999; // 존재하지 않는 ID
-
-        mvc.perform(post("/log/history/{serverId}", nonExistentServerId))
-                .andExpect(status().isNotFound()) // 상태 코드가 NOT FOUND인지 확인
+        mvc.perform(post("/log/history/{serverId}", 999))
+                .andExpect(status().isNotFound())
                 .andDo(print());
 
     }

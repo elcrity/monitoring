@@ -60,6 +60,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private void errorLog(Exception e){
-        log.error("Exception [Err_Location] : {}", Arrays.toString(e.getStackTrace()));
+        log.error("Exception [Err_Location] : {}", e.getStackTrace()[0]);
     }
 }

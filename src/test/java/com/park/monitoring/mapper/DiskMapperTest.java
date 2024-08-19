@@ -52,7 +52,6 @@ public class DiskMapperTest {
                 .diskServerInfoFk(10)
                 .build();
 
-        int result = diskMapper.insertDisk(disk);
         assertThat(diskMapper.insertDisk(disk)).isEqualTo(1);
     }
 

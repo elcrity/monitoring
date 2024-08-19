@@ -135,8 +135,8 @@ public class MetricLogServiceTest {
     @DisplayName("로그 삭제")
     @Test
     void t04_01removeLog() {
-        int result = metricLogService.deleteMetricLogBeforeTime();
-        assertThat(result).isGreaterThan(0);
+        assertThat(metricLogService.deleteMetricLogBeforeTime())
+                .isGreaterThan(0);
     }
 
     @DisplayName("로그 삭제 - no Log")

@@ -33,7 +33,6 @@ public class ServerInfoControllerTest {
     @DisplayName("/api/dashboard ")
     @Test
     void t01_01accessRoot() throws Exception {
-        //http.get 요청
         mvc.perform(get("/api/dashboard"))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -87,7 +86,14 @@ public class ServerInfoControllerTest {
     @DisplayName("/regserver")
     @Test
     void t03_01regServer_Success() throws Exception {
-        String requestBody = "{\"serverOs\": \"windows 11\", \"serverHostname\": \"DESKTOP-61V7M8K\", \"purpose\": \"test\", \"serverIp\": \"192.168.2.1\"}";
+        String requestBody = """
+                    {
+                        "serverOs": "windows 11",
+                        "serverHostname": "DESKTOP-61V7M8K",
+                        "purpose": "test",
+                        "serverIp": "192.168.2.1"
+                    }
+                """;
         mvc.perform(post("/api/regserver")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -99,46 +105,61 @@ public class ServerInfoControllerTest {
     @DisplayName("/regServer duplicatedIp")
     @Test
     void t03_02addServer_duplicate() throws Exception {
-        String requestBody = "{\"serverOs\": \"windows 11\", \"serverHostname\": \"DESKTOP-61V7M8K\", \"memoryTotal\": 16440, \"purpose\": \"test\", \"serverIp\": \"192.168.1.1\"}";
+        String requestBody = """
+                    {
+                        "serverOs": "windows 11",
+                        "serverHostname": "DESKTOP-61V7M8K",
+                        "memoryTotal": 16440,
+                        "purpose": "test",
+                        "serverIp": "192.168.1.1"
+                    }
+                """;
 
         mvc.perform(post("/api/regserver")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isConflict()) // Expect 409 Conflict
+                .andExpect(status().isConflict())
                 .andDo(print());
     }
 
-    //Todo:테스트 손보기
-    //
     @DisplayName("/updateServer")
     @Test
     void t04_01updateServer() throws Exception {
-        mvc.perform(put("/api/updateServer")
-                        .param("serverId", String.valueOf(1))
-                        .param("serverOs", "Linux")
-                        .param("serverHostname", "test-hostname")
-                        .param("memoryTotal", String.valueOf(8192L))
-                        .param("purpose", "test")
-                        .param("serverIp", "192.168.2.222"))
+        String requestBody = """
+                    {
+                        "serverId": 1,
+                        "serverOs": "Linux",
+                        "serverHostname": "test-hostname",
+                        "memoryTotal": 8192,
+                        "purpose": "test",
+                        "serverIp": "192.168.2.222"
+                    }
+                """;
+        mvc.perform(put("/api/server")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{'message': '192.168.2.222 서버가 수정됐습니다'}"))
-                .andDo(print());  // Use serverId variable here
+                .andDo(print());
     }
 
     @DisplayName("/updateServer invalid Ip")
     @Test
     void t04_02updateServer_invalid() throws Exception {
-        int serverId = 1;
-        // 예외 발생을 위한 설정
-        // PUT 요청에 서버 정보 포함
-        // @ModelAttribute를 사용하면 서버 정보까지 담아 보내야함
-        mvc.perform(put("/api/updateServer")
-                        .param("serverOs", "Linux")
-                        .param("serverHostname", "test-hostname")
-                        .param("memoryTotal", String.valueOf(8192L))
-                        .param("purpose", "Test Server")
-                        .param("serverId", String.valueOf(serverId))
-                        .param("serverIp", ""))
+        //ip null
+        String requestBody = """
+                    {
+                        "serverId": 1,
+                        "serverOs": "Linux",
+                        "serverHostname": "test-hostname",
+                        "memoryTotal": 8192,
+                        "purpose": "test",
+                        "serverIp": 
+                    }
+                """;
+        mvc.perform(put("/api/server")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
@@ -146,13 +167,21 @@ public class ServerInfoControllerTest {
     @DisplayName("/updateServer invalid")
     @Test
     void t04_03updateServer_noSuch() throws Exception {
-        mvc.perform(put("/api/updateServer")
-                        .param("serverOs", "Linux")
-                        .param("serverHostname", "test-hostname")
-                        .param("memoryTotal", String.valueOf(8192L))
-                        .param("purpose", "Test Server")
-                        .param("serverIp", "192.168.2.22")
-                        .param("serverId", String.valueOf(-1)))
+        //id not exist
+        String requestBody = """
+                    {
+                        "serverId": -1,
+                        "serverOs": "Linux",
+                        "serverHostname": "test-hostname",
+                        "memoryTotal": 8192,
+                        "purpose": "test",
+                        "serverIp": "192.168.2.222"
+                    }
+                """;
+
+        mvc.perform(put("/api/server")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isNotFound())
                 .andDo(print());
     }
@@ -160,13 +189,20 @@ public class ServerInfoControllerTest {
     @DisplayName("/updateServer duplicatedIp")
     @Test
     void t04_04updateServer_Dup() throws Exception {
-        mvc.perform(put("/api/updateServer")
-                        .param("serverOs", "Linux")
-                        .param("serverHostname", "test-hostname")
-                        .param("memoryTotal", String.valueOf(8192L))
-                        .param("purpose", "Test Server")
-                        .param("serverIp", "192.168.1.2")
-                        .param("serverId", String.valueOf(1)))
+        String requestBody = """
+                    {
+                        "serverId": 1,
+                        "serverOs": "Linux",
+                        "serverHostname": "test-hostname",
+                        "memoryTotal": 8192,
+                        "purpose": "test",
+                        "serverIp": "192.168.1.2"
+                    }
+                """;
+
+        mvc.perform(put("/api/server")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isConflict())
                 .andDo(print());
     }
