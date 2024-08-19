@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 public class ServerInfoService {
     Logger log = LoggerFactory.getLogger(this.getClass());
-
     ServerInfoMapper serverInfoMapper;
     OperatingSystemMXBean osBean;
 
@@ -75,7 +74,8 @@ public class ServerInfoService {
         if(serverInfo.getServerIp()==null) {
             serverInfo.setServerIp(ServerInfoUtil.getServerIp(os));
         }
-        serverInfo.setMemoryTotal(osBean.getTotalMemorySize() / 1000000);
+
+        serverInfo.setMemoryTotal((long) (osBean.getTotalMemorySize() / Math.pow(1024, 3)));
         System.out.println(serverInfo);
         if (serverInfo.getServerHostname() == null
                 || serverInfo.getServerOs() == null
@@ -90,7 +90,6 @@ public class ServerInfoService {
         if (result < 1) throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
         return result;
     }
-
 
     @Transactional
     public int updateServerInfo(ServerInfo serverInfo) {
