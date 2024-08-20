@@ -73,28 +73,14 @@ public class ServerInfoController {
 
     @PostMapping("/regserver")
         public ResponseEntity<Map<String, String>> addServer(@RequestBody(required = false) ServerInfo serverInfo) {
-        String purpose = "test";
         serverInfo.setServerOs(ServerInfoUtil.getServerOs());
-        ServerInfo testServerInfo = new ServerInfo.Builder()
-                .serverOs("window")
-                .serverHostname("Test Host")
-                .memoryTotal(16440L)
-                .purpose("test")
-                .serverIp("192.168.2.2")
-                .build();
-        if(serverInfo == null){
-            serverInfo = testServerInfo;
-        }
-        System.out.println("controller : " + serverInfo);
         Map<String, String> response = new HashMap<>();
-        int serverResult = serverInfoService.addServerInfo(serverInfo);
+        serverInfoService.addServerInfo(serverInfo);
         int serverId = serverInfoService.findServerIdByIp(serverInfo.getServerIp());
-        int diskResult = diskService.insertDisk(serverId);
+        diskService.insertDisk(serverId);
 
-        response.put("message", "등록되었습니다");
+        response.put("message", serverInfo.getServerIp() + "서버가 등록되었습니다");
         return ResponseEntity.ok(response);
-
-
     }
 
     @PutMapping("/server")

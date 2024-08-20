@@ -79,6 +79,5 @@ public class MetricLogController {
         }
         response.put("message", "로그 정지 오류");
         return ResponseEntity.ok().body(response);
-
     }
 }
