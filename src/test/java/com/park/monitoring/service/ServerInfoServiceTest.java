@@ -76,7 +76,7 @@ public class ServerInfoServiceTest {
     void t02_02testFindById_null() {
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> serverInfoService.findServerInfoById(null))
-                .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
+                .withMessage(ErrorCode.INVALID_ACCESS.getMessage());
     }
 
     @DisplayName("서버 데이터 조회 - invalid id")

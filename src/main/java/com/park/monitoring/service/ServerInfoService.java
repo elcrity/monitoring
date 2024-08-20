@@ -46,7 +46,7 @@ public class ServerInfoService {
 
     public ServerInfo findServerInfoById(Integer id) {
         if (id == null) {
-            throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new BadRequestException(ErrorCode.INVALID_ACCESS);
         }
         ServerInfo serverInfo = serverInfoMapper.selectServerInfoById(id);
         if (serverInfo == null) {

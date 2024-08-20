@@ -17,7 +17,6 @@ public class DataIntegrityException extends DataIntegrityViolationException {
     public ErrorCode getErrorCode() {
         return errorCode;
     }
-
     public String getMessage(){
         return errorCode.getMessage();
     }

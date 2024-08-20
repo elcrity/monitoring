@@ -75,6 +75,7 @@
             <appender-ref ref="FILE_DEBUG"/>
         </logger>
         <logger name="com.park.monitoring" level="ERROR">
+            <appender-ref ref="STDOUT" />
             <appender-ref ref="FILE-ERR" />
         </logger>
         <root level="info">

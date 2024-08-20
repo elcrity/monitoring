@@ -51,7 +51,6 @@ public class MetricLogService {
     public List<MetricLog> findMetricLogAtHistory(Integer serverId) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(serverId);
-        if (metricLogs.isEmpty() ||metricLogs == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return metricLogs;
 
     }

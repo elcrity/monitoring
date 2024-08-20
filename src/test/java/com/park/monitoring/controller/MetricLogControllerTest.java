@@ -65,12 +65,4 @@ public class MetricLogControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("/log/history/ - invalid")
-    @Test
-    void t02_03getServerLog_nonExistentId() throws Exception {
-        mvc.perform(post("/log/history/{serverId}", 999))
-                .andExpect(status().isNotFound())
-                .andDo(print());
-
-    }
 }

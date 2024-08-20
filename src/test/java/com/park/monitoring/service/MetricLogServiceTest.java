@@ -73,14 +73,6 @@ public class MetricLogServiceTest {
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
-    @DisplayName("로그 히스토리 조회 - not existId")
-    @Test
-    void t02_03getLogHistory_e02_noServer() {
-        assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(-1))
-                .withMessage(ErrorCode.NOT_FOUND.getMessage());
-    }
-
     @DisplayName("로그 등록")
     @Test
     @Transactional

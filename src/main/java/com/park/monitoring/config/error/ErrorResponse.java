@@ -90,7 +90,7 @@ public class ErrorResponse {
         return ResponseEntity.status(e.getStatus())
                 .body(new ErrorResponse.Builder()
                         .status(e.getStatus().value())
-                        .name(e.name())
+                        .name(e.getStatus().name())
                         .message(e.getMessage())
                         .code(e.getCode())
                         .build());
