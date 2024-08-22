@@ -98,7 +98,7 @@ public class ServerInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'message': '등록되었습니다'}"))
+                .andExpect(content().json("{'message': '192.168.2.1서버가 등록되었습니다'}"))
                 .andDo(print());
     }
 

@@ -7,12 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface ServerInfoMapper {
-//    List<ServerInfo> selectAllServerInfo();
     List<ServerInfo> selectAllServerInfo();
     ServerInfo selectServerInfoById(Integer id);
+    Integer findServerIdByIp(String serverIp);
     int insertServerInfo(ServerInfo serverInfo);
     int updateServerInfo(ServerInfo serverInfo);
     int deleteServerInfoById(Integer id);
-    int deleteAll();
-    Integer findServerIdByIp(String serverIp);
 }

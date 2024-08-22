@@ -18,7 +18,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.management.ManagementFactory;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class MetricLogService {
@@ -50,9 +56,23 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogAtHistory(Integer serverId) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
-        List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(serverId);
-        return metricLogs;
+        Map<String, Object> params = new HashMap<>();
+        LocalDate date = LocalDate.now();
+        LocalDateTime startDate = date.atStartOfDay();
+        LocalDateTime endDate = date.plusDays(1).atStartOfDay();
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // 출력 결과
+        String startDateStr = startDate.format(formatter);
+        String endDateStr = endDate.format(formatter);
+
+        params.put("serverId", serverId);
+        params.put("startDate", startDateStr);
+        params.put("endDate", endDateStr);
+
+        List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(params);
+        return metricLogs;
     }
 
 

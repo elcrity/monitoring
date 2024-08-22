@@ -122,13 +122,4 @@ public class ServerInfoService {
         if (result < 1) throw new BaseException(ErrorCode.UNEXPECTED_ERROR);
         else return result;
     }
-
-    @Transactional
-    public int deleteAll() {
-        int result = serverInfoMapper.deleteAll();
-        if (result > 0) return result;
-        else {
-            throw new NotFoundException(ErrorCode.NOT_FOUND);
-        }
-    }
 }

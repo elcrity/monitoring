@@ -28,7 +28,7 @@
             WHERE sub_ml.server_metric_fk = ml.server_metric_fk
         );
     </select>
-    <select id="selectLogHistory" parameterType="int" resultType="com.park.monitoring.model.MetricLog">
+    <select id="selectLogHistory" parameterType="map" resultType="com.park.monitoring.model.MetricLog">
         SELECT
             server_metric_fk AS server_id,
             log_id,
@@ -51,6 +51,8 @@
             metric_log
         WHERE
             server_metric_fk = #{serverId}
+        AND created_date >= #{startDate}
+        AND created_date &lt; #{endDate}
         ORDER BY
             created_date;
     </select>

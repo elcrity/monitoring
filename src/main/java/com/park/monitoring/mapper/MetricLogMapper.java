@@ -4,17 +4,14 @@ import com.park.monitoring.model.MetricLog;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Mapper
 public interface MetricLogMapper {
-
     List<MetricLog> selectLogAllByLatest();
-
-    List<MetricLog> selectLogHistory(int serverId);
-
+    List<MetricLog> selectLogHistory(Map<String, Object> params);
     int insertLog(MetricLog metricLog);
-//    int updateLog(MetricLog metricLog);
     int deleteLogBeforeTime();
-
 
 }

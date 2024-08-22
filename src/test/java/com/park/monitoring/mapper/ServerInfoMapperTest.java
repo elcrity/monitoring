@@ -59,7 +59,6 @@ public class ServerInfoMapperTest {
                 .purpose("ftp 서버")
                 .serverIp("192.168.2.60")
                 .build();
-
         assertThat(serverInfoMapper.insertServerInfo(serverInfo)).isEqualTo(1);
     }
 
@@ -84,15 +83,9 @@ public class ServerInfoMapperTest {
         assertThat(serverInfoMapper.deleteServerInfoById(1)).isEqualTo(1);
     }
 
-    @DisplayName("전부 삭제")
-    @Test
-    void t05_deleteAll() {
-        assertThat(serverInfoMapper.deleteAll()).isGreaterThan(0);
-    }
-
     @DisplayName("findByIp")
     @Test
-    void t089_findByIp(){
+    void t05_findByIp(){
         assertThat(serverInfoMapper.findServerIdByIp("192.168.1.1")).isEqualTo(1);
     }
 }

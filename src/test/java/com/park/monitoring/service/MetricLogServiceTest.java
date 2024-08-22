@@ -17,6 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -60,7 +64,10 @@ public class MetricLogServiceTest {
     @DisplayName("로그 히스토리 조회")
     @Test
     void t02_01getLogHistory_success() {
-        assertThat(metricLogService.findMetricLogAtHistory(1).size())
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String startDate = date.format(formatter);
+        assertThat(metricLogService.findMetricLogAtHistory(1,startDate).size())
                 .isGreaterThan(0);
 
     }
@@ -69,7 +76,7 @@ public class MetricLogServiceTest {
     @Test
     void t02_02getLogHistory_nullId() {
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null))
+                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null,null))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 

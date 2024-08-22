@@ -230,22 +230,4 @@ public class ServerInfoServiceTest {
                 .isThrownBy(() -> serverInfoService.deleteServerInfo(-1))
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
-
-    @DisplayName("서버 데이터 전체 삭제")
-    @Test
-    @Transactional
-    void t07_01deleteAll() {
-        assertThat(serverInfoService.deleteAll())
-                .isGreaterThan(1);
-    }
-
-    @DisplayName("서버 데이터 전체 삭제 - noData")
-    @Test
-    @Transactional
-    @Sql({"classpath:sql/testTable.sql"})
-    void t07_02deleteAll_noData() {
-        assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(() -> serverInfoService.deleteAll())
-                .withMessage(ErrorCode.NOT_FOUND.getMessage());
-    }
 }

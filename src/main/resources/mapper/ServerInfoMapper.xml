@@ -39,9 +39,4 @@
         DELETE FROM server_info
         WHERE server_id=#{serverId};
     </delete>
-
-    <delete id="deleteAll">
-        DELETE FROM server_info
-        WHERE server_id > 0;
-    </delete>
 </mapper>

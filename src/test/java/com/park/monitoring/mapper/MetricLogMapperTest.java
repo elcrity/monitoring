@@ -13,6 +13,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -36,7 +44,16 @@ public class MetricLogMapperTest {
     @DisplayName("로그 조회 - history")
     @Test
     void t02_readLog_history(){
-        assertThat(metricLogMapper.selectLogHistory(1).size()).isGreaterThan(1);
+        Map<String, Object> params = new HashMap<>();
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime tomorrow = today.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = today.format(formatter);
+        String endDate = tomorrow.format(formatter);
+        params.put("serverId", 1);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        assertThat(metricLogMapper.selectLogHistory(params).size()).isGreaterThan(0);
     }
 
     @DisplayName("로그 등록")

@@ -71,6 +71,9 @@
 <!--		<appender-ref ref="DEBUGING" />-->
 <!--	</logger>-->
     <springProfile name="local">
+        <logger name="org.apache.ibatis" level="DEBUG">
+            <appender-ref ref="FILE_DEBUG"/>
+        </logger>
         <logger name="com.park.monitoring" level="DEBUG">
             <appender-ref ref="FILE_DEBUG"/>
         </logger>
