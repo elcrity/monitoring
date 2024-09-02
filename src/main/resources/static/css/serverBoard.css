@@ -1,0 +1,128 @@
+/* 서버 테이블 스타일 */
+#serverTable {
+    height: 100%; /* #serverTable의 높이를 부모 컨테이너에서 할당된 만큼 차지 */
+    border: 1px solid #ddd; /* 테두리 설정 */
+    border-radius: 8px 8px 0 0; /* 둥근 모서리 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 효과 */
+    cursor: pointer; /* 마우스를 올리면 포인터로 변경 */
+    display: grid;
+    grid-template-rows: 30% 70%; /* 상단 헤더 35%, 나머지 부분 65%로 설정 */
+    padding: 3px 1px 0 1px; /* 내부 여백 */
+    box-sizing: border-box; /* 패딩을 총 크기에 포함 */
+    position: relative; /* 자식 요소를 절대 위치로 배치하기 위한 기준 설정 */
+}
+
+/* 서버 테이블 헤더 스타일 */
+#serverTable-header {
+    display: grid;
+    grid-template-rows: 40% 60%; /* 두 개의 행으로 나누기 */
+    grid-template-columns: 1fr 1fr 1fr; /* 세 개의 열로 나누기 */
+    padding: 0 5px;
+    position: relative; /* 자식 요소의 절대 위치를 설정하기 위한 기준 */
+}
+
+/* 서버 테이블 헤더의 첫 번째 div */
+#serverTable-header > div:first-child {
+    grid-row: 1 / 2; /* 첫 번째 행을 전부 차지 */
+    grid-column: 1 / 4; /* 첫 번째 열부터 세 번째 열까지 차지 */
+    text-align: left; /* 왼쪽 정렬 */
+    align-self: start; /* 상단 정렬 */
+    font-weight: bold; /* 글씨를 굵게 */
+}
+
+/* 서버 테이블 헤더의 상태 표시기 */
+#statusIndicator {
+    position: absolute; /* 절대 위치 설정 */
+    bottom: 10px; /* 하단에서 5px 떨어지게 설정 */
+    left: 3px; /* 왼쪽에서 5px 떨어지게 설정 */
+    width: 15px; /* 원의 너비 */
+    height: 15px; /* 원의 높이 */
+    border-radius: 50%; /* 원형으로 만들기 */
+    background-color: transparent; /* 초기 배경색 설정 */
+}
+
+/* 서버 테이블 헤더의 서버 IP */
+#serverTable-header > div:last-child {
+    position: absolute; /* 절대 위치 설정 */
+    bottom: 5px; /* 하단에서 5px 떨어지게 설정 */
+    right: 5px; /* 오른쪽에서 5px 떨어지게 설정 */
+    text-align: right; /* 오른쪽 정렬 */
+    align-self: end; /* 하단 정렬 */
+}
+
+/* 사용량 컨테이너 스타일 */
+/*#serverTable > div {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(3, 1fr); !* 3개의 열로 나누기 *!*/
+/*    gap: 5px; !* 각 열 사이의 간격 추가 *!*/
+/*    padding: 5px; !* 내부 여백 추가 *!*/
+/*}*/
+
+#serverTable-body {
+    display: grid;
+    grid-template-rows: 35px 35px 35px;
+}
+
+#cpuUsageContainer, #memoryUsageContainer, #diskUsageContainer{
+    display: grid;
+    grid-template-columns: 1fr 45px;
+    padding-right: 5px;
+}
+#cpuUsageContainer, #memoryUsageContainer, #diskUsageContainer > div:last-child{
+    font-size: small;
+    font-weight: bold;
+    line-height: 35px;
+    text-align: right;
+    color: #000000;
+}
+/* 개별 사용량 스타일 */
+#cpuUsage, #memoryUsage, #diskUsage {
+    display: flex;
+    justify-content: flex-end; /* 오른쪽 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    padding: 5px;
+    border-top: 1px solid #ddd; /* 각 속성 사이에 구분선 추가 */
+    color: #000000; /* 검은색 텍스트 색상 */
+    font-weight: bold; /* 텍스트 굵기 */
+    text-align: right; /* 오른쪽 정렬 */
+    cursor: 'pointer';
+}
+
+
+/* 서버 테이블 호버 스타일 */
+#serverTable:hover {
+    transform: scale(1.05); /* 호버 시 약간 확대 */
+    background-color: #cceeff;
+}
+
+#buttonContainer > button {
+    width: 25px;
+    height: 20px;
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    background-color: #f44336; /* 더 부드러운 빨간색 */
+    color: white;
+    border: none;
+    border-radius: 5px; /* 모서리를 둥글게 */
+    line-height: 14px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    transition: background-color 0.3s, box-shadow 0.3s; /* 부드러운 전환 효과 */
+}
+
+#buttonContainer > button:hover {
+    background-color: #d32f2f; /* 호버 시 색상 변경 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* 호버 시 그림자 변화 */
+}
+
+#buttonContainer > button:active {
+    background-color: #c62828; /* 클릭 시 색상 변경 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 클릭 시 그림자 변경 */
+}
+
+.isLoading{
+    line-height : 65px;
+    text-align: center;
+}

@@ -6,6 +6,7 @@ import com.park.monitoring.config.error.Exception.BaseException;
 import com.park.monitoring.config.error.Exception.NoContentException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.dto.DiskInfo;
+import com.park.monitoring.dto.LogInput;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
@@ -54,12 +55,21 @@ public class MetricLogService {
         return metricLogs;
     }
 
-    public List<MetricLog> findMetricLogAtHistory(Integer serverId) {
+    public List<MetricLog> findMetricLogAtHistory(Integer serverId, boolean isRepeat) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         Map<String, Object> params = new HashMap<>();
         LocalDate date = LocalDate.now();
-        LocalDateTime startDate = date.atStartOfDay();
-        LocalDateTime endDate = date.plusDays(1).atStartOfDay();
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+        if (isRepeat) {
+            // 현재 시간에서 1시간을 뺀 시간을 startDate로 설정
+            startDate = LocalDateTime.now().minusMinutes(5).withSecond(0).withNano(0);
+            endDate = LocalDateTime.now().plusMinutes(5).withSecond(0).withNano(0);
+        } else {
+            // 자정(00:00:00) 시간을 startDate로 설정
+            startDate = date.atStartOfDay();
+            endDate = date.plusDays(1).atStartOfDay();
+        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -72,25 +82,23 @@ public class MetricLogService {
         params.put("endDate", endDateStr);
 
         List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(params);
+        if(metricLogs.isEmpty()) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return metricLogs;
     }
 
 
     @Transactional
-    public int insertMetricLog(ServerInfo serverInfo) {
-        if(serverInfo == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
-        if(serverInfo.getServerIp() == null || serverInfo.getServerId() == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
-
-        double cpuUsage = Double.parseDouble(String.format("%.2f", osBean.getCpuLoad() * 100));
-        long sysFreeMemory = ServerInfoUtil.getFreeMemory(osBean);
-        long sysTotalMemory = ServerInfoUtil.getTotalMemory(osBean);
-        double memoryUsage = ServerInfoUtil.getUsageMemoryP(sysTotalMemory, sysFreeMemory);
-        DiskInfo diskInfo = ServerInfoUtil.getDiskInfo();
+    public int insertMetricLog(LogInput logInput, DiskInfo diskInfo) {
+        if(logInput == null || diskInfo == null || logInput.getServerIp() == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        Integer serverId = serverInfoMapper.findServerIdByIp(logInput.getServerIp());
+        if(serverId == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
+        double cpuUsage = Double.parseDouble(String.format("%.2f", logInput.getCpuUsage() * 100));
+        double memoryUsage = Double.parseDouble(String.format("%.2f", ((double) logInput.getMemoryUsage() * 100)));
 
         MetricLog.Builder builder = new MetricLog.Builder()
                 .cpuUsage(cpuUsage)
                 .memoryUsage(memoryUsage)
-                .serverMetricFk(serverInfo.getServerId());
+                .serverMetricFk(serverId);
 
         for (int i = 0; i < diskInfo.getDiskName().size() && i < 4; i++) {
             switch (i) {

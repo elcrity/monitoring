@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>서버 정보</title>
+	<link rel="stylesheet" th:href="@{/css/dashboard.css}">
+	<link rel="stylesheet" th:href="@{/css/serverBoard.css}">
+	<link rel="stylesheet" th:href="@{/css/history.css}">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0/dist/chartjs-plugin-zoom.min.js"></script>
+	<script th:src="@{/js/dashboard.js}" defer></script>
+	<script th:inline="javascript">
+	</script>
+</head>
+<body>
+	<div id="container">
+		<div id="header">
+			<h1>서버 정보 목록</h1>
+			<div id='header-info'>
+				<div id='cpuUsage'>CPU</div>
+				<div id='memoryUsage'>Memory</div>
+				<div id='diskUsage'>Disk</div>
+			</div>
+		</div>
+		<div id="serverTableBody">
+			<!-- 서버 데이터는 JavaScript로 동적으로 추가됩니다 -->
+		</div>
+
+		<div id="historyContainer">
+		</div>
+	</div>
+
+	<!-- 서버 데이터와 메트릭 데이터를 담을 변수 선언 -->
+
+</body>
+</html>

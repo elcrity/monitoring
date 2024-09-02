@@ -1,0 +1,108 @@
+#historyContainer {
+    display: grid;
+    grid-template-rows: 55px 400px;
+    /* 첫 번째 행: h1, 두 번째 행: 메뉴와 차트 */
+    grid-template-columns: 160px 800px;
+    /* 첫 번째 열: 메뉴, 두 번째 열: 차트 */
+    height: 440px;
+    /* 전체 화면 높이 */
+    width: 100%;
+    gap: 0;
+    /* 간격 없애기 */
+}
+
+/* 제목 스타일 */
+#historyHeader {
+    grid-row: 1 / 2;
+    /* 첫 번째 행에 위치 */
+    grid-column: 1 / 3;
+    /* 두 열을 차지 */
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+    /* 배경색 (선택 사항) */
+    text-align: center;
+    line-height: 55px;
+    /* 제목 텍스트 중앙 정렬 */
+    border-bottom: 1px solid #dee2e6;
+    display: grid;
+    grid-template-columns: 95% 5%;
+    position: relative;
+}
+
+#historyHeader h2 {
+    margin : 0;
+}
+
+
+/* 메뉴 스타일 */
+#menu {
+    display: grid;
+    grid-template-rows: 55px repeat(5, 70px);
+    /* 15%씩 6개의 행 생성 */
+    grid-template-columns: 1fr;
+    /* 한 열만 설정 */
+    height: 100%;
+    border-right: 1px solid;
+}
+
+/* 각 섹션 스타일 */
+#menu>div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* 선택 사항: 패딩 추가 */
+    /* padding: 5px; */
+    border-bottom: 1px solid;
+    /* background-color: #c2c2c2; */
+    text-align: center;
+    font-weight: bold;
+}
+
+#historyCpu{
+    background-color: rgba(75, 192, 192, 0.2);
+}
+
+#historyMemory{
+    background-color: rgba(153, 102, 255, 0.2);
+}
+
+#historyDisk1{
+    background-color: rgba(54, 162, 235, 0.2);
+}
+
+#historyDisk2{
+    background-color: rgba(255, 99, 132, 0.2);
+}
+
+#historyDisk3{
+    background-color: rgba(255, 99, 242, 0.2);
+}
+#historyDisk4{
+    background-color: rgba(255, 206, 86, 0.2);
+}
+
+.usage{
+    text-shadow: -1px 0 #2F4F4F, 0 1px #2F4F4F, 1px 0 #2F4F4F, 0 -1px #2F4F4F;
+}
+
+#historyButton {
+    position: absolute;
+    bottom: 10px;
+    background-color: white !important;
+    border-bottom: none !important;
+}
+
+#chart {
+    margin-left: 10px;
+    /* 두 번째 행에 위치 */
+    grid-row: 2 / 3;
+    /* 두 번째 열에 위치 */
+    grid-column: 2 / 3;
+    /* 배경색 (선택 사항) */
+    background-color: #ffffff;
+    /* 차트가 영역을 넘어가는 경우 스크롤 가능하도록 설정 */
+    overflow: auto;
+    width: 95%;
+}

@@ -2,7 +2,7 @@ spring:
   application:
     name: monitoring
   profiles:
-    active: dev
+    active: local
   devtools:
     livereload:
       enabled: true
@@ -11,7 +11,24 @@ spring:
   sql:
     init:
       encoding:
-server:
-  error:
-    whitelabel:
-      enabled: false
+  server:
+    error:
+      include-message: never
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /help
+  api-docs:
+    groups:
+      enabled : true
+    enabled: true
+    path: /api-docs
+  version: 1.0.0
+
+

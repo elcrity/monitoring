@@ -5,6 +5,8 @@ import com.park.monitoring.config.error.Exception.BadRequestException;
 import com.park.monitoring.config.error.Exception.BaseException;
 import com.park.monitoring.config.error.Exception.NoContentException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
+import com.park.monitoring.dto.DiskInfo;
+import com.park.monitoring.dto.LogInput;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.ServerInfo;
@@ -20,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -67,7 +71,7 @@ public class MetricLogServiceTest {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String startDate = date.format(formatter);
-        assertThat(metricLogService.findMetricLogAtHistory(1).size())
+        assertThat(metricLogService.findMetricLogAtHistory(1, false).size())
                 .isGreaterThan(0);
 
     }
@@ -76,7 +80,7 @@ public class MetricLogServiceTest {
     @Test
     void t02_02getLogHistory_nullId() {
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null))
+                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null, false))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
@@ -84,50 +88,59 @@ public class MetricLogServiceTest {
     @Test
     @Transactional
     void t03_01addLog_success() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverId(1)
-                .serverOs("Ubuntu 20.04")
-                .serverHostname("server-hostname")
-                .memoryTotal(16384L)
-                .purpose("Development")
-                .serverIp("192.168.1.100")
-                .build();
+        LogInput logInput = new LogInput();
+        logInput.setServerIp("192.168.1.1");
+        logInput.setCpuUsage(0.25);  // 25%의 CPU 사용률
+        logInput.setMemoryUsage(0.65);  // 65%의 메모리 사용률
 
-        assertThat(metricLogService.insertMetricLog(serverInfo))
+        // DiskInfo 객체 생성
+        List<Double> diskTotalData = Arrays.asList(512312.0, 256773.0);
+        List<Double> diskUsageData = Arrays.asList(20.2, 15.3);
+        List<String> diskName = Arrays.asList("C:/", "D:/");
+
+        DiskInfo diskInfo = new DiskInfo(diskTotalData, diskUsageData, diskName);
+
+        assertThat(metricLogService.insertMetricLog(logInput, diskInfo))
                 .isEqualTo(1);
     }
 
     @DisplayName("로그 등록 - serverIp null")
     @Test
     void t03_02addLog_ipNull() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverId(1000)
-                .serverOs("Ubuntu 20.04")
-                .serverHostname("server-hostname")
-                .memoryTotal(16384L)
-                .purpose("Development")
-                .serverIp(null)
-                .build();
+        LogInput logInput = new LogInput();
+        logInput.setServerIp("192.168.1.100");
+        logInput.setCpuUsage(0.25);  // 25%의 CPU 사용률
+        logInput.setMemoryUsage(0.65);  // 65%의 메모리 사용률
+
+        // DiskInfo 객체 생성
+        List<Double> diskTotalData = Arrays.asList(512312.0, 256773.0);
+        List<Double> diskUsageData = Arrays.asList(20.2, 15.3);
+        List<String> diskName = Arrays.asList("C:/", "D:/");
+
+        DiskInfo diskInfo = new DiskInfo(diskTotalData, diskUsageData, diskName);
 
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> metricLogService.insertMetricLog(serverInfo))
+                .isThrownBy(() -> metricLogService.insertMetricLog(null, null))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
     @DisplayName("로그 등록 - notFoundServer")
     @Test
     void t03_03addLog_notFound() {
-        ServerInfo serverInfo = new ServerInfo.Builder()
-                .serverId(999)
-                .serverOs("Ubuntu 20.04")
-                .serverHostname("server-hostname")
-                .memoryTotal(16384L)
-                .purpose("Development")
-                .serverIp("192.168.1.100")
-                .build();
+        LogInput logInput = new LogInput();
+        logInput.setServerIp("192.168.1.100");
+        logInput.setCpuUsage(0.25);  // 25%의 CPU 사용률
+        logInput.setMemoryUsage(0.65);  // 65%의 메모리 사용률
+
+        // DiskInfo 객체 생성
+        List<Double> diskTotalData = Arrays.asList(512312.0, 256773.0);
+        List<Double> diskUsageData = Arrays.asList(20.2, 15.3);
+        List<String> diskName = Arrays.asList("C:/", "D:/");
+
+        DiskInfo diskInfo = new DiskInfo(diskTotalData, diskUsageData, diskName);
 
         assertThatExceptionOfType(NotFoundException.class)
-                .isThrownBy(() -> metricLogService.insertMetricLog(null))
+                .isThrownBy(() -> metricLogService.insertMetricLog(logInput, diskInfo))
                 .withMessage(ErrorCode.NOT_FOUND.getMessage());
     }
 
