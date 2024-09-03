@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<title>Data Example</title>
+</head>
+<link rel="stylesheet" th:href="@{/css/dashboard.css}">
+<link rel="stylesheet" th:href="@{/css/serverBoard.css}">
+<link rel="stylesheet" th:href="@{/css/history.css}">
+<script th:src="@{/js/serverTable.js}" defer></script>
+<body>
+	<div id="container">
+		<div id="header">
+			<h1>서버 정보 목록</h1>
+			<div id='header-info'>
+				<div id='cpuUsage'>CPU</div>
+				<div id='memoryUsage'>Memory</div>
+				<div id='diskUsage'>Disk</div>
+			</div>
+		</div>
+		<div id="serverTableBody">
+			<div th:replace="~{fragments/serverTableBody :: serverTableBody}">
+			</div>
+
+		</div>
+		<div id="historyBody">
+			<div id="historyContainer" th:replace="~{fragments/history :: historyContainer}"
+			     th:style="'display: none;'">
+			</div>
+		</div>
+	</div>
+	<script>
+
+     async function fetchData() {
+       try {
+         const response = await fetch('/tl/getServer');  // 서버 엔드포인트
+         if (!response.ok) {
+           throw new Error('Network response was not ok');
+         }
+         const servers = await response.text();  // 응답을 텍스트로 반환
+         document.getElementById('serverTableBody').innerHTML = servers;  // 응답받은 HTML로 페이지 업데이트
+       } catch (error) {
+         console.error('Error fetching data:', error);
+       }
+     }
+
+     function updateIndicators() {
+       const indicators = document.querySelectorAll(".statusIndicator");  // 클래스 선택
+
+       indicators.forEach(function (indicator) {
+         const cpuUsage = parseFloat(indicator.getAttribute("data-cpu-usage")) || 0;
+         const memoryUsage = parseFloat(indicator.getAttribute("data-memory-usage")) || 0;
+         const diskUsage = parseFloat(indicator.getAttribute("data-disk-usage")) || 0;
+
+         let backgroundColor;
+         if (cpuUsage >= 90 || memoryUsage >= 90 || diskUsage >= 90) {
+           backgroundColor = '#ff0000';
+         } else if (cpuUsage >= 70 || memoryUsage >= 70 || diskUsage >= 70) {
+           backgroundColor = '#ffa500';
+         } else if (cpuUsage > 0 || memoryUsage > 0 || diskUsage > 0) {
+           backgroundColor = '#00d400';
+         } else {
+           backgroundColor = 'transparent'
+         }
+         indicator.style.backgroundColor = backgroundColor;
+       });
+     }
+
+     document.addEventListener('DOMContentLoaded', async function () {
+       await fetchData();  // 초기 데이터 로드
+       updateIndicators();  // 상태 업데이트
+       const serverMetrics = /*[[${serverMetrics}]]*/ [];
+
+       setInterval(async function () {
+         await fetchData();
+         updateIndicators();
+         console.log('Server Metrics:', serverMetrics);
+       }, 10000); // 10초마다 데이터 업데이트
+     });
+
+	</script>
+</body>
+</html>

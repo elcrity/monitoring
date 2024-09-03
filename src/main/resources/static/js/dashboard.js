@@ -86,10 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (intervalId) {
       clearInterval(intervalId); // 기존의 setInterval을 제거
     }
-    intervalId = setInterval(() => {
-      isRepeat = true;
-      fetchHistory()
-    }, 10000);
+    // intervalId = setInterval(() => {
+    //   isRepeat = true;
+    //   fetchHistory()
+    // }, 10000);
   };
 
   const updateServerList = (mergedData) => {
@@ -511,5 +511,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   //대시보드의 서버정보, 서버별 log fetch
   fetchData();
-  setInterval(fetchData, 10000);
+  // setInterval(fetchData, 10000);
 });

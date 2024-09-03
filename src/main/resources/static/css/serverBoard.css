@@ -31,14 +31,15 @@
 }
 
 /* 서버 테이블 헤더의 상태 표시기 */
-#statusIndicator {
+.statusIndicator {
     position: absolute; /* 절대 위치 설정 */
     bottom: 10px; /* 하단에서 5px 떨어지게 설정 */
     left: 3px; /* 왼쪽에서 5px 떨어지게 설정 */
     width: 15px; /* 원의 너비 */
     height: 15px; /* 원의 높이 */
     border-radius: 50%; /* 원형으로 만들기 */
-    background-color: transparent; /* 초기 배경색 설정 */
+    /*background-color: #24FF00;*/
+    /*background-color: transparent; !* 초기 배경색 설정 *!*/
 }
 
 /* 서버 테이블 헤더의 서버 IP */
