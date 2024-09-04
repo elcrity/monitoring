@@ -1,3 +1,6 @@
+#historyBody{
+    display: none;
+}
 #historyContainer {
     display: grid;
     grid-template-rows: 55px 400px;
@@ -44,6 +47,7 @@
     /* 한 열만 설정 */
     height: 100%;
     border-right: 1px solid;
+    font-size: 15px;
 }
 
 /* 각 섹션 스타일 */

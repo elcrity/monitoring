@@ -3,10 +3,19 @@
 <head>
 	<title>Data Example</title>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 <link rel="stylesheet" th:href="@{/css/serverBoard.css}">
 <link rel="stylesheet" th:href="@{/css/history.css}">
+<script th:src="@{/js/index.js}" defer></script>
 <script th:src="@{/js/serverTable.js}" defer></script>
+<script th:src="@{/js/chart.js}" defer></script>
+<script>
+
+
+</script>
 <body>
 	<div id="container">
 		<div id="header">
@@ -23,60 +32,88 @@
 
 		</div>
 		<div id="historyBody">
-			<div id="historyContainer" th:replace="~{fragments/history :: historyContainer}"
-			     th:style="'display: none;'">
+			<div id="historyContainer" th:if="${serverHistory}!=null">
+				<div id="historyHeader">
+					<h2 th:text="${serverHistory.serverIp} + ' 히스토리'">히스토리</h2>
+					<button th:onclick="|closeHistory()|" class="danBtn" id="exitHistory">X</button>
+				</div>
+				<div id="menu">
+					<!-- CPU usage display -->
+					<div id="historyCpu">
+						<div class="menuHeader">CPU</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.cpuUsage} + '%'">0%
+						</div>
+					</div>
+					<!-- Memory usage display -->
+					<div id="historyMemory">
+						<div class="menuHeader">Memory</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.memoryUsage} + '%'">0%
+						</div>
+						<div>
+							<span
+								th:text="${#numbers.formatDecimal((serverHistory.memoryTotal
+								*(serverHistory.metricLogs.memoryUsage/100)) / 1000.0, 1,2)} + 'GB /'">0.0</span>
+							<span
+								th:text="${#numbers.formatDecimal(serverHistory.memoryTotal / 1000.0, 1,2)} + 'GB'">0.0</span>
+						</div>
+					</div>
+					<div th:if="${serverHistory.metricLogs.diskUsage1 != null}" id="historyDisk1">
+						<div class="menuHeader">Disk 1</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.diskUsage1} + '%'">0%
+						</div>
+						<div>
+							<span th:text="${#numbers.formatDecimal((serverHistory.metricLogs.diskTotal1 * (serverHistory.metricLogs.diskUsage1 / 100)) / 1000.0, 1, 1)} + 'GB / '">0.0</span>
+							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal1 / 1000.0, 1, 2)} + 'GB'">0.0</span>
+						</div>
+					</div>
+
+					<!-- 디스크 2 -->
+					<div th:if="${serverHistory.metricLogs.diskUsage2 != null}" id="historyDisk2">
+						<div class="menuHeader">Disk 2</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.diskUsage2} + '%'">0%
+						</div>
+						<div>
+							<span th:text="${#numbers.formatDecimal((serverHistory.metricLogs.diskTotal2 * (serverHistory.metricLogs.diskUsage2 / 100)) / 1000.0, 1, 1)} + 'GB / '">0.0</span>
+							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal2 / 1000.0, 1, 2)} + 'GB'">0.0</span>
+						</div>
+					</div>
+
+					<!-- 디스크 3 -->
+					<div th:if="${serverHistory.metricLogs.diskUsage3 != null}" id="historyDisk3">
+						<div class="menuHeader">Disk 3</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.diskUsage3} + '%'">0%
+						</div>
+						<div>
+							<span th:text="${#numbers.formatDecimal((serverHistory.metricLogs.diskTotal3 * (serverHistory.metricLogs.diskUsage3 / 100)) / 1000.0, 1, 1)} + 'GB / '">0.0</span>
+							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal3 / 1000.0, 1, 2)} + 'GB'">0.0</span>
+						</div>
+					</div>
+
+					<!-- 디스크 4 -->
+					<div th:if="${serverHistory.metricLogs.diskUsage4 != null}" id="historyDisk4">
+						<div class="menuHeader">Disk 4</div>
+						<div class="usage"
+						     th:text="${serverHistory.metricLogs.diskUsage4} + '%'">0%
+						</div>
+						<div>
+							<span th:text="${#numbers.formatDecimal((serverHistory.metricLogs.diskTotal4 * (serverHistory.metricLogs.diskUsage4 / 100)) / 1000.0, 1, 1)} + 'GB / '">0.0</span>
+							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal4 / 1000.0, 1, 2)} + 'GB'">0.0</span>
+						</div>
+					</div>
+				</div>
+				<div id="chart">
+					<canvas id="myChart" style="width: 800px"></canvas>
+				</div>
 			</div>
+			<!--			<div id="historyContainer" th:replace="~{fragments/history :: historyContainer}"-->
+			<!--			     th:style="'display: none;'">-->
+			<!--			</div>-->
 		</div>
 	</div>
-	<script>
-
-     async function fetchData() {
-       try {
-         const response = await fetch('/tl/getServer');  // 서버 엔드포인트
-         if (!response.ok) {
-           throw new Error('Network response was not ok');
-         }
-         const servers = await response.text();  // 응답을 텍스트로 반환
-         document.getElementById('serverTableBody').innerHTML = servers;  // 응답받은 HTML로 페이지 업데이트
-       } catch (error) {
-         console.error('Error fetching data:', error);
-       }
-     }
-
-     function updateIndicators() {
-       const indicators = document.querySelectorAll(".statusIndicator");  // 클래스 선택
-
-       indicators.forEach(function (indicator) {
-         const cpuUsage = parseFloat(indicator.getAttribute("data-cpu-usage")) || 0;
-         const memoryUsage = parseFloat(indicator.getAttribute("data-memory-usage")) || 0;
-         const diskUsage = parseFloat(indicator.getAttribute("data-disk-usage")) || 0;
-
-         let backgroundColor;
-         if (cpuUsage >= 90 || memoryUsage >= 90 || diskUsage >= 90) {
-           backgroundColor = '#ff0000';
-         } else if (cpuUsage >= 70 || memoryUsage >= 70 || diskUsage >= 70) {
-           backgroundColor = '#ffa500';
-         } else if (cpuUsage > 0 || memoryUsage > 0 || diskUsage > 0) {
-           backgroundColor = '#00d400';
-         } else {
-           backgroundColor = 'transparent'
-         }
-         indicator.style.backgroundColor = backgroundColor;
-       });
-     }
-
-     document.addEventListener('DOMContentLoaded', async function () {
-       await fetchData();  // 초기 데이터 로드
-       updateIndicators();  // 상태 업데이트
-       const serverMetrics = /*[[${serverMetrics}]]*/ [];
-
-       setInterval(async function () {
-         await fetchData();
-         updateIndicators();
-         console.log('Server Metrics:', serverMetrics);
-       }, 10000); // 10초마다 데이터 업데이트
-     });
-
-	</script>
 </body>
 </html>

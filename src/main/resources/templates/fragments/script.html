@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Fragment Example</title>
+</head>
+<body>
+	<div th:fragment="chartScript">
+		<script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+             fetch(`tl//data`, {method: "get"})
+           }
+        );
+
+        const labels = /*[[${labels}]]*/ ['January', 'February', 'March', 'April', 'May'];
+        const dataValues = /*[[${dataValues}]]*/ [10, 20, 30, 40, 50];
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+          type: 'bar', // 차트의 타입을 설정 (line, bar, etc.)
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Sample Data',
+              data: dataValues,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+		</script>
+	</div>
+</body>
+</html>
