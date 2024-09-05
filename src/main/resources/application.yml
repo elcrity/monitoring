@@ -2,7 +2,7 @@ spring:
   application:
     name: monitoring
   profiles:
-    active: dev
+    active: local
   devtools:
     livereload:
       enabled: true
@@ -14,7 +14,6 @@ spring:
   server:
     error:
       include-message: never
-
   mvc:
     favicon:
       enabled=false:

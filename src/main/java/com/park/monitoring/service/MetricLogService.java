@@ -10,8 +10,6 @@ import com.park.monitoring.dto.LogInput;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
 import com.park.monitoring.model.MetricLog;
-import com.park.monitoring.model.ServerInfo;
-import com.park.monitoring.util.ServerInfoUtil;
 import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.management.ManagementFactory;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class MetricLogService {
@@ -34,17 +30,10 @@ public class MetricLogService {
     private final ServerInfoMapper serverInfoMapper;
     MetricLogMapper metricLogMapper;
 
-    private final OperatingSystemMXBean osBean;
 
     public MetricLogService(MetricLogMapper metricLogMapper, ServerInfoMapper serverInfoMapper) {
         this.metricLogMapper = metricLogMapper;
         this.serverInfoMapper = serverInfoMapper;
-
-        OperatingSystemMXBean tempOsBean = null;
-        while (tempOsBean == null) {
-            tempOsBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        }
-        this.osBean = tempOsBean;
     }
 
     public List<MetricLog> findMetricLogByLatest() {
@@ -65,7 +54,6 @@ public class MetricLogService {
             startDate = LocalDateTime.now().withHour(0).minusMinutes(5).withSecond(0);
             endDate = LocalDateTime.now().withHour(0).plusMinutes(5).withSecond(0);
         }
-        System.out.println("date : "+startDate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         // 출력 결과
         String startDateStr = startDate.format(formatter);

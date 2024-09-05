@@ -1,10 +1,5 @@
 package com.park.monitoring.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.park.monitoring.config.error.ErrorCode;
-import com.park.monitoring.config.error.Exception.DataIntegrityException;
-import com.park.monitoring.config.error.Exception.NotFoundException;
 import com.park.monitoring.dto.HistoryRequest;
 import com.park.monitoring.dto.ServerHistoryDto;
 import com.park.monitoring.dto.ServerMetricDto;
@@ -22,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Controller
@@ -108,7 +102,6 @@ public class ThymeleafController {
         Integer serverId = request.getServerId();
         boolean isRepeat = request.isRepeat();
         LocalDateTime date = request.getDate();
-        System.out.println(date);
         List<MetricLog> logHistory = metricLogService.findMetricLogAtHistory(serverId,isRepeat,date);
         return logHistory;
     }

@@ -9,7 +9,6 @@ import com.park.monitoring.dto.DiskInfo;
 import com.park.monitoring.dto.LogInput;
 import com.park.monitoring.mapper.MetricLogMapper;
 import com.park.monitoring.mapper.ServerInfoMapper;
-import com.park.monitoring.model.ServerInfo;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -16,7 +16,6 @@ import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.MethodName.class)

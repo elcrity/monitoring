@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<title>Data Example</title>
+	<title>서버 모니터링</title>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
@@ -15,7 +15,6 @@
 <script th:src="@{/js/serverTable.js}" defer></script>
 <script th:src="@{/js/chart.js}" defer></script>
 <script th:src="@{/js/datePicker.js}" defer></script>
-<script th:src="@{/js/ko.js}" defer></script>
 <body>
 	<div id="container">
 		<div id="header">
@@ -40,7 +39,6 @@
 					<!-- 서버 IP 표시 -->
 					<div th:text="${data.serverIp}"></div>
 				</div>
-
 				<div id="serverTable-body">
 					<!--					 CPU 사용량 표시-->
 					<div id="cpuUsageContainer"
@@ -54,7 +52,6 @@
 						<div class="memoryUsage" th:style="'width: ' + ${data.memoryUsage} + '%'"></div>
 						<div th:text="${data.memoryUsage} + '%'"></div>
 					</div>
-
 					<!-- 디스크 사용량 표시 -->
 					<div id="diskUsageContainer"
 					     th:style="'display: ' + (${data.diskUsage1} != null ? 'flex' : 'none')">
@@ -62,7 +59,6 @@
 						<div th:text="${data.diskUsage1} + '%'"></div>
 					</div>
 				</div>
-
 				<div class="buttonContainer">
 					<!-- 삭제 버튼 -->
 					<button th:id="'deleteButton-' + ${data.serverId}" class="btn btn-danger danBtn"
@@ -70,9 +66,7 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="historyBody">
-
 			<div id="historyContainer"
 			     th:if="${serverHistory}!=null">
 				<div id="historyHeader">
@@ -121,7 +115,6 @@
 							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal1 / 1000.0, 1, 2)} + 'GB'">0.0</span>
 						</div>
 					</div>
-
 					<!-- 디스크 2 -->
 					<div th:if="${serverHistory.metricLogs.diskUsage2 != null}" id="historyDisk2">
 						<div class="menuHeader">Disk 2</div>
@@ -133,7 +126,6 @@
 							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal2 / 1000.0, 1, 2)} + 'GB'">0.0</span>
 						</div>
 					</div>
-
 					<!-- 디스크 3 -->
 					<div th:if="${serverHistory.metricLogs.diskUsage3 != null}" id="historyDisk3">
 						<div class="menuHeader">Disk 3</div>
@@ -145,7 +137,6 @@
 							<span th:text="${#numbers.formatDecimal(serverHistory.metricLogs.diskTotal3 / 1000.0, 1, 2)} + 'GB'">0.0</span>
 						</div>
 					</div>
-
 					<!-- 디스크 4 -->
 					<div th:if="${serverHistory.metricLogs.diskUsage4 != null}" id="historyDisk4">
 						<div class="menuHeader">Disk 4</div>
@@ -162,13 +153,7 @@
 					<canvas id="myChart" style="width: 800px"></canvas>
 				</div>
 			</div>
-			<!--			<div id="historyContainer" th:replace="~{fragments/history :: historyContainer}"-->
-			<!--			     th:style="'display: none;'">-->
-			<!--			</div>-->
 		</div>
 	</div>
-	<script>
-
-	</script>
 </body>
 </html>

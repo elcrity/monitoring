@@ -16,8 +16,7 @@ const regDatepicker = (elem) => {
   const datepicker = new Datepicker(elem, {
     'format': 'yyyy/mm/dd', // UK format
     'title': getDatePickerTitle(elem),
-    'defaultViewDate': today,
-    'language': 'ko', // 한국어 설정
+    'defaultViewDate': today
   });
   datepicker.setDate(today);
   elem.addEventListener('changeDate', (event) => {
