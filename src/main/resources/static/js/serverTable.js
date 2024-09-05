@@ -44,8 +44,7 @@ const callDrawData = async (serverId, isRepeat, date = null) => {
   }
 }
 
-const callHistory = async (serverId, isRepeat) => {
-  // 처음 showHistory를 호출하여 데이터와 차트를 로드
+const callHistory = async (serverId, isRepeat, selectedDate) => {
   try {
     const response = await fetch(`/getLogs/${serverId}`, {
       method: 'GET',
@@ -64,7 +63,6 @@ const callHistory = async (serverId, isRepeat) => {
         if(isRepeat){
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-
           // 새로운 HTML에서 #menu 요소를 가져오기
           const newMenu = doc.querySelector('#menu');
           const oldMenu = document.getElementById('menu');
@@ -76,15 +74,13 @@ const callHistory = async (serverId, isRepeat) => {
         }
         updateUsageColors();
         // Fetch and draw chart
-        callDrawData(serverId, isRepeat)
-           .then((response) => {
-             console.log('데이터가 성공적으로 처리되었습니다.');
-           })
+        callDrawData(serverId, isRepeat, selectedDate)
+           .then((response) => {})
            .catch((error) => {
              // 에러가 발생한 경우
              console.error('데이터를 처리하는 중 오류가 발생했습니다:', error);
-             alert('데이터를 처리하는 중 오류가 발생했습니다. 관리자에게 문의하세요.');
-           });;
+             alert('데이터를 처리하는 중 오류가 발생했습니다.');
+           });
       }
     } else {
       console.error('Fetch error:', response);
@@ -97,6 +93,7 @@ const callHistory = async (serverId, isRepeat) => {
 const showHistory = async (serverId) => {
   clearInterval(mainIntervalId);
   clearInterval(intervalId);
+  selectedDate = formatDateToLocalDateTime(new Date());
   selectedId=serverId;
   isRepeat = false;
   xScale.min = 0;
@@ -116,7 +113,7 @@ const showHistory = async (serverId) => {
     }, 10000); // 10초마다 호출
     intervalId = setInterval(async  () => {
       // 드로우만 다시해서 menu 데이터 갱신이 아노딤
-      await callHistory(serverId, isRepeat); // 서버 ID를 사용하여 showHistory 호출
+      await callHistory(serverId, isRepeat, selectedDate); // 서버 ID를 사용하여 showHistory 호출
       updateUsageColors();
     }, 10000); // 10초마다 호출
   }
