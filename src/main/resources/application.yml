@@ -2,7 +2,7 @@ spring:
   application:
     name: monitoring
   profiles:
-    active: local
+    active: dev
   devtools:
     livereload:
       enabled: true
@@ -16,6 +16,8 @@ spring:
       include-message: never
 
   mvc:
+    favicon:
+      enabled=false:
     pathmatch:
       matching-strategy: ant_path_matcher
 

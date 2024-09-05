@@ -6,35 +6,87 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"></script>
 <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 <link rel="stylesheet" th:href="@{/css/serverBoard.css}">
 <link rel="stylesheet" th:href="@{/css/history.css}">
 <script th:src="@{/js/index.js}" defer></script>
 <script th:src="@{/js/serverTable.js}" defer></script>
 <script th:src="@{/js/chart.js}" defer></script>
-<script>
-
-
-</script>
+<script th:src="@{/js/datePicker.js}" defer></script>
+<script th:src="@{/js/ko.js}" defer></script>
 <body>
 	<div id="container">
 		<div id="header">
 			<h1>서버 정보 목록</h1>
 			<div id='header-info'>
-				<div id='cpuUsage'>CPU</div>
-				<div id='memoryUsage'>Memory</div>
-				<div id='diskUsage'>Disk</div>
+				<div class='cpuUsage'>CPU</div>
+				<div class='memoryUsage'>Memory</div>
+				<div class='diskUsage'>Disk</div>
 			</div>
 		</div>
 		<div id="serverTableBody">
-			<div th:replace="~{fragments/serverTableBody :: serverTableBody}">
-			</div>
+			<div id="serverTable" th:each="data : ${serverMetrics}"
+			     th:onclick="|showHistory(${data.serverId})|">
+				<div id="serverTable-header">
+					<!-- 서버 호스트 이름 표시 -->
+					<div th:text="${data.serverHostname}"></div>
+					<!-- 상태 표시기 -->
+					<div class="statusIndicator"
+					     th:data-cpu-usage="${data.cpuUsage}"
+					     th:data-memory-usage="${data.memoryUsage}"
+					     th:data-disk-usage="${data.diskUsage1}"></div>
+					<!-- 서버 IP 표시 -->
+					<div th:text="${data.serverIp}"></div>
+				</div>
 
+				<div id="serverTable-body">
+					<!--					 CPU 사용량 표시-->
+					<div id="cpuUsageContainer"
+					     th:style="'display: ' + (${data.cpuUsage} != null ? 'flex' : 'none')">
+						<div class="cpuUsage" th:style="'width: ' + ${data.cpuUsage} + '%'"></div>
+						<div th:text="${data.cpuUsage} + '%'"></div>
+					</div>
+					<!-- 메모리 사용량 표시 -->
+					<div id="memoryUsageContainer"
+					     th:style="'display: ' + (${data.memoryUsage} != null ? 'flex' : 'none')">
+						<div class="memoryUsage" th:style="'width: ' + ${data.memoryUsage} + '%'"></div>
+						<div th:text="${data.memoryUsage} + '%'"></div>
+					</div>
+
+					<!-- 디스크 사용량 표시 -->
+					<div id="diskUsageContainer"
+					     th:style="'display: ' + (${data.diskUsage1} != null ? 'flex' : 'none')">
+						<div class="diskUsage" th:style="'width: ' + ${data.diskUsage1} + '%'"></div>
+						<div th:text="${data.diskUsage1} + '%'"></div>
+					</div>
+				</div>
+
+				<div class="buttonContainer">
+					<!-- 삭제 버튼 -->
+					<button th:id="'deleteButton-' + ${data.serverId}" class="btn btn-danger danBtn"
+					        th:onclick="|deleteServer(${data.serverId})|">X</button>
+				</div>
+			</div>
 		</div>
+
 		<div id="historyBody">
-			<div id="historyContainer" th:if="${serverHistory}!=null">
+
+			<div id="historyContainer"
+			     th:if="${serverHistory}!=null">
 				<div id="historyHeader">
 					<h2 th:text="${serverHistory.serverIp} + ' 히스토리'">히스토리</h2>
+					<div class="form-floating mb-4 d-flex">
+						<input
+							type="text"
+							class="datepicker_input form-control border-2"
+							id="datepicker1"
+							required
+							placeholder=""
+							data-has-datepicker="false">
+						<label for="datepicker1"></label>
+					</div>
 					<button th:onclick="|closeHistory()|" class="danBtn" id="exitHistory">X</button>
 				</div>
 				<div id="menu">
@@ -115,5 +167,8 @@
 			<!--			</div>-->
 		</div>
 	</div>
+	<script>
+
+	</script>
 </body>
 </html>

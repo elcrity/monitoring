@@ -71,7 +71,7 @@ public class MetricLogServiceTest {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String startDate = date.format(formatter);
-        assertThat(metricLogService.findMetricLogAtHistory(1, false).size())
+        assertThat(metricLogService.findMetricLogAtHistory(1, false, LocalDateTime.now()).size())
                 .isGreaterThan(0);
 
     }
@@ -80,7 +80,7 @@ public class MetricLogServiceTest {
     @Test
     void t02_02getLogHistory_nullId() {
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null, false))
+                .isThrownBy(() -> metricLogService.findMetricLogAtHistory(null, false, LocalDateTime.now()))
                 .withMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 

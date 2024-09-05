@@ -23,8 +23,8 @@ for (let i = 0; i < 6; i++) {
 let chartInstance = null;
 function drawChart(metrics, labels, isRepeat) {
   const dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
-
-  if (metrics) {
+  // 데이터 배열 초기화
+  if (metrics && metrics.length > 0) {
     const keys = ['diskUsage2', 'diskUsage3', 'diskUsage4'];
     let arrayIndex = 0;
     while (arrayIndex < keys.length) {
@@ -35,19 +35,26 @@ function drawChart(metrics, labels, isRepeat) {
       dataKeySet.push(keys[arrayIndex]);
       arrayIndex++;
     }
+
+    // 데이터 배열 초기화 및 업데이트
+    dataKeySet.forEach((usage, index) => {
+      // 초기화
+      dataArrays[index] = makeEmptyArray(1440);
+
+      for (let i = 0; i < metrics.length; i++) {
+        const now = new Date(metrics[i].createdDate);
+        const hour = now.getHours() * 60;
+        const minute = now.getMinutes();
+        const timeIndex = hour + minute;
+        dataArrays[index][timeIndex] = metrics[i][usage];
+      }
+    });
+  } else {
+    // metrics가 없거나 빈 배열인 경우 데이터 배열을 빈 배열로 설정
+    dataArrays.forEach((dataArray, index) => {
+      dataArrays[index] = makeEmptyArray(1440);
+    });
   }
-
-  // 데이터 배열 초기화 및 업데이트
-  dataKeySet.forEach((usage, index) => {// 데이터 배열 초기화
-    for (let i = 0; i < metrics.length; i++) {
-      const now = new Date(metrics[i].createdDate);
-      const hour = now.getHours()*60;
-      const minute = now.getMinutes();
-      const timeIndex = hour + minute;
-      dataArrays[index][timeIndex] = metrics[i][usage];
-    }
-  });
-
 
   const ctx = document.getElementById('myChart').getContext('2d');
 
@@ -67,10 +74,10 @@ function drawChart(metrics, labels, isRepeat) {
         label: labelSet[index],
         borderColor: borderColors[index],
         backgroundColor: backgroundColors[index],
-        borderWidth: 1,
         pointRadius: function (context) {
           return (context.dataIndex % 5 === 0) ? 2 : 0;
         },
+        borderWidth: 1,
         pointHoverRadius: 5,
         tension: 0.1,
         spanGaps: true
@@ -162,14 +169,10 @@ function makeAxis(metrics) {
   const month = (`${now.getMonth() + 1}`).slice(-2).padStart(2, '0');
   const day = (`${now.getDate()}`).slice(-2).padStart(2, '0');
   for (let i = 0; i < 1440; i++) {
-    if (i % 60 === 0) {
       const hours = Math.floor(i / 60);
       const minutes = i % 60;
       const time = `${(`${hours}`).slice(-2).padStart(2, '0')}:${(`${minutes}`).slice(-2).padStart(2, '0')}`;
       labels[i] = `${month}/${day}\n${time}`;
-    } else {
-      labels[i] = '';
-    }
   }
   return labels;
 }
@@ -177,3 +180,4 @@ function makeAxis(metrics) {
 function makeEmptyArray(size) {
   return new Array(size).fill(null);
 }
+

@@ -2,8 +2,6 @@ package com.park.monitoring.dto;
 
 import com.park.monitoring.model.MetricLog;
 
-import java.util.List;
-
 public class ServerHistoryDto {
     private Integer serverId;
     private Long memoryTotal;

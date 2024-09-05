@@ -29,7 +29,7 @@
     /* 제목 텍스트 중앙 정렬 */
     border-bottom: 1px solid #dee2e6;
     display: grid;
-    grid-template-columns: 95% 5%;
+    grid-template-columns: 82% 15% 4%;
     position: relative;
 }
 

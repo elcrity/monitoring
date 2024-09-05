@@ -28,39 +28,39 @@ public class MetricLogController {
         this.metricLogService = metricLogService;
     }
 
-    @PostMapping()
-    ResponseEntity<List<MetricLog>> getDashboardLog() {
-        List<MetricLog> metricLogList = metricLogService.findMetricLogByLatest();
-        return ResponseEntity.ok().body(metricLogList);
-    }
+//    @PostMapping()
+//    ResponseEntity<List<MetricLog>> getDashboardLog() {
+//        List<MetricLog> metricLogList = metricLogService.findMetricLogByLatest();
+//        return ResponseEntity.ok().body(metricLogList);
+//    }
 
-    @PostMapping({"/history/{serverId}", "/history/"})
-    ResponseEntity<List<MetricLog>> getServerLog(@PathVariable(required = false) Integer serverId, @RequestParam(defaultValue = "false") boolean isRepeat) {
-        // 서버 로그를 가져오기
-        List<MetricLog> metricLogs = metricLogService.findMetricLogAtHistory(serverId, isRepeat);
-        return ResponseEntity.ok().body(metricLogs);
-    }
+//    @PostMapping({"/history/{serverId}", "/history/"})
+//    ResponseEntity<List<MetricLog>> getServerLog(@PathVariable(required = false) Integer serverId, @RequestParam(defaultValue = "false") boolean isRepeat) {
+//        // 서버 로그를 가져오기
+//        List<MetricLog> metricLogs = metricLogService.findMetricLogAtHistory(serverId, isRepeat);
+//        return ResponseEntity.ok().body(metricLogs);
+//    }
 
     //    /insert/${serverIp} -> body : JSON{Log log}->
-    @PostMapping("/insert")
-    public ResponseEntity<Map<String, String>> startLogging(@RequestBody LogRequest logRequest) {
-//        String ip = ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs());
-        Map<String, String> response = new HashMap<>();
-        metricLogService.insertMetricLog(logRequest.getLogInput(), logRequest.getDiskInfo());
-        response.put("message", logRequest.getLogInput().getServerIp() + " 로그 등록 성공");
-
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/stop")
-    ResponseEntity<Map<String, String>> stopLogging() {
-        Map<String, String> response = new HashMap<>();
-        if (scheduledFuture != null && !scheduledFuture.isDone()) {
-            scheduledFuture.cancel(true); // true를 전달하여 현재 실행 중인 작업도 중단할 수 있음
-            response.put("message", "로그 정지");
-            return ResponseEntity.ok().body(response);
-        }
-        response.put("message", "로그 정지 오류");
-        return ResponseEntity.ok().body(response);
-    }
+//    @PostMapping("/insert")
+//    public ResponseEntity<Map<String, String>> startLogging(@RequestBody LogRequest logRequest) {
+////        String ip = ServerInfoUtil.getServerIp(ServerInfoUtil.getServerOs());
+//        Map<String, String> response = new HashMap<>();
+//        metricLogService.insertMetricLog(logRequest.getLogInput(), logRequest.getDiskInfo());
+//        response.put("message", logRequest.getLogInput().getServerIp() + " 로그 등록 성공");
+//
+//        return ResponseEntity.ok().body(response);
+//    }
+//
+//    @GetMapping("/stop")
+//    ResponseEntity<Map<String, String>> stopLogging() {
+//        Map<String, String> response = new HashMap<>();
+//        if (scheduledFuture != null && !scheduledFuture.isDone()) {
+//            scheduledFuture.cancel(true); // true를 전달하여 현재 실행 중인 작업도 중단할 수 있음
+//            response.put("message", "로그 정지");
+//            return ResponseEntity.ok().body(response);
+//        }
+//        response.put("message", "로그 정지 오류");
+//        return ResponseEntity.ok().body(response);
+//    }
 }

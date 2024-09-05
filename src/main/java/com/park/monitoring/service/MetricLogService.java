@@ -55,24 +55,18 @@ public class MetricLogService {
         return metricLogs;
     }
 
-    public List<MetricLog> findMetricLogAtHistory(Integer serverId, boolean isRepeat) {
+    public List<MetricLog> findMetricLogAtHistory(Integer serverId, boolean isRepeat, LocalDateTime date) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         Map<String, Object> params = new HashMap<>();
-        LocalDate date = LocalDate.now();
-        LocalDateTime startDate;
-        LocalDateTime endDate;
+        LocalDateTime startDate = date.withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endDate = startDate.plusDays(1);
         if (isRepeat) {
             // 현재 시간에서 1시간을 뺀 시간을 startDate로 설정
-            startDate = LocalDateTime.now().minusMinutes(5).withSecond(0).withNano(0);
-            endDate = LocalDateTime.now().plusMinutes(5).withSecond(0).withNano(0);
-        } else {
-            // 자정(00:00:00) 시간을 startDate로 설정
-            startDate = date.atStartOfDay();
-            endDate = date.plusDays(1).atStartOfDay();
+            startDate = LocalDateTime.now().withHour(0).minusMinutes(5).withSecond(0);
+            endDate = LocalDateTime.now().withHour(0).plusMinutes(5).withSecond(0);
         }
-
+        System.out.println("date : "+startDate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         // 출력 결과
         String startDateStr = startDate.format(formatter);
         String endDateStr = endDate.format(formatter);
@@ -82,7 +76,6 @@ public class MetricLogService {
         params.put("endDate", endDateStr);
 
         List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(params);
-        if(metricLogs.isEmpty()) throw new NotFoundException(ErrorCode.NOT_FOUND);
         return metricLogs;
     }
 

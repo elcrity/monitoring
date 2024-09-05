@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.park.monitoring.config.error.ErrorCode;
 import com.park.monitoring.config.error.Exception.DataIntegrityException;
 import com.park.monitoring.config.error.Exception.NotFoundException;
+import com.park.monitoring.dto.HistoryRequest;
 import com.park.monitoring.dto.ServerHistoryDto;
 import com.park.monitoring.dto.ServerMetricDto;
 import com.park.monitoring.model.MetricLog;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,7 @@ public class ThymeleafController {
     }
 
     @GetMapping("getServer")
-    public String serverFragments(Model model) {
+    public String server(Model model) {
         // 서버 정보와 메트릭 로그를 가져옵니다.
         List<ServerInfo> serverInfoList = serverInfoService.findAllServerInfo();
         List<MetricLog> latestLog = metricLogService.findMetricLogByLatest();
@@ -63,13 +65,16 @@ public class ThymeleafController {
                     .cpuUsage(metric != null ? metric.getCpuUsage() : null)
                     .memoryUsage(metric != null ? metric.getMemoryUsage() : null)
                     .diskUsage1(metric != null ? metric.getDiskUsage1() : null)
+                    .diskUsage2(metric != null ? metric.getDiskUsage2() : null)
+                    .diskUsage3(metric != null ? metric.getDiskUsage3() : null)
+                    .diskUsage4(metric != null ? metric.getDiskUsage4() : null)
                     .build();
             serverMetricDtos.add(dto);
         }
         // DTO 리스트를 모델에 추가합니다.
         model.addAttribute("serverMetrics", serverMetricDtos);
         // Thymeleaf 템플릿을 반환합니다.
-        return "fragments/serverTableBody :: serverTableBody";
+        return "index";
     }
 
     @GetMapping("getLogs/{serverId}")
@@ -97,17 +102,14 @@ public class ThymeleafController {
         return "index :: #historyContainer";
     }
 
-    @PostMapping("getHistory/{serverId}")
+    @PostMapping("getHistory")
     @ResponseBody
-    public List<MetricLog> getHistory(@PathVariable(required = false) Integer serverId,  @RequestParam(defaultValue = "false") boolean isRepeat){
-        List<MetricLog> logHistory = metricLogService.findMetricLogAtHistory(serverId,isRepeat);
+    public List<MetricLog> getHistory(@RequestBody HistoryRequest request) {
+        Integer serverId = request.getServerId();
+        boolean isRepeat = request.isRepeat();
+        LocalDateTime date = request.getDate();
+        System.out.println(date);
+        List<MetricLog> logHistory = metricLogService.findMetricLogAtHistory(serverId,isRepeat,date);
         return logHistory;
-    }
-
-    @GetMapping("/data")
-    public String getIndex(Model model) {
-        model.addAttribute("labels", List.of("January", "February", "March", "April", "May"));
-        model.addAttribute("dataValues", List.of(10, 20, 30, 40, 50));
-        return "fragments/script :: chartScript";
     }
 }

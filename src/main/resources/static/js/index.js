@@ -1,12 +1,17 @@
 let intervalId;
+let mainIntervalId;
 async function fetchData() {
   try {
     const response = await fetch('/getServer');  // 서버 엔드포인트
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    // todo:if #menu가 있다면 #menu 교체하기, 여기까지 됐으면 history에서는 chart만 갱신하기
+    //
+    if (response.ok) {
+      const html = await response.text();  // 응답을 텍스트로 반환
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newServer = doc.querySelector('#serverTableBody');
+      document.getElementById('serverTableBody').innerHTML = newServer.innerHTML;
     }
-    const servers = await response.text();  // 응답을 텍스트로 반환
-    document.getElementById('serverTableBody').innerHTML = servers;  // 응답받은 HTML로 페이지 업데이트
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -67,13 +72,12 @@ const closeHistory = () =>{
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
+  // 화면 fetch시 실행
   await fetchData();  // 초기 데이터 로드
   updateIndicators();  // 상태 업데이트
-  // updateUsageColors();
-
-  setInterval(async function () {
+  // fetch후 10초마다
+  mainIntervalId = setInterval(async function () {
     await fetchData();
     updateIndicators();
-    // updateUsageColors();
   }, 10000); // 10초마다 데이터 업데이트
 });

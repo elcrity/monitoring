@@ -41,15 +41,15 @@
     font-size: 1rem;
 }
 
-#cpuUsage {
+.cpuUsage {
     background-color: rgba(75, 192, 192, 0.9); /* 진한 연한 파란색 */
 }
 
-#memoryUsage {
+.memoryUsage {
     background-color: rgba(153, 102, 255, .9); /* 진한 연한 초록색 */
 }
 
-#diskUsage {
+.diskUsage {
     background-color: rgba(54, 162, 235, 1); /* 진한 연한 노란색 */
 }
 
@@ -207,4 +207,8 @@
 .danBtn:active {
     background-color: #c62828; /* 클릭 시 색상 변경 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 클릭 시 그림자 변경 */
+}
+
+.datepicker_input{
+    width: 100px;
 }
