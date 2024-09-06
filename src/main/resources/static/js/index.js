@@ -1,5 +1,6 @@
 let intervalId;
 let mainIntervalId;
+
 async function fetchData() {
   try {
     const response = await fetch('/getServer');  // 서버 엔드포인트
@@ -11,8 +12,12 @@ async function fetchData() {
       const doc = parser.parseFromString(html, 'text/html');
       const newServer = doc.querySelector('#serverTableBody');
       document.getElementById('serverTableBody').innerHTML = newServer.innerHTML;
+    }else{
+      const errorText = await response.text();
+      window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
     }
   } catch (error) {
+    console.log("에?러 : ",error)
     console.error('Error fetching data:', error);
   }
 }

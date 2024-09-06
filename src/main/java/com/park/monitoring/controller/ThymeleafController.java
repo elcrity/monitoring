@@ -1,5 +1,8 @@
 package com.park.monitoring.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.park.monitoring.config.error.ErrorResponse;
 import com.park.monitoring.dto.HistoryRequest;
 import com.park.monitoring.dto.ServerHistoryDto;
 import com.park.monitoring.dto.ServerMetricDto;
@@ -73,8 +76,7 @@ public class ThymeleafController {
 
     @GetMapping("getLogs/{serverId}")
     public String getLog(Model model,
-                               @PathVariable(required = false) Integer serverId,
-                               @RequestParam(defaultValue = "false") boolean isRepeat) {
+                         @PathVariable(required = false) Integer serverId) {
         ServerInfo serverInfo = serverInfoService.findServerInfoById(serverId);
         List<MetricLog> logHistory = metricLogService.findMetricLogByLatest();
 
@@ -100,9 +102,20 @@ public class ThymeleafController {
     @ResponseBody
     public List<MetricLog> getHistory(@RequestBody HistoryRequest request) {
         Integer serverId = request.getServerId();
-        boolean isRepeat = request.isRepeat();
+        boolean isRepeat = request.getIsRepeat();
         LocalDateTime date = request.getDate();
-        List<MetricLog> logHistory = metricLogService.findMetricLogAtHistory(serverId,isRepeat,date);
+        List<MetricLog> logHistory = metricLogService.findMetricLogAtHistory(serverId, isRepeat, date);
         return logHistory;
+    }
+
+    @GetMapping("errorPage")
+    public String showErrorPage(@RequestParam("error") String errorJson, Model model) throws JsonProcessingException {
+        // JSON 문자열을 파싱하여 에러 정보를 추출
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorResponse = objectMapper.readValue(errorJson, ErrorResponse.class);
+        model.addAttribute("err", errorResponse);
+
+        return "errPage";
     }
 }

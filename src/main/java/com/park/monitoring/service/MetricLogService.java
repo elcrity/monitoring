@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -46,19 +47,25 @@ public class MetricLogService {
 
     public List<MetricLog> findMetricLogAtHistory(Integer serverId, boolean isRepeat, LocalDateTime date) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
+        if(date == null) date = LocalDateTime.now();
+        LocalTime time = LocalTime.now().withSecond(0).withNano(0);
         Map<String, Object> params = new HashMap<>();
+//        LocalTime currentTime = LocalTime.now();
+//        System.out.println(currentTime);
         LocalDateTime startDate = date.withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endDate = startDate.plusDays(1);
         if (isRepeat) {
+            date = date.with(time);
             // 현재 시간에서 1시간을 뺀 시간을 startDate로 설정
-            startDate = LocalDateTime.now().withHour(0).minusMinutes(5).withSecond(0);
-            endDate = LocalDateTime.now().withHour(0).plusMinutes(5).withSecond(0);
+            startDate = date.minusMinutes(5).withSecond(0);
+            endDate = date.plusMinutes(5).withSecond(0);
         }
+        System.out.println(startDate);
+        System.out.println(endDate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         // 출력 결과
         String startDateStr = startDate.format(formatter);
         String endDateStr = endDate.format(formatter);
-
         params.put("serverId", serverId);
         params.put("startDate", startDateStr);
         params.put("endDate", endDateStr);

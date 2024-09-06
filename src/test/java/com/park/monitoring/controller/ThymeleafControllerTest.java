@@ -2,6 +2,7 @@ package com.park.monitoring.controller;
 
 import com.park.monitoring.service.MetricLogService;
 import com.park.monitoring.service.ServerInfoService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,35 +40,42 @@ public class ThymeleafControllerTest {
     @Autowired
     private MetricLogService metricLogService;
 
+    @DisplayName("/index")
     @Test
-    void testIndex() throws Exception {
+    void t01_index() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"));
     }
 
+    @DisplayName("/getServer")
     @Test
-    void testServer() throws Exception {
-        // Prepare test data if needed, or ensure that your application context is pre-loaded with necessary data
+    void t02_getServer() throws Exception {
 
         mockMvc.perform(get("/getServer"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"));
-        // Add more assertions as needed to verify content
     }
 
+    @DisplayName("/getLogs/{serverId}")
     @Test
-    void testGetLog() throws Exception {
-        // Ensure there is a server with ID 1 and corresponding logs in the data source
+    void t03_getLogs() throws Exception {
 
         mockMvc.perform(get("/getLogs/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("historyContainer")));
-        // Add more assertions as needed to verify content
+                .andExpect(content().string(containsString("historyContainer")));
     }
 
+    @DisplayName("/getLogs/ badRequest")
     @Test
-    void testGetHistory() throws Exception {
+    void t03_getLogs_badRequest() throws Exception {
+        mockMvc.perform(get("/getLogs/1000"))
+                .andExpect(view().name("errPage"));
+    }
+
+    @DisplayName("/getHistory")
+    @Test
+    void t04_getHistory() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         String formattedDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
@@ -75,6 +84,20 @@ public class ThymeleafControllerTest {
         mockMvc.perform(post("/getHistory")
                         .contentType("application/json")
                         .content(requestBody))
-                .andExpect(status().isOk()); // Adjust based on actual expected JSON response
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("/getHistory")
+    @Test
+    void t04_getHistory_badRequest() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        String formattedDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        String requestBody = String.format("{\"isRepeat\": false, \"date\": \"%s\"}", formattedDate);
+
+        mockMvc.perform(post("/getHistory")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(view().name("errPage"));
     }
 }

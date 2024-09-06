@@ -16,7 +16,7 @@ public class HistoryRequest {
         this.serverId = serverId;
     }
 
-    public boolean isRepeat() {
+    public boolean getIsRepeat() {
         return isRepeat;
     }
 
@@ -30,5 +30,14 @@ public class HistoryRequest {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "HistoryRequest{" +
+                "serverId=" + serverId +
+                ", isRepeat=" + isRepeat +
+                ", date=" + date +
+                '}';
     }
 }

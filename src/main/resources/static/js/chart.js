@@ -21,6 +21,7 @@ for (let i = 0; i < 6; i++) {
 }
 
 let chartInstance = null;
+
 function drawChart(metrics, labels, isRepeat) {
   const dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
   // 데이터 배열 초기화
@@ -39,8 +40,9 @@ function drawChart(metrics, labels, isRepeat) {
     // 데이터 배열 초기화 및 업데이트
     dataKeySet.forEach((usage, index) => {
       // 초기화
-      dataArrays[index] = makeEmptyArray(1440);
-
+      if (!isRepeat) {
+        dataArrays[index] = makeEmptyArray(1440);
+      }
       for (let i = 0; i < metrics.length; i++) {
         const now = new Date(metrics[i].createdDate);
         const hour = now.getHours() * 60;
@@ -97,7 +99,7 @@ function drawChart(metrics, labels, isRepeat) {
             enabled: true,
             mode: 'x',
             speed: 1, // 팬의 속도 조절
-            onPanComplete: ({ chart }) => {
+            onPanComplete: ({chart}) => {
               xScale.min = chart.scales.x.min;
               xScale.max = chart.scales.x.max;
             }
@@ -108,7 +110,7 @@ function drawChart(metrics, labels, isRepeat) {
             },
             mode: 'x',
             speed: 0.1,
-            onZoomComplete: ({ chart }) => {
+            onZoomComplete: ({chart}) => {
               xScale.min = chart.scales.x.min;
               xScale.max = chart.scales.x.max;
             }
@@ -169,10 +171,10 @@ function makeAxis(metrics) {
   const month = (`${now.getMonth() + 1}`).slice(-2).padStart(2, '0');
   const day = (`${now.getDate()}`).slice(-2).padStart(2, '0');
   for (let i = 0; i < 1440; i++) {
-      const hours = Math.floor(i / 60);
-      const minutes = i % 60;
-      const time = `${(`${hours}`).slice(-2).padStart(2, '0')}:${(`${minutes}`).slice(-2).padStart(2, '0')}`;
-      labels[i] = `${month}/${day}\n${time}`;
+    const hours = Math.floor(i / 60);
+    const minutes = i % 60;
+    const time = `${(`${hours}`).slice(-2).padStart(2, '0')}:${(`${minutes}`).slice(-2).padStart(2, '0')}`;
+    labels[i] = `${month}/${day}\n${time}`;
   }
   return labels;
 }

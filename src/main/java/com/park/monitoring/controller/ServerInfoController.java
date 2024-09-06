@@ -1,22 +1,19 @@
 package com.park.monitoring.controller;
 
+import com.park.monitoring.model.ServerInfo;
 import com.park.monitoring.service.DiskService;
 import com.park.monitoring.service.ServerInfoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "Server Controller", description = "서버 입력")
 public class ServerInfoController {
 
     private static final Logger log = LoggerFactory.getLogger(ServerInfoController.class);
@@ -81,13 +78,13 @@ public class ServerInfoController {
 //        return ResponseEntity.ok(response);
 //    }
 //
-//    @PutMapping("/server")
-//    public ResponseEntity<Map<String,String>> updateServer(@RequestBody ServerInfo serverInfo) {
-//        serverInfoService.updateServerInfo(serverInfo);
-//        Map<String, String> response = new HashMap<>();
-//        response.put("message", serverInfo.getServerIp() + " 서버가 수정됐습니다");
-//        return ResponseEntity.ok().body(response);
-//    }
+    @PutMapping("/server")
+    public ResponseEntity<Map<String,String>> updateServer(@RequestBody ServerInfo serverInfo) {
+        serverInfoService.updateServerInfo(serverInfo);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", serverInfo.getServerIp() + " 서버가 수정됐습니다");
+        return ResponseEntity.ok().body(response);
+    }
 
     @DeleteMapping({"/delete/{serverId}", "/delete/"})
     public ResponseEntity<Map<String,String>> deleteServer(@PathVariable(required = false) Integer serverId) {

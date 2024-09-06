@@ -8,7 +8,6 @@ const getDatePickerTitle = elem => {
   } else {
     titleText = elem.getAttribute('aria-label') || '';
   }
-  console.log(titleText)
   return titleText;
 }
 
@@ -21,15 +20,22 @@ const regDatepicker = (elem) => {
   });
   datepicker.setDate(today);
   elem.addEventListener('changeDate', (event) => {
+    isRepeat = false;
+    clearInterval(intervalId);
+    clearInterval(mainIntervalId)
     selectedDate = formatDateToLocalDateTime(datepicker.getDate());
-    callDrawData(selectedId, isRepeat, selectedDate)
-       .then((response) => {})
-       .catch((error) => {
-         // 에러가 발생한 경우의 로직
-         console.error('데이터를 처리하는 중 오류가 발생했습니다:', error);
-         // 사용자에게 에러 메시지 표시
-         alert('데이터를 처리하는 중 오류가 발생했습니다.');
-       });
+    console.log(selectedDate)
+    callDrawData(selectedId, isRepeat, selectedDate);
+    mainIntervalId = setInterval(async  () => {
+      await fetchData();
+      updateIndicators();
+    }, timeDelay);
+    intervalId = setInterval(async () =>{
+      isRepeat = true;
+      console.log(selectedDate)
+      await callHistory(selectedId, isRepeat)
+      await callDrawData(selectedId, isRepeat, selectedDate);
+    }, timeDelay)
   });
 };
 

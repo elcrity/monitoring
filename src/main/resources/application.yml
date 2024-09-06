@@ -31,7 +31,6 @@ springdoc:
     enabled: true
     path: /api-docs
   version: 1.0.0
-
 server:
-  error:
-    path: /errorPage
+    whitelabel:
+      enabled: false
