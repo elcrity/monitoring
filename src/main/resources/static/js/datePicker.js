@@ -20,19 +20,20 @@ const regDatepicker = (elem) => {
   });
   datepicker.setDate(today);
   elem.addEventListener('changeDate', (event) => {
+
+    dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
     isRepeat = false;
     clearInterval(intervalId);
     clearInterval(mainIntervalId)
     selectedDate = formatDateToLocalDateTime(datepicker.getDate());
-    console.log(selectedDate)
     callDrawData(selectedId, isRepeat, selectedDate);
-    mainIntervalId = setInterval(async  () => {
+
+    mainIntervalId = setInterval(async () => {
       await fetchData();
       updateIndicators();
     }, timeDelay);
-    intervalId = setInterval(async () =>{
+    intervalId = setInterval(async () => {
       isRepeat = true;
-      console.log(selectedDate)
       await callHistory(selectedId, isRepeat)
       await callDrawData(selectedId, isRepeat, selectedDate);
     }, timeDelay)

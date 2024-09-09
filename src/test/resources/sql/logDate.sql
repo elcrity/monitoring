@@ -1,13 +1,12 @@
 select * from metric_log
-where created_date >= '2024-09-06 00:00:00' and created_date < '2024-09-07 00:00:00' and server_metric_fk=20;
-
-delete from metric_log where  created_date >= '2024-08-22 00:00:00' and created_date < '2024-08-23 00:00:00';
+where created_date >= '2024-09-09 00:00:00' and created_date < '2024-09-10 00:00:00' and server_metric_fk=20;
 
 call InsertMetricLogData();
 
-delete from metric_log where  created_date >= '2024-09-06 00:00:00' and created_date < '2024-09-07 00:00:00';
+delete from metric_log where  created_date >= '2024-09-09 10:00:00' and created_date < '2024-09-10 00:00:00';
 
-SET @start_date = '2024-09-06 14:51:00';
+SET @start_date = '2024-09-09 11:00:00';
+
 INSERT INTO metric_log (
     cpu_usage, memory_usage, created_date, server_metric_fk,
     disk_usage1, disk_usage2, disk_usage3, disk_usage4,

@@ -15,47 +15,46 @@ const backgroundColors =
      'rgba(54, 162, 235, 0.2)', 'rgba(255, 159, 64, 0.2)',
      'rgba(255, 99, 132, 0.2)', 'rgba(255, 206, 86, 0.2)'];
 
+// 빈 배열 만들어두기
 for (let i = 0; i < 6; i++) {
-  const dataArray = makeEmptyArray(1440);
+  const dataArray = [];
   dataArrays.push(dataArray)
 }
 
 let chartInstance = null;
 
 function drawChart(metrics, labels, isRepeat) {
-  const dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
-  // 데이터 배열 초기화
-  if (metrics && metrics.length > 0) {
+  if(!isRepeat){
     const keys = ['diskUsage2', 'diskUsage3', 'diskUsage4'];
     let arrayIndex = 0;
     while (arrayIndex < keys.length) {
+      // TOdo: 데이터가 없을때 (ex : 로그가 없는 날짜에 에러가 뜨지 않게)
       const currentMetric = metrics[0][keys[arrayIndex]];
+      console.log(currentMetric)
       if (currentMetric === null) {
         break; // null을 발견하면 루프 종료
       }
       dataKeySet.push(keys[arrayIndex]);
       arrayIndex++;
     }
-
-    // 데이터 배열 초기화 및 업데이트
+  }
+  // 데이터 배열 초기화
+  if (metrics && metrics.length > 0) {
     dataKeySet.forEach((usage, index) => {
       // 초기화
       if (!isRepeat) {
-        dataArrays[index] = makeEmptyArray(1440);
+        dataArrays[index] = [];
       }
       for (let i = 0; i < metrics.length; i++) {
-        const now = new Date(metrics[i].createdDate);
-        const hour = now.getHours() * 60;
-        const minute = now.getMinutes();
-        const timeIndex = hour + minute;
-        dataArrays[index][timeIndex] = metrics[i][usage];
+        dataArrays[index].push(metrics[i][usage]);
       }
     });
+    selectedDate = indexToTime(dataArrays[0].length)
   } else {
     // metrics가 없거나 빈 배열인 경우 데이터 배열을 빈 배열로 설정
-    dataArrays.forEach((dataArray, index) => {
-      dataArrays[index] = makeEmptyArray(1440);
-    });
+    // dataArrays.forEach((dataArray, index) => {
+    //   dataArrays[index] = makeEmptyArray(1440);
+    // });
   }
 
   const ctx = document.getElementById('myChart').getContext('2d');
@@ -64,7 +63,6 @@ function drawChart(metrics, labels, isRepeat) {
   if (chartInstance) {
     chartInstance.destroy();
   }
-
   // 새로운 차트 생성
   chartInstance = new Chart(ctx, {
     type: 'line',
@@ -158,6 +156,7 @@ function drawChart(metrics, labels, isRepeat) {
       },
     }
   });
+  lastedDraw = dataArrays.length;
 
   chartInstance.update(); // 차트 업데이트
 }
@@ -170,6 +169,7 @@ function makeAxis(metrics) {
   const now = new Date(metrics[0].createdDate);
   const month = (`${now.getMonth() + 1}`).slice(-2).padStart(2, '0');
   const day = (`${now.getDate()}`).slice(-2).padStart(2, '0');
+
   for (let i = 0; i < 1440; i++) {
     const hours = Math.floor(i / 60);
     const minutes = i % 60;
@@ -181,5 +181,16 @@ function makeAxis(metrics) {
 
 function makeEmptyArray(size) {
   return new Array(size).fill(null);
+}
+
+function indexToTime(index) {
+  console.log("set date")
+  const date = new Date();
+  const hours = Math.floor(index / 60);
+  const minutes = (index % 60);
+  date.setHours(hours);
+  date.setMinutes(minutes)
+  console.log(formatDateToLocalDateTime(date))
+  return formatDateToLocalDateTime(date);
 }
 

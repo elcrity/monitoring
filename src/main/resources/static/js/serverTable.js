@@ -1,9 +1,13 @@
 let timeLabel;
 let isRepeat = false;
-let serverHistory;
+let histories = [];
 let selectedId;
 let timeDelay = 10000;
+// draw시, 배열의 크기만큼 갱신
+let lastedDraw = 0;
+let dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
 
+// 서버 삭제시
 async function deleteServer(serverId) {
   const confirmed = confirm('서버를 삭제하시겠습니까?');
   if (!confirmed) return;
@@ -17,13 +21,15 @@ async function deleteServer(serverId) {
       // 서버 응답이 성공적이면 해당 항목을 화면에서 제거
       document.getElementById(`deleteButton-${serverId}`).closest('#serverTable').remove();
     } else {
-      console.error('Failed to delete the server');
+      const errorText = await response.text();
+      window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
     }
   } catch (error) {
-    console.error('Error deleting server:', error);
+    console.error('삭제 실패:', error);
   }
 }
 
+//로그 데이터 fetch
 const callDrawData = async (serverId, repeated, date = null) => {
   // const selectedDay = date ? date : formatDateToLocalDateTime(new Date());
   const selectedDay = date;
@@ -33,15 +39,15 @@ const callDrawData = async (serverId, repeated, date = null) => {
   //   date : selectedDay // 날짜 추가
   // }))
   try {
-    serverHistory = await fetch('/getHistory', {
+    const serverHistory = await fetch('/getHistory', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         serverId,
-        isRepeat : Boolean(repeated),
-        date : selectedDay // 날짜 추가
+        isRepeat: Boolean(repeated),
+        date: selectedDay // 날짜 추가
       })
     }).then(async (response) => {
       if (response.ok) {
@@ -51,7 +57,9 @@ const callDrawData = async (serverId, repeated, date = null) => {
         window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
       }
     })
-    const timeLabel = makeAxis(serverHistory);
+    if (serverHistory.length > 0) {
+      timeLabel = makeAxis(serverHistory);
+    }
     await drawChart(serverHistory, timeLabel, repeated);
   } catch (error) {
     console.error('데이터를 처리하는 중 오류가 발생했습니다:', error);
@@ -59,6 +67,7 @@ const callDrawData = async (serverId, repeated, date = null) => {
   }
 }
 
+//history 메뉴 데이터 fetch
 const callHistory = async (serverId, repeated) => {
   try {
     const response = await fetch(`/getLogs/${serverId}`, {
@@ -73,8 +82,8 @@ const callHistory = async (serverId, repeated) => {
         if (!repeated) {
           historyBody.innerHTML = html;
           // console.log(html)
-        }else{
-        // 데이터를 가졍로때 repeated면 #menu에 있는 내용만 교체하기
+        } else {
+          // 데이터를 가졍로때 repeated면 #menu에 있는 내용만 교체하기
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
           // 새로운 HTML에서 #menu 요소를 가져오기
@@ -95,36 +104,35 @@ const callHistory = async (serverId, repeated) => {
       window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
     }
   } catch (error) {
-    console.log("에?러 : ",error)
-    console.error('Error show History:', error);
+    console.error('히스토리를 가져오는데 에러가 발생:', error);
   }
 };
 
+// 서버 클릭시
 const showHistory = async (serverId) => {
+  dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
   clearInterval(mainIntervalId);
   clearInterval(intervalId);
-  selectedDate = formatDateToLocalDateTime(new Date());
-  selectedId=serverId;
+
+  selectedId = serverId;
   isRepeat = false;
   xScale.min = 0;
   xScale.max = 1440;
-  await callHistory(serverId).then(()=>callDrawData(serverId, isRepeat, selectedDate));
+  await callHistory(serverId).then(() => callDrawData(serverId, isRepeat, selectedDate));
 
   const elems = document.querySelectorAll('.datepicker_input');
   elems.forEach(elem => regDatepicker(elem));
   // 이미 intervalId가 설정되어 있으면 추가로 설정하지 않음
-  if (!intervalId) {
-    // 서버 정보 클릭시 기존의 메인 화면 갱신하는 interval을 정지 후 history를 갱신하는 코드와 동기화
-    mainIntervalId = setInterval(async  () => {
-      await fetchData();
-      updateIndicators();
-    }, timeDelay); // 10초마다 호출
-    intervalId = setInterval(async  () => {
-      isRepeat = true;
-      // 드로우만 다시해서 menu 데이터 갱신이 아노딤
-      await callHistory(serverId, isRepeat); // 서버 ID를 사용하여 showHistory 호출
-      await callDrawData(serverId, isRepeat, selectedDate)
-      updateUsageColors();
-    }, timeDelay); // 10초마다 호출
-  }
+
+  // 서버 정보 클릭시 기존의 메인 화면 갱신하는 interval을 정지 후 history를 갱신하는 코드와 동기화
+  mainIntervalId = setInterval(async () => {
+    await fetchData();
+    updateIndicators();
+  }, timeDelay);
+  intervalId = setInterval(async () => {
+    isRepeat = true;
+    await callHistory(serverId, isRepeat);
+    await callDrawData(serverId, isRepeat, selectedDate)
+    updateUsageColors();
+  }, timeDelay);
 }
