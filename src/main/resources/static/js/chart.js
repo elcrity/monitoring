@@ -30,7 +30,6 @@ function drawChart(metrics, labels, isRepeat) {
     while (arrayIndex < keys.length) {
       // TOdo: 데이터가 없을때 (ex : 로그가 없는 날짜에 에러가 뜨지 않게)
       const currentMetric = metrics[0][keys[arrayIndex]];
-      console.log(currentMetric)
       if (currentMetric === null) {
         break; // null을 발견하면 루프 종료
       }
@@ -50,11 +49,6 @@ function drawChart(metrics, labels, isRepeat) {
       }
     });
     selectedDate = indexToTime(dataArrays[0].length)
-  } else {
-    // metrics가 없거나 빈 배열인 경우 데이터 배열을 빈 배열로 설정
-    // dataArrays.forEach((dataArray, index) => {
-    //   dataArrays[index] = makeEmptyArray(1440);
-    // });
   }
 
   const ctx = document.getElementById('myChart').getContext('2d');
@@ -184,13 +178,11 @@ function makeEmptyArray(size) {
 }
 
 function indexToTime(index) {
-  console.log("set date")
   const date = new Date();
   const hours = Math.floor(index / 60);
   const minutes = (index % 60);
   date.setHours(hours);
   date.setMinutes(minutes)
-  console.log(formatDateToLocalDateTime(date))
   return formatDateToLocalDateTime(date);
 }
 
