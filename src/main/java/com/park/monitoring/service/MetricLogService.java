@@ -48,21 +48,13 @@ public class MetricLogService {
     public List<MetricLog> findMetricLogAtHistory(Integer serverId, boolean isRepeat, LocalDateTime date) {
         if (serverId == null) throw new BadRequestException(ErrorCode.INVALID_INPUT_VALUE);
         if(date == null) date = LocalDateTime.now();
-        System.out.println("date : " + date);
         LocalTime time = LocalTime.now().withSecond(0).withNano(0);
         Map<String, Object> params = new HashMap<>();
-//        LocalTime currentTime = LocalTime.now();
-//        System.out.println(currentTime);
         LocalDateTime startDate = date.withHour(0).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime endDate = startDate.plusDays(1);
         if (isRepeat) {
-//            date = date.with(time);
-            // Todo : 시작시간은 수정된 시간으로 입력받기, 끝나는 시간은 해당 날짜 23:59까지
             startDate = date.withSecond(0);
-//            endDate = date.plusMinutes(5).withSecond(0);
         }
-        System.out.println(startDate);
-        System.out.println(endDate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         // 출력 결과
         String startDateStr = startDate.format(formatter);

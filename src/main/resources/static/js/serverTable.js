@@ -6,12 +6,13 @@ let timeDelay = 10000;
 // draw시, 배열의 크기만큼 갱신
 let lastedDraw = 0;
 let dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
+let selectedDate;
 
 // 서버 삭제시
 async function deleteServer(serverId) {
   const confirmed = confirm('서버를 삭제하시겠습니까?');
   if (!confirmed) return;
-
+  clearInterval(intervalId);
   try {
     const response = await fetch(`/api/delete/${serverId}`, {
       method: 'DELETE',
@@ -32,12 +33,7 @@ async function deleteServer(serverId) {
 //로그 데이터 fetch
 const callDrawData = async (serverId, repeated, date = null) => {
   // const selectedDay = date ? date : formatDateToLocalDateTime(new Date());
-  const selectedDay = date;
-  // console.log("called Drawdata : " , JSON.stringify({
-  //   serverId,
-  //   isRepeat : Boolean(repeated),
-  //   date : selectedDay // 날짜 추가
-  // }))
+  const selectedDay = date !== null ? date : new Date();
   try {
     const serverHistory = await fetch('/getHistory', {
       method: 'POST',
@@ -57,9 +53,7 @@ const callDrawData = async (serverId, repeated, date = null) => {
         window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
       }
     })
-    if (serverHistory.length > 0) {
-      timeLabel = makeAxis(serverHistory);
-    }
+    timeLabel = makeAxis(selectedDay);
     await drawChart(serverHistory, timeLabel, repeated);
   } catch (error) {
     console.error('데이터를 처리하는 중 오류가 발생했습니다:', error);
@@ -81,7 +75,6 @@ const callHistory = async (serverId, repeated) => {
         // 기존 HTML 내용과 비교하여 변경된 부분만 업데이트
         if (!repeated) {
           historyBody.innerHTML = html;
-          // console.log(html)
         } else {
           // 데이터를 가졍로때 repeated면 #menu에 있는 내용만 교체하기
           const parser = new DOMParser();
@@ -113,17 +106,16 @@ const showHistory = async (serverId) => {
   dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
   clearInterval(mainIntervalId);
   clearInterval(intervalId);
-
+  selectedDate = null;
   selectedId = serverId;
   isRepeat = false;
   xScale.min = 0;
   xScale.max = 1440;
   await callHistory(serverId).then(() => callDrawData(serverId, isRepeat, selectedDate));
 
+  //datePicker 추가
   const elems = document.querySelectorAll('.datepicker_input');
   elems.forEach(elem => regDatepicker(elem));
-  // 이미 intervalId가 설정되어 있으면 추가로 설정하지 않음
-
   // 서버 정보 클릭시 기존의 메인 화면 갱신하는 interval을 정지 후 history를 갱신하는 코드와 동기화
   mainIntervalId = setInterval(async () => {
     await fetchData();

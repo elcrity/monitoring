@@ -1,4 +1,3 @@
-let selectedDate;
 const getDatePickerTitle = elem => {
   // From the label or the aria-label
   const label = elem.nextElementSibling;
@@ -20,14 +19,12 @@ const regDatepicker = (elem) => {
   });
   datepicker.setDate(today);
   elem.addEventListener('changeDate', (event) => {
-
     dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
     isRepeat = false;
     clearInterval(intervalId);
     clearInterval(mainIntervalId)
     selectedDate = formatDateToLocalDateTime(datepicker.getDate());
     callDrawData(selectedId, isRepeat, selectedDate);
-
     mainIntervalId = setInterval(async () => {
       await fetchData();
       updateIndicators();

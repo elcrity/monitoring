@@ -23,12 +23,24 @@ for (let i = 0; i < 6; i++) {
 
 let chartInstance = null;
 
+// 데이터 o, 초기 , 배열 초기화, key set ,데이터 push
+// 데이터 o, 반복 , 배열 그대로, 데이터 push
+// 데이터 x, 초기 , 배열 초기화, 데이터 push
+// 데이터 x  반복 , 데이터 push
+//반복시 문제, 10일 선택 후, 9일 선택시 9일에 10일 데이터 갱신
+//10일 선택 후 데이터 없는 11일 선탤시, 반복되며 10일 데이터 표시
 function drawChart(metrics, labels, isRepeat) {
-  if(!isRepeat){
+  // 키세트 확정
+  if (!isRepeat) {
+    dataArrays.forEach((_, index) => {
+      dataArrays[index] = [];  // 각 배열을 빈 배열로 초기화
+    });
+  }
+  // 반복시,
+  if(dataKeySet.length===3 && metrics.length>0){
     const keys = ['diskUsage2', 'diskUsage3', 'diskUsage4'];
     let arrayIndex = 0;
     while (arrayIndex < keys.length) {
-      // TOdo: 데이터가 없을때 (ex : 로그가 없는 날짜에 에러가 뜨지 않게)
       const currentMetric = metrics[0][keys[arrayIndex]];
       if (currentMetric === null) {
         break; // null을 발견하면 루프 종료
@@ -37,19 +49,16 @@ function drawChart(metrics, labels, isRepeat) {
       arrayIndex++;
     }
   }
-  // 데이터 배열 초기화
-  if (metrics && metrics.length > 0) {
+  // 만들어진 키 세트로 데이터 배열 초기화, 데이터 배열 만듬
     dataKeySet.forEach((usage, index) => {
       // 초기화
-      if (!isRepeat) {
-        dataArrays[index] = [];
-      }
       for (let i = 0; i < metrics.length; i++) {
         dataArrays[index].push(metrics[i][usage]);
       }
     });
-    selectedDate = indexToTime(dataArrays[0].length)
-  }
+  // 최종적으로 만들어진 dataArrays의 길이를 확인해서 인덱스 값을 시간으로
+  selectedDate = indexToTime(dataArrays[0].length, selectedDate)
+
 
   const ctx = document.getElementById('myChart').getContext('2d');
 
@@ -62,6 +71,7 @@ function drawChart(metrics, labels, isRepeat) {
     type: 'line',
     data: {
       labels: labels,
+      //키셋을 map으로, 여러 데이터셋 객체 반환
       datasets: dataKeySet.map((dataArray, index) => ({
         type: 'line',
         data: dataArrays[index],
@@ -155,12 +165,9 @@ function drawChart(metrics, labels, isRepeat) {
   chartInstance.update(); // 차트 업데이트
 }
 
-function makeAxis(metrics) {
+function makeAxis(date) {
   const labels = [];
-  if (!Array.isArray(metrics) || metrics.length === 0) {
-    return labels; // 또는 다른 적절한 처리를 수행
-  }
-  const now = new Date(metrics[0].createdDate);
+  const now = new Date(date);
   const month = (`${now.getMonth() + 1}`).slice(-2).padStart(2, '0');
   const day = (`${now.getDate()}`).slice(-2).padStart(2, '0');
 
@@ -177,8 +184,13 @@ function makeEmptyArray(size) {
   return new Array(size).fill(null);
 }
 
-function indexToTime(index) {
-  const date = new Date();
+function indexToTime(index, test) {
+  let date;
+  if(test == null){
+    date =  new Date();
+  }else{
+    date = new Date(test);
+  }
   const hours = Math.floor(index / 60);
   const minutes = (index % 60);
   date.setHours(hours);
