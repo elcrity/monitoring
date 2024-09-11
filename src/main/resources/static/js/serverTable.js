@@ -115,10 +115,9 @@ const showHistory = async (serverId) => {
   // 클릭시 intervalMap을 돌며 현재 선택한 serverId와 다른 키값을 가진 map의 interval을 정지 후, 제거
   // 이전에 선택된 interval을 제거하기 위함.
   intervalIdMap.forEach((intervalId, mapServerId) => {
-    if (serverId !== mapServerId) {
-      clearInterval(intervalIdMap.get(serverId));
+      console.log("delete : " + mapServerId)
+      clearInterval(intervalIdMap.get(mapServerId));
       intervalIdMap.delete(selectedId)
-    }
   });
 
   selectedDate = null;

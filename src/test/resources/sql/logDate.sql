@@ -1,9 +1,9 @@
 select * from metric_log
 where created_date >= '2024-09-07 00:00:00' and created_date < '2024-09-08 00:00:00' and server_metric_fk=20;
 
-call InsertLogs('2024-09-11 07:00:00', '2024-09-11 08:00:00', 20);
+call InsertLogs('2024-09-11 00:00:00', '2024-09-11 12:00:00', 21);
 
-delete from metric_log where  created_date >= '2024-09-08 00:00:00' and created_date < '2024-09-09 00:00:00';
+delete from metric_log where  created_date >= '2024-09-11 00:00:00' and created_date < '2024-09-12 00:00:00';
 
 SET @start_date = '2024-09-10 00:00:00';
 
