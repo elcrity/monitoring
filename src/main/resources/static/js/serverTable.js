@@ -4,7 +4,6 @@ let histories = [];
 let selectedId;
 let timeDelay = 10000;
 // draw시, 배열의 크기만큼 갱신
-let lastedDraw = 0;
 let dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
 let selectedDate;
 const intervalIdMap = new Map();
@@ -115,7 +114,6 @@ const showHistory = async (serverId) => {
   // 클릭시 intervalMap을 돌며 현재 선택한 serverId와 다른 키값을 가진 map의 interval을 정지 후, 제거
   // 이전에 선택된 interval을 제거하기 위함.
   intervalIdMap.forEach((intervalId, mapServerId) => {
-      console.log("delete : " + mapServerId)
       clearInterval(intervalIdMap.get(mapServerId));
       intervalIdMap.delete(selectedId)
   });
@@ -148,5 +146,4 @@ const showHistory = async (serverId) => {
 
   // serverId를 키로 하고 intervalId를 Map에 저장
   intervalIdMap.set(serverId, newIntervalId);
-  console.log(intervalIdMap)
 };

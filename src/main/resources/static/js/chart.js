@@ -57,7 +57,8 @@ function drawChart(metrics, labels, isRepeat) {
       }
     });
   // 최종적으로 만들어진 dataArrays의 길이를 확인해서 인덱스 값을 시간으로
-  selectedDate = indexToTime(dataArrays[0].length, selectedDate)
+  // 받아온 데이터의 최종 날짜로
+  selectedDate = metrics.length>0 ? metrics[metrics.length-1].createdDate : selectedDate;
 
 
   const ctx = document.getElementById('myChart')?.getContext('2d');
@@ -149,6 +150,7 @@ function drawChart(metrics, labels, isRepeat) {
             color: 'rgba(0, 0, 0, 0.2)'
           }
         },
+
         y: {
           title: {
             display: true,
@@ -160,7 +162,6 @@ function drawChart(metrics, labels, isRepeat) {
       },
     }
   });
-  lastedDraw = dataArrays.length;
 
   chartInstance.update(); // 차트 업데이트
 }

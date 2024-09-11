@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping()
 public class ThymeleafController {
 
     private static final Logger log = LoggerFactory.getLogger(ThymeleafController.class);
@@ -35,14 +35,12 @@ public class ThymeleafController {
         this.metricLogService = metricLogService;
     }
 
-    @GetMapping
-    public String index(Model model) {
-//        List<ServerInfo> serverInfoList = serverInfoService.findAllServerInfo();
-//        model.addAttribute("servers", serverInfoList);
+    @GetMapping("/")
+    public String index() {
         return "index";
     }
 
-    @GetMapping("getServer")
+    @GetMapping("/getServer")
     public String server(Model model) {
         // 서버 정보와 메트릭 로그를 가져옵니다.
         List<ServerInfo> serverInfoList = serverInfoService.findAllServerInfo();
@@ -71,10 +69,10 @@ public class ThymeleafController {
         // DTO 리스트를 모델에 추가합니다.
         model.addAttribute("serverMetrics", serverMetricDtos);
         // Thymeleaf 템플릿을 반환합니다.
-        return "index";
+        return "index :: #serverTableBody";
     }
 
-    @GetMapping("getLogs/{serverId}")
+    @GetMapping("/getLogs/{serverId}")
     public String getLog(Model model,
                          @PathVariable(required = false) Integer serverId) {
         ServerInfo serverInfo = serverInfoService.findServerInfoById(serverId);
@@ -98,7 +96,7 @@ public class ThymeleafController {
         return "index :: #historyContainer";
     }
 
-    @PostMapping("getHistory")
+    @PostMapping("/getHistory")
     @ResponseBody
     public List<MetricLog> getHistory(@RequestBody HistoryRequest request) {
         Integer serverId = request.getServerId();
@@ -108,7 +106,7 @@ public class ThymeleafController {
         return logHistory;
     }
 
-    @GetMapping("errorPage")
+    @GetMapping("/errorPage")
     public String showErrorPage(@RequestParam("error") String errorJson, Model model) throws JsonProcessingException {
         // JSON 문자열을 파싱하여 에러 정보를 추출
 

@@ -62,7 +62,8 @@ public class MetricLogService {
         params.put("serverId", serverId);
         params.put("startDate", startDateStr);
         params.put("endDate", endDateStr);
-
+        System.out.println(startDateStr);
+        System.out.println(endDateStr);
         List<MetricLog> metricLogs = metricLogMapper.selectLogHistory(params);
         return metricLogs;
     }
