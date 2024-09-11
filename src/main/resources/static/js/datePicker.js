@@ -21,19 +21,26 @@ const regDatepicker = (elem) => {
   elem.addEventListener('changeDate', (event) => {
     dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
     isRepeat = false;
-    clearInterval(intervalId);
+    if (intervalIdMap.has(selectedId)) {
+      clearInterval(intervalIdMap.get(selectedId)); // 기존 interval 제거
+    }
     clearInterval(mainIntervalId)
     selectedDate = formatDateToLocalDateTime(datepicker.getDate());
     callDrawData(selectedId, isRepeat, selectedDate);
+
     mainIntervalId = setInterval(async () => {
       await fetchData();
       updateIndicators();
     }, timeDelay);
-    intervalId = setInterval(async () => {
+
+    const newIntervalId = setInterval(async () => {
       isRepeat = true;
-      await callHistory(selectedId, isRepeat)
+      await callHistory(selectedId, isRepeat);
       await callDrawData(selectedId, isRepeat, selectedDate);
-    }, timeDelay)
+    }, timeDelay);
+
+    // intervalIdMap에 새로운 intervalId 저장
+    intervalIdMap.set(selectedId, newIntervalId); // 서버별 intervalId 저장
   });
 };
 

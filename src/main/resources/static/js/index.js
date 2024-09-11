@@ -71,8 +71,8 @@ function updateUsageColors() {
 const closeHistory = () =>{
   const historyBody = document.getElementById('historyBody');
   historyBody.style.display = 'none';
-  if(intervalId) {
-    clearInterval(intervalId);
+  if (intervalIdMap.has(selectedId)) {
+    clearInterval(intervalIdMap.get(selectedId)); // 기존 interval 제거
   }
 }
 

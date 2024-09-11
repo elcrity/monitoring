@@ -1,9 +1,9 @@
 select * from metric_log
 where created_date >= '2024-09-07 00:00:00' and created_date < '2024-09-08 00:00:00' and server_metric_fk=20;
 
-call InsertLogs('2024-09-11 00:00:00', '2024-09-11 00:01:00');
+call InsertLogs('2024-09-11 07:00:00', '2024-09-11 08:00:00', 20);
 
-delete from metric_log where  created_date >= '2024-09-11 00:00:00' and created_date < '2024-09-12 00:00:00';
+delete from metric_log where  created_date >= '2024-09-08 00:00:00' and created_date < '2024-09-09 00:00:00';
 
 SET @start_date = '2024-09-10 00:00:00';
 
@@ -25,3 +25,6 @@ INSERT INTO metric_log (
       (ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), @start_date + INTERVAL 9 MINUTE, 21, ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), NULL, NULL, 952956, 71645, NULL, NULL, 'disk1', 'disk2', NULL, NULL),
       (ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), @start_date + INTERVAL 10 MINUTE, 21, ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), NULL, NULL, 952956, 71645, NULL, NULL, 'disk1', 'disk2', NULL, NULL),
       (ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), @start_date + INTERVAL 11 MINUTE, 21, ROUND(40 + RAND()*20,2), ROUND(40 + RAND()*20,2), NULL, NULL, 952956, 71645, NULL, NULL, 'disk1', 'disk2', NULL, NULL);
+
+INSERT INTO monitoring.server_info (server_id, server_ip, server_os, server_hostname, memory_total, purpose)
+VALUES (21, '192.168.2.66', 'window', 'win', 8912, 'tt');

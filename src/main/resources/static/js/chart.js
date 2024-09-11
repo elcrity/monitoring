@@ -60,7 +60,7 @@ function drawChart(metrics, labels, isRepeat) {
   selectedDate = indexToTime(dataArrays[0].length, selectedDate)
 
 
-  const ctx = document.getElementById('myChart').getContext('2d');
+  const ctx = document.getElementById('myChart')?.getContext('2d');
 
   // 기존 차트가 있으면 삭제
   if (chartInstance) {

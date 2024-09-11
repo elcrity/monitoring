@@ -7,22 +7,29 @@ let timeDelay = 10000;
 let lastedDraw = 0;
 let dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
 let selectedDate;
+const intervalIdMap = new Map();
 
 // 서버 삭제시
-async function deleteServer(serverId) {
+async function deleteServer(event, serverId) {
+  event.stopPropagation();
   const confirmed = confirm('서버를 삭제하시겠습니까?');
   if (!confirmed) return;
-  clearInterval(intervalId);
+  // 선택된 serverId가 map에 있다면 해당하는 interval을 정지한 후, 화면에서 히스토리 제거
+  if (intervalIdMap.has(serverId)) {
+    clearInterval(intervalIdMap.get(serverId));
+    const historyBody = document.getElementById('historyBody');
+    historyBody.style.display = 'none';
+  }
   try {
     const response = await fetch(`/api/delete/${serverId}`, {
       method: 'DELETE',
     });
-
     if (response.ok) {
       // 서버 응답이 성공적이면 해당 항목을 화면에서 제거
       document.getElementById(`deleteButton-${serverId}`).closest('#serverTable').remove();
     } else {
       const errorText = await response.text();
+      console.log(errorText)
       window.location.href = `/errorPage?error=${encodeURIComponent(errorText)}`;
     }
   } catch (error) {
@@ -105,26 +112,42 @@ const callHistory = async (serverId, repeated) => {
 const showHistory = async (serverId) => {
   dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
   clearInterval(mainIntervalId);
-  clearInterval(intervalId);
+  // 클릭시 intervalMap을 돌며 현재 선택한 serverId와 다른 키값을 가진 map의 interval을 정지 후, 제거
+  // 이전에 선택된 interval을 제거하기 위함.
+  intervalIdMap.forEach((intervalId, mapServerId) => {
+    if (serverId !== mapServerId) {
+      clearInterval(intervalIdMap.get(serverId));
+      intervalIdMap.delete(selectedId)
+    }
+  });
+
   selectedDate = null;
   selectedId = serverId;
   isRepeat = false;
   xScale.min = 0;
   xScale.max = 1440;
+
   await callHistory(serverId).then(() => callDrawData(serverId, isRepeat, selectedDate));
 
-  //datePicker 추가
+  // datePicker 추가
   const elems = document.querySelectorAll('.datepicker_input');
   elems.forEach(elem => regDatepicker(elem));
-  // 서버 정보 클릭시 기존의 메인 화면 갱신하는 interval을 정지 후 history를 갱신하는 코드와 동기화
+
+  // 메인 화면 갱신 interval
   mainIntervalId = setInterval(async () => {
     await fetchData();
     updateIndicators();
   }, timeDelay);
-  intervalId = setInterval(async () => {
+
+  // 서버별 히스토리 갱신 interval
+  const newIntervalId = setInterval(async () => {
     isRepeat = true;
     await callHistory(serverId, isRepeat);
-    await callDrawData(serverId, isRepeat, selectedDate)
+    await callDrawData(serverId, isRepeat, selectedDate);
     updateUsageColors();
   }, timeDelay);
-}
+
+  // serverId를 키로 하고 intervalId를 Map에 저장
+  intervalIdMap.set(serverId, newIntervalId);
+  console.log(intervalIdMap)
+};

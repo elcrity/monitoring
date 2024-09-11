@@ -62,7 +62,7 @@
 				<div class="buttonContainer">
 					<!-- 삭제 버튼 -->
 					<button th:id="'deleteButton-' + ${data.serverId}" class="btn btn-danger danBtn"
-					        th:onclick="|deleteServer(${data.serverId})|">X</button>
+					        th:onclick="|deleteServer(event, ${data.serverId})|">X</button>
 				</div>
 			</div>
 		</div>
