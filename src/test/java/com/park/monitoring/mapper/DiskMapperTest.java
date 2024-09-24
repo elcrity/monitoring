@@ -49,7 +49,7 @@ public class DiskMapperTest {
     void t04_createDisk() {
         Disk disk = new Disk.Builder()
                 .diskName("Test Disk")
-                .diskServerInfoFk(10)
+                .serverDiskFk(10)
                 .build();
 
         assertThat(diskMapper.insertDisk(disk)).isEqualTo(1);
@@ -61,7 +61,7 @@ public class DiskMapperTest {
         Disk disk = new Disk.Builder()
                 .diskId(1)
                 .diskName("test")
-                .diskServerInfoFk(2)
+                .serverDiskFk(2)
                 .build();
         assertThat(diskMapper.updateDisk(disk)).isEqualTo(1);
 

@@ -2,7 +2,7 @@ let timeLabel;
 let isRepeat = false;
 let histories = [];
 let selectedId;
-let timeDelay = 10000;
+
 // draw시, 배열의 크기만큼 갱신
 let dataKeySet = ['cpuUsage', 'memoryUsage', 'diskUsage1'];
 let selectedDate;

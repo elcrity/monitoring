@@ -118,7 +118,7 @@ public class DiskServiceTest {
         Disk disk = new Disk.Builder()
                 .diskId(1)
                 .diskName("1test")
-                .diskServerInfoFk(1)
+                .serverDiskFk(1)
                 .build();
         assertThat(diskService.updateDisk(disk))
                 .isEqualTo(1);
@@ -136,7 +136,7 @@ public class DiskServiceTest {
     void t04_03updateDisk_isNull() {
         Disk disk = new Disk.Builder()
                 .diskName("I'm test")
-                .diskServerInfoFk(null)
+                .serverDiskFk(null)
                 .build();
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> diskService.updateDisk(disk));

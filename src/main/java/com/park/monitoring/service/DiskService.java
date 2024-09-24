@@ -65,7 +65,7 @@ public class DiskService {
         for (int i = 0; i < diskInfo.getDiskName().size(); i++) {
             Disk disk = new Disk.Builder()
                     .diskName(diskInfo.getDiskName().get(i))
-                    .diskServerInfoFk(serverId)
+                    .serverDiskFk(serverId)
                     .build();
             result = diskMapper.insertDisk(disk);
             if (result < 1) {

@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping()
 public class ThymeleafController {
 
     private static final Logger log = LoggerFactory.getLogger(ThymeleafController.class);
@@ -69,7 +68,7 @@ public class ThymeleafController {
         // DTO 리스트를 모델에 추가합니다.
         model.addAttribute("serverMetrics", serverMetricDtos);
         // Thymeleaf 템플릿을 반환합니다.
-        return "index :: #serverTableBody";
+        return "index";
     }
 
     @GetMapping("/getLogs/{serverId}")

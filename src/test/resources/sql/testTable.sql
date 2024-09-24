@@ -9,7 +9,7 @@ CREATE TABLE server_info (
                              server_hostname varchar(50) NOT NULL,
                              memory_total BIGINT not NULL,
                              purpose varchar(100) NULL,
-                             server_ip VARCHAR(128) not NULL unique,
+                             server_ip VARCHAR(15) not NULL unique,
                              PRIMARY KEY (server_id)
 );
 
@@ -44,4 +44,4 @@ CREATE TABLE metric_log (
                             FOREIGN KEY (server_metric_fk) REFERENCES server_info(server_id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_server_ip ON server_info (server_ip);
+CREATE INDEX idx_server_created ON metric_log (server_metric_fk, created_date);

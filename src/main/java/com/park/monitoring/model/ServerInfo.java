@@ -1,22 +1,15 @@
 package com.park.monitoring.model;
 
 
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
 
 public class ServerInfo {
-    @Schema(hidden = true, description = "서버Id", example = "1")
     Integer serverId;
-    @Schema(description = "서버Os", example = "window11")
     String serverOs;
-    @Schema(description = "서버 호스트이름", example = "DESTOP-WE721")
     String serverHostname;
-    @Schema(description = "메모리(MB)", example = "8192")
     Long memoryTotal;
-    @Schema(description = "서버 용도", example = "테스트용 서버")
     String purpose;
-    @Schema(description = "서버Ip", example = "192.168.1.1")
     String serverIp;
 
     public ServerInfo(){}

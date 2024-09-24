@@ -40,7 +40,7 @@
 					<div th:text="${data.serverIp}"></div>
 				</div>
 				<div id="serverTable-body">
-					<!--					 CPU 사용량 표시-->
+					<!--CPU 사용량 표시-->
 					<div id="cpuUsageContainer"
 					     th:style="'display: ' + (${data.cpuUsage} != null ? 'flex' : 'none')">
 						<div class="cpuUsage" th:style="'width: ' + ${data.cpuUsage} + '%'"></div>
@@ -69,7 +69,6 @@
 		<div id="historyBody">
 			<div id="historyContainer"
 			     th:if="${serverHistory}!=null">
-
 				<div id="historyHeader">
 					<h2 th:text="${serverHistory.serverIp} + ' 히스토리'">히스토리</h2>
 					<div class="form-floating mb-4 d-flex">

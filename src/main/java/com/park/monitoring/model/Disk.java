@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Disk {
     Integer diskId;
     String diskName;
-    Integer diskServerInfoFk;
+    Integer serverDiskFk;
     LocalDateTime createdDate;
 
     public Disk() {
@@ -14,14 +14,14 @@ public class Disk {
     public Disk(Builder builder) {
         this.diskId = builder.diskId;
         this.diskName = builder.diskName;
-        this.diskServerInfoFk = builder.diskServerInfoFk;
+        this.serverDiskFk = builder.serverDiskFk;
         this.createdDate = builder.createdDate;
     }
 
     public static class Builder {
         private Integer diskId;
         private String diskName;
-        private Integer diskServerInfoFk;
+        private Integer serverDiskFk;
 
         private LocalDateTime createdDate;
 
@@ -35,8 +35,8 @@ public class Disk {
             return this;
         }
 
-        public Builder diskServerInfoFk(Integer diskServerInfoFk) {
-            this.diskServerInfoFk = diskServerInfoFk;
+        public Builder serverDiskFk(Integer serverDiskFk) {
+            this.serverDiskFk = serverDiskFk;
             return this;
         }
 
@@ -62,11 +62,11 @@ public class Disk {
     }
 
     public Integer getDiskServerInfoFk() {
-        return diskServerInfoFk;
+        return serverDiskFk;
     }
 
-    public void setDiskServerInfoFk(int disk_server_info_fk) {
-        this.diskServerInfoFk = disk_server_info_fk;
+    public void setDiskServerInfoFk(int serverDiskFk) {
+        this.serverDiskFk = serverDiskFk;
     }
 
     public LocalDateTime getCreatedDate() {
@@ -82,7 +82,7 @@ public class Disk {
         return "Disk{" +
                 "diskId=" + diskId +
                 ", diskName='" + diskName + '\'' +
-                ", diskServerInfoFk=" + diskServerInfoFk +
+                ", diskServerInfoFk=" + serverDiskFk +
                 ", createdDate=" + createdDate +
                 '}';
     }

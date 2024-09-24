@@ -1,11 +1,10 @@
 let intervalId;
 let mainIntervalId;
+let timeDelay = 10000;
 
 async function fetchData() {
   try {
     const response = await fetch('/getServer');  // 서버 엔드포인트
-    // todo:if #menu가 있다면 #menu 교체하기, 여기까지 됐으면 history에서는 chart만 갱신하기
-    //
     if (response.ok) {
       const html = await response.text();  // 응답을 텍스트로 반환
       const parser = new DOMParser();
@@ -84,5 +83,5 @@ document.addEventListener('DOMContentLoaded', async function () {
   mainIntervalId = setInterval(async function () {
     await fetchData();
     updateIndicators();
-  }, 10000); // 10초마다 데이터 업데이트
+  }, timeDelay); // 10초마다 데이터 업데이트
 });

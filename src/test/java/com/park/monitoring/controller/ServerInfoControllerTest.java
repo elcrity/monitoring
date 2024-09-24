@@ -1,5 +1,6 @@
 package com.park.monitoring.controller;
 
+import com.park.monitoring.config.error.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -7,14 +8,14 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @ActiveProfiles("test")
@@ -218,13 +219,23 @@ public class ServerInfoControllerTest {
     @Test
     void t05_02deleteServer_badRequestException() throws Exception {
         mvc.perform(delete("/api/delete/{serverId}", -1))
-                .andExpect(view().name("errPage"));
+                .andExpect(status().isNotFound()) // HTTP 상태 코드를 404으로 검증
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // JSON 응답을 검증
+                .andExpect(jsonPath("$.status").value(ErrorCode.NOT_FOUND.getStatus().value())) // status 값 검증
+                .andExpect(jsonPath("$.name").value(ErrorCode.NOT_FOUND.getStatus().name())) // name 값 검증
+                .andExpect(jsonPath("$.message").value(ErrorCode.NOT_FOUND.getMessage())) // message 값 검증
+                .andExpect(jsonPath("$.code").value(ErrorCode.NOT_FOUND.getCode())); // 오류 페이지로 리다이렉트 검증
     }
 
     @DisplayName("/delete/{serverId} null id")
     @Test
     void t05_01deleteServer_invalid() throws Exception {
         mvc.perform(delete("/api/delete/")) // serverId가 없는 요청
-                .andExpect(view().name("errPage")); // 오류 페이지로 리다이렉트 검증
+                .andExpect(status().isBadRequest()) // HTTP 상태 코드를 400으로 검증
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // JSON 응답을 검증
+                .andExpect(jsonPath("$.status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value())) // status 값 검증
+                .andExpect(jsonPath("$.name").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().name())) // name 값 검증
+                .andExpect(jsonPath("$.message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage())) // message 값 검증
+                .andExpect(jsonPath("$.code").value(ErrorCode.INVALID_INPUT_VALUE.getCode())); // 오류 페이지로 리다이렉트 검증
     }
 }

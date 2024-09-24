@@ -1,5 +1,6 @@
 package com.park.monitoring.controller;
 
+import com.park.monitoring.config.error.ErrorCode;
 import com.park.monitoring.service.MetricLogService;
 import com.park.monitoring.service.ServerInfoService;
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,7 +56,7 @@ public class ThymeleafControllerTest {
 
         mockMvc.perform(get("/getServer"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"));
+                .andExpect(view().name("index :: #serverTableBody"));
     }
 
     @DisplayName("/getLogs/{serverId}")
@@ -66,11 +68,16 @@ public class ThymeleafControllerTest {
                 .andExpect(content().string(containsString("historyContainer")));
     }
 
-    @DisplayName("/getLogs/ badRequest")
+    @DisplayName("/getLogs/ notFound")
     @Test
     void t03_getLogs_badRequest() throws Exception {
         mockMvc.perform(get("/getLogs/1000"))
-                .andExpect(view().name("errPage"));
+                .andExpect(status().isNotFound()) // HTTP 상태 코드를 404으로 검증
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // JSON 응답을 검증
+                .andExpect(jsonPath("$.status").value(ErrorCode.NOT_FOUND.getStatus().value())) // status 값 검증
+                .andExpect(jsonPath("$.name").value(ErrorCode.NOT_FOUND.getStatus().name())) // name 값 검증
+                .andExpect(jsonPath("$.message").value(ErrorCode.NOT_FOUND.getMessage())) // message 값 검증
+                .andExpect(jsonPath("$.code").value(ErrorCode.NOT_FOUND.getCode())); // 오류 페이지로 리다이렉트 검증
     }
 
     @DisplayName("/getHistory")
@@ -98,6 +105,11 @@ public class ThymeleafControllerTest {
         mockMvc.perform(post("/getHistory")
                         .contentType("application/json")
                         .content(requestBody))
-                .andExpect(view().name("errPage"));
+                .andExpect(status().isBadRequest()) // HTTP 상태 코드를 404으로 검증
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // JSON 응답을 검증
+                .andExpect(jsonPath("$.status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value())) // status 값 검증
+                .andExpect(jsonPath("$.name").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().name())) // name 값 검증
+                .andExpect(jsonPath("$.message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage())) // message 값 검증
+                .andExpect(jsonPath("$.code").value(ErrorCode.INVALID_INPUT_VALUE.getCode())); // 오류 페이지로 리다이렉트 검증
     }
 }

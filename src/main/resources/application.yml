@@ -19,18 +19,6 @@ spring:
       enabled=false:
     pathmatch:
       matching-strategy: ant_path_matcher
-
-springdoc:
-  default-consumes-media-type: application/json
-  default-produces-media-type: application/json
-  swagger-ui:
-    path: /help
-  api-docs:
-    groups:
-      enabled : true
-    enabled: true
-    path: /api-docs
-  version: 1.0.0
 server:
     whitelabel:
       enabled: false
